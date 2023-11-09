@@ -9,9 +9,10 @@ struct Sample
     gc_fraction        ::Float64
     compile_fraction   ::Float64
     recompile_fraction ::Float64
+    warmup             ::Float64
 end
-Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0) =
-    Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction)
+Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0, warmup=true) =
+    Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup)
 
 struct Benchmark
     data::Vector{Sample}
@@ -28,50 +29,92 @@ macro b(x, kw...)
 end
 
 # Benchmarking
-function benchmark(f, args...; evals=nothing, samples=nothing, seconds=samples === nothing ? .1 : nothing)
+function benchmark(f, args...; evals=nothing, samples=nothing, seconds=samples === nothing ? .1 : 1)
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
+    evals === nothing || evals > 0 || throw(ArgumentError("evals must be positive"))
+    samples === nothing || samples >= 0 || throw(ArgumentError("samples must be non-negative"))
+    seconds === nothing || seconds >= 0 || throw(ArgumentError("seconds must be non-negative"))
 
-    s = _benchmark(f, args, 1)
-    s.time > 5e9 && return [t]
+    warmup, start_time = _benchmark(f, args, 1, false)
 
-    s = _benchmark(f, args, 1)
-    evals = max(1, floor(Int, 63_245sqrt(seconds)/(s.time+1)))
-    samples = ceil(Int, min(50000seconds, 1e9seconds/(s.time+1)/evals))
+    (samples == 0 || seconds == 0) && return Benchmark([warmup])
 
-    if samples > 1
-        # Retune if very fast and tuning is cheap
-        s = _benchmark(f, args, evals)
-        evals = max(1, floor(Int, 63_245sqrt(seconds)/(s.time+1)))
-        samples = ceil(Int, min(50000seconds, 1e9seconds/(s.time+1)/evals))
+    if evals === nothing
+        @assert evals === samples === nothing && seconds !== nothing
+
+        ns = 1e9seconds
+
+        if warmup.time > 2ns && warmup.compile_fraction < .5
+            # The estimated runtime in the warmup already exceeds the time budget.
+            # Return the warmup result (which is marked as not having a warmup).
+            return Benchmark([warmup])
+        end
+
+        calibration1, time = _benchmark(f, args, 1)
+
+        # We should be spending about 5% of runtime on calibration.
+        # If we spent less than 1% then recalibrate with more evals.
+        calibration2 = nothing
+        if calibration1.time < .01ns
+            calibration2, time = _benchmark(f, args, floor(Int, .05ns/(calibration1.time+1)))
+        end
+
+        # We need samples that take at least 30 nanoseconds for any reasonable measurements
+        # and sample times above 30 microseconds are excessive. But we must always respect
+        # the user's requested time limit, even if it is below 30 nanoseconds.
+        target_sample_time = target_sample_time = if seconds < 3e-8
+            seconds
+        elseif seconds > 3e-2
+            3e-5
+        else
+            exp(evalpoly(log(seconds), (-10.85931838387908, -0.25381312421338964, -0.03619120682527099)))
+            # exp(evalpoly(log(seconds), (-log(30e-9)^2/4log(1000),1+(2log(30e-9)/4log(1000)),-1/4log(1000))))
+        end
+
+        evals = max(1, floor(Int, 1e9target_sample_time/(something(calibration2, calibration1).time+1)))
     end
 
-    data = Vector{Sample}(undef, samples)
-    data[1] = evals == s.evals ? s : _benchmark(f, args, evals)
-    for i in 2:samples
-        data[i] = _benchmark(f, args, evals)
+    data = Vector{Sample}(undef, samples === nothing ? 64 : samples)
+    samples === nothing && resize!(data, 1)
+
+    # Save calibration runs as data if they match the calibrate evals
+    if calibration1.evals == evals
+        data[1] = calibration1
+    elseif calibration2 !== nothing && calibration2.evals == evals # Can't match both
+        data[1] = calibration2
+    else
+        data[1], time = _benchmark(f, args, evals)
     end
+
+    i = 1
+    stop_time = seconds === nothing ? nothing : round(UInt64, start_time + 1e9seconds)
+    while (seconds === nothing || time < stop_time) && (samples === nothing || i < samples)
+        sample, time = _benchmark(f, args, evals)
+        samples === nothing ? push!(data, sample) : (data[i += 1] = sample)
+    end
+
     Benchmark(data)
 end
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
-function _benchmark(f::F, args::A, evals::Int) where {F, A}
+function _benchmark(f::F, args::A, evals::Int, warmup::Bool=true) where {F, A}
     gcstats = Base.gc_num()
     Base.cumulative_compile_timing(true)
-    ctime, rtime = try
+    ctime, time0, time1 = try
         ctime = Base.cumulative_compile_time_ns()
-        rtime = time_ns()
+        time0 = time_ns()
         for _ in 1:evals
             f(args...)
         end
-        rtime = time_ns() - rtime
+        time1 = time_ns()
         ctime = Base.cumulative_compile_time_ns() .- ctime
-        ctime, rtime
+        ctime, time0, time1
     finally
         Base.cumulative_compile_timing(false)
     end
+    rtime = time1 - time0
     gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
-
-    Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]))
+    Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1
 end
 
 # Statistics
@@ -148,6 +191,16 @@ function Base.show(io::IO, ::MIME"text/plain", s::Sample)
         end
         open = true
     end
+    if s.warmup !== 1.0
+        print(io, open ? ", " : " (")
+        if s.warmup === 0.0
+            print(io, "without a warmup")
+        else
+            print_rounded(io, s.warmup * 100, 1)
+            print(io, "% warmed up")
+        end
+        open = true
+    end
     if open
         print(io, ')')
     end
@@ -169,6 +222,7 @@ function Base.show(io::IO, s::Sample)
     s.gc_fraction !== 0.0 && print(io, ", gc_fraction=", s.gc_fraction)
     s.compile_fraction !== 0.0 && print(io, ", compile_fraction=", s.compile_fraction)
     s.recompile_fraction !== 0.0 && print(io, ", recompile_fraction=", s.recompile_fraction)
+    s.warmup !== 1.0 && print_maybe_int(io, ", warmup=", s.warmup)
     print(io, ')')
 end
 
@@ -212,4 +266,38 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
         print("max    ")
         show(io, m, maximum(b))
     end
+end
+
+g(seconds) = if seconds < 3e-8
+    seconds
+elseif seconds > 3e-2
+    3e-5
+else
+    # exp(evalpoly(log(seconds), (-10.85931838387908, -0.25381312421338964, -0.03619120682527099)))
+
+    exp(evalpoly(log(seconds), (
+        -log(30e-9)^2/4log(1000),
+        1+(2log(30e-9)/4log(1000)),
+        -1/4log(1000)
+    )))
+end
+
+
+h(seconds) = if seconds < 3e-8
+    seconds
+elseif seconds > 3e-8+2(3e-5-3e-8)
+    3e-5
+else
+    # exp(evalpoly(log(seconds), (-10.85931838387908, -0.25381312421338964, -0.03619120682527099)))
+
+    evalpoly(seconds, (
+        3e-8 + 3e-8^2/4(3e-5-3e-8) - 3e-8 * (1 + 3e-8/2(3e-5-3e-8)),
+        1 + 3e-8/2(3e-5-3e-8),
+        -1/4(3e-5-3e-8)
+    ))
+    # exp(evalpoly(log(seconds), (
+    #     -log(30e-9)^2/4log(1000),
+    #     1+(2log(30e-9)/4log(1000)),
+    #     -1/4log(1000)
+    # )))
 end
