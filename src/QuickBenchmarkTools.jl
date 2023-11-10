@@ -29,7 +29,7 @@ function substitute(ex::Expr, var::Symbol)
     changed = false
     args = similar(ex.args)
     i = firstindex(args)
-    if ex.head === :(=)
+    if ex.head in (:(=), :->, :function)
         args[i] = ex.args[i]
         i += 1
     end
@@ -66,12 +66,12 @@ function process_args(exprs)
             push!(args, create_function(ex))
         end
     end
-    Base.exprarray(:call, args)
+    esc(Base.exprarray(:call, args))
 end
 
 macro b(args...)
     call = process_args(args)
-    :($minimum($call))
+    :(minimum($(call)))
 end
 macro be(args...)
     process_args(args)
