@@ -61,4 +61,14 @@ end
         t = 1e-9(@b (@be 1+1 seconds=.01)).time
         @test .01 < t < .01001
     end
+
+    @testset "efficiency" begin
+        runtime = .02
+        f() = @be sleep(runtime)
+        f()
+        t = @timed f()
+        time_in_function = 1e-9sum(s -> s.time * s.evals, t.value.data)
+        (t.time-time_in_function)/runtime
+        @test t.time-2runtime < time_in_function < t.time-runtime # loose the warmup, but keep the calibration.
+    end
 end

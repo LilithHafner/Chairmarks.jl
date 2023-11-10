@@ -113,7 +113,7 @@ function benchmark(f; init=nothing, setup=nothing, teardown=nothing, evals=nothi
 
     (samples == 0 || seconds == 0) && return Benchmark([warmup])
 
-    if evals === nothing
+    new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
 
         ns = 1e9seconds
@@ -145,25 +145,27 @@ function benchmark(f; init=nothing, setup=nothing, teardown=nothing, evals=nothi
             # exp(evalpoly(log(seconds), (-log(30e-9)^2/4log(1000),1+(2log(30e-9)/4log(1000)),-1/4log(1000))))
         end
 
-        evals = max(1, floor(Int, 1e9target_sample_time/(something(calibration2, calibration1).time+1)))
+        max(1, floor(Int, 1e9target_sample_time/(something(calibration2, calibration1).time+1)))
+    else
+        evals
     end
 
     data = Vector{Sample}(undef, samples === nothing ? 64 : samples)
     samples === nothing && resize!(data, 1)
 
     # Save calibration runs as data if they match the calibrate evals
-    if evals === nothing && calibration1.evals == evals
+    if evals === nothing && calibration1.evals == new_evals
         data[1] = calibration1
-    elseif evals === nothing && calibration2 !== nothing && calibration2.evals == evals # Can't match both
+    elseif evals === nothing && calibration2 !== nothing && calibration2.evals == new_evals # Can't match both
         data[1] = calibration2
     else
-        data[1], time = bench(evals)
+        data[1], time = bench(new_evals)
     end
 
     i = 1
     stop_time = seconds === nothing ? nothing : round(UInt64, start_time + 1e9seconds)
     while (seconds === nothing || time < stop_time) && (samples === nothing || i < samples)
-        sample, time = bench(evals)
+        sample, time = bench(new_evals)
         samples === nothing ? push!(data, sample) : (data[i += 1] = sample)
     end
 
