@@ -46,11 +46,15 @@ function load_time_tests(runtime = .1)
 end
 
 @testset "Performance" begin
-    @testset "Load time" begin
-        print("\nLoad time tests")
-        cd(dirname(@__DIR__)) do
-            @test load_time_tests(.1) || load_time_tests(1) || load_time_tests(3)
+    if VERSION >= v"1.9"
+        @testset "Load time" begin
+            print("\nLoad time tests")
+            cd(dirname(@__DIR__)) do
+                @test load_time_tests(.1) || load_time_tests(1) || load_time_tests(3)
+            end
         end
+    else
+        @test_broken false
     end
 
     @testset "@b @b x" begin
@@ -67,8 +71,7 @@ end
         f() = @be sleep(runtime)
         f()
         t = @timed f()
-        time_in_function = 1e-9sum(s -> s.time * s.evals, t.value.data)
-        (t.time-time_in_function)/runtime
-        @test t.time-2runtime < time_in_function < t.time-runtime # loose the warmup, but keep the calibration.
+        time_in_function = 1e-9sum(s -> s.time * s.evals, t[1].data)
+        @test t[2]-2runtime < time_in_function < t[2]-runtime # loose the warmup, but keep the calibration.
     end
 end

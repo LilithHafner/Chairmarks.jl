@@ -22,6 +22,22 @@ struct Benchmark
     data::Vector{Sample}
 end
 
+# Compat
+@eval exprarray(head::Symbol, arg::Vector{Any}) = $(Expr(:new, :Expr, :head, :arg))
+if VERSION < v"1.8"
+    cumulative_compile_timing(x) = nothing
+    cumulative_compile_time_ns() = (UInt64(0), UInt64(0))
+else
+    cumulative_compile_timing(x) = Base.cumulative_compile_timing(x)
+    cumulative_compile_time_ns() = Base.cumulative_compile_time_ns()
+end
+if VERSION < v"1.4"
+    evalpoly(x, t::Tuple) = evalpoly(x, last(t), Base.front(t))
+    evalpoly(x, acc, t::Tuple) = evalpoly(x, muladd(x, acc, last(t)), Base.front(t))
+    evalpoly(x, acc, ::Tuple{}) = acc
+end
+
+
 # Input
 substitute(f::Symbol, var::Symbol) = f === :_ ? (var, true) : (f, false)
 substitute(f, ::Symbol) = f, false
@@ -37,7 +53,7 @@ function substitute(ex::Expr, var::Symbol)
         args[i], c = substitute(ex.args[i], var)
         changed |= c
     end
-    changed ? Base.exprarray(ex.head, args) : ex, changed
+    changed ? exprarray(ex.head, args) : ex, changed
 end
 
 create_first_function(f::Symbol) = f
@@ -52,9 +68,9 @@ function process_args(exprs)
     first = true
     in_kw = false
     parameters = Any[]
-    args = Any[benchmark, Base.exprarray(:parameters, parameters)]
+    args = Any[benchmark, exprarray(:parameters, parameters)]
     for ex in exprs
-        if Base.isexpr(ex, :(=))
+        if ex isa Expr && ex.head === :(=)
             in_kw = true
             push!(parameters, Expr(:kw, ex.args...))
         elseif in_kw
@@ -66,7 +82,7 @@ function process_args(exprs)
             push!(args, create_function(ex))
         end
     end
-    esc(Base.exprarray(:call, args))
+    esc(exprarray(:call, args))
 end
 
 macro b(args...)
@@ -81,15 +97,15 @@ end
 
 function benchmark(init, setup, f, teardown; kw...)
     :init in keys(kw) && throw(ArgumentError("init provided both as a positional argument and as a keyword argument"))
-    benchmark(setup, f, teardown; init, kw...)
+    benchmark(setup, f, teardown; init=init, kw...)
 end
 function benchmark(setup, f, teardown; kw...)
     :teardown in keys(kw) && throw(ArgumentError("teardown provided both as a positional argument and as a keyword argument"))
-    benchmark(setup, f; teardown, kw...)
+    benchmark(setup, f; teardown=teardown, kw...)
 end
 function benchmark(setup, f; kw...)
     :setup in keys(kw) && throw(ArgumentError("setup provided both as a positional argument and as a keyword argument"))
-    benchmark(f; setup, kw...)
+    benchmark(f; setup=setup, kw...)
 end
 maybecall(f::Nothing, x) = x
 maybecall(f, x) = (f(x...),)
@@ -175,21 +191,21 @@ _div(a, b) = a == b == 0 ? zero(a/b) : a/b
 struct Secretb45188098f2cd177828f6d91bb0b10ec end
 function _benchmark(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
     gcstats = Base.gc_num()
-    Base.cumulative_compile_timing(true)
+    cumulative_compile_timing(true)
     ctime, time0, time1, res = try
         res = Secretb45188098f2cd177828f6d91bb0b10ec()
-        ctime = Base.cumulative_compile_time_ns()
+        ctime = cumulative_compile_time_ns()
         time0 = time_ns()
         for _ in 1:evals
             res = f(args...)
         end
         time1 = time_ns()
-        ctime = Base.cumulative_compile_time_ns() .- ctime
+        ctime = cumulative_compile_time_ns() .- ctime
 
         @assert !(res isa Secretb45188098f2cd177828f6d91bb0b10ec)
         ctime, time0, time1, res
     finally
-        Base.cumulative_compile_timing(false)
+        cumulative_compile_timing(false)
     end
     rtime = time1 - time0
     gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
