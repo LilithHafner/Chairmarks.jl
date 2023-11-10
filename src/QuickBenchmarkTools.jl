@@ -108,8 +108,11 @@ function benchmark(setup, f; kw...)
     :setup in keys(kw) && throw(ArgumentError("setup provided both as a positional argument and as a keyword argument"))
     benchmark(f; setup=setup, kw...)
 end
-maybecall(f::Nothing, x) = x
-maybecall(f, x) = (f(x...),)
+maybecall(::Nothing, x::Tuple{Any}) = x
+maybecall(::Nothing, x::Tuple{}) = x
+maybecall(f, x::Tuple{Any}) = (f(only(x)),)
+maybecall(f::Function, ::Tuple{}) = (f(),)
+maybecall(x, ::Tuple{}) = (x,)
 function benchmark(f; init=nothing, setup=nothing, teardown=nothing, evals=nothing, samples=nothing, seconds=samples === nothing ? .1 : 1)
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))

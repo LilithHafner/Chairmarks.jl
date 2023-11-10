@@ -15,6 +15,15 @@ using Test
         @be 0 _->true @test _
         @be 0 function (_) true end @test _
     end
+
+    @testset "passing value into setup" begin
+        x = rand(100)
+        @b sort(x)
+        @b x sort # This was previously broken
+        @b rand hash
+        x = rand
+        @b x hash
+    end
 end
 
 @testset "Precision" begin
