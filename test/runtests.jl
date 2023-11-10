@@ -74,6 +74,42 @@ end
             @test_broken cor(x, times[x]) > .99 # Highly correlated overall
         end
     end
+
+    function sort_perf!(x, n)
+        hsh = reinterpret(UInt64, first(x))
+        for _ in 1:n
+            sort!(x)
+            for i in eachindex(x)
+                hsh += reinterpret(UInt64, x[i])
+                x[i] = hsh/typemax(UInt64)
+            end
+        end
+        sum(x)
+    end
+    sort_perf!(rand(10), 10)
+    function sort_perf_test()
+        for len in round.(Int, exp.(LinRange(log(10), log(1_000_000), 10)))
+            x = rand(len)
+            n = 10_000_000 ÷ len
+            runtime = @elapsed sort_perf!(x, n)
+            truth = runtime / n
+            @test 1e-9length(x) < truth < 1e-7length(x)
+            t = let C = Ref(UInt(0))
+                1e-9QuickBenchmarkTools.mean(@be len rand sort! C[] += hash(_) evals=1).time
+            end
+            if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
+                    !isapprox(t, truth, rtol=1, atol=1e-7) ||
+                    !isapprox(t, truth, rtol=5, atol=0)
+                printstyled("Ground truth test failed\nlen=$len truth=$truth measured=$t\n", color=:red)
+                return false
+            end
+        end
+        return true
+    end
+    @testset "Ground truth between 40ns and 200ms" begin
+        @test any(sort_perf_test() for _ in 1:3)
+    end
+
 end
 
 @testset "Performance" begin
