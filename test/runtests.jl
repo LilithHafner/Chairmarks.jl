@@ -1,5 +1,6 @@
 using QuickBenchmarkTools
 using Test
+using Statistics
 
 @testset "Standard tests" begin
     @testset "Test within a benchmark" begin
@@ -52,6 +53,26 @@ end
         @test nonzero(@b rand _^3)
         @test nonzero(@b rand _^4)
         @test nonzero(@b rand _^5)
+    end
+
+    @testset "Near monotonicity for evalpoly" begin
+        _rand(::Type{NTuple{N, Float64}}) where N = ntuple(i -> rand(), Val(N)) # Compat
+        t(n) = @b (rand(), _rand(NTuple{n, Float64})) evalpoly(_...)
+        x = 1:50
+        for collection_time_limit in (20, 5.2)
+            collection_time = @elapsed data = t.(x)
+            @test 5 < collection_time < collection_time_limit
+            times = [x.time for x in data]
+            @test all(>(0), times)
+            # @test issorted(times[25:50]) # This is almost too much to ask for
+            @test_broken issorted(times) # This is too much to ask for
+            diffs = diff(times)
+            @test -0.3 < minimum(diffs) # No more than a third of a nanosecond of non-monotonicity
+            @test count(<=(0), diffs[25:49]) <= 3 # Almost always monotonic
+            @test cor(25:50, times[25:50]) > .99 # Highly correlated for large inputs
+            @test cor(x, times[x]) > .9 # Correlated overall
+            @test_broken cor(x, times[x]) > .99 # Highly correlated overall
+        end
     end
 end
 
