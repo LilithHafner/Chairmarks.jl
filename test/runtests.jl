@@ -24,6 +24,10 @@ using Test
         x = rand
         @b x hash
     end
+
+    @testset "blank space" begin
+        @test 1e-9(@b sleep(.01) identity).time < .01 < 1e-9(@b _ sleep(.01) identity).time
+    end
 end
 
 @testset "Precision" begin
@@ -44,9 +48,9 @@ end
     end
     function load_time_tests(runtime = .1)
         println("\nRuntime: $runtime")
-        load_baseline = @be 0 _->read(`julia --startup-file=no --project -e 'println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
+        load_baseline = @be _ read(`julia --startup-file=no --project -e 'println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
         print("Load baseline: "); display(load_baseline)
-        load = @be 0 _->read(`julia --startup-file=no --project -e 'using QuickBenchmarkTools; println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
+        load = @be _ read(`julia --startup-file=no --project -e 'using QuickBenchmarkTools; println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
         print("Load: "); display(load)
 
         verbose_check(1e-9minimum(load_baseline).time, 1e-9minimum(load).time, .07) || return false
@@ -54,7 +58,7 @@ end
         use_baseline = @be read(`julia --startup-file=no --project -e 'sort(rand(100))'`, String) seconds=5runtime
         print("Use baseline: "); display(use_baseline)
         inner_time = Ref(0.0)
-        use = @be 0 _->read(`julia --startup-file=no --project -e 'sort(rand(100)); using QuickBenchmarkTools; println(@elapsed @b sort(rand(100)))'`, String) (s -> inner_time[] = parse(Float64, s)) seconds=5runtime
+        use = @be _ read(`julia --startup-file=no --project -e 'sort(rand(100)); using QuickBenchmarkTools; println(@elapsed @b sort(rand(100)))'`, String) (s -> inner_time[] = parse(Float64, s)) seconds=5runtime
         print("Use: "); display(use)
         println("Inner time: $inner_time")
 

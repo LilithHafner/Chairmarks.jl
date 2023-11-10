@@ -73,9 +73,12 @@ function process_args(exprs)
     for ex in exprs
         if ex isa Expr && ex.head === :(=) && ex.args[1] isa Symbol
             in_kw = true
+            ex.args[1] ∈ (:init, :setup, :teardown) && error("Keyword argument $(ex.args[1]) is not supported in macro calls, use positional arguments instead or use the function form of benchmark")
             push!(parameters, Expr(:kw, ex.args...))
         elseif in_kw
             error("Positional argument after keyword argument")
+        elseif ex === :_
+            push!(args, nothing)
         elseif first
             push!(args, create_first_function(ex))
             first = false
