@@ -66,6 +66,7 @@ function create_function(f)
     changed ? :($var -> $new) : f
 end
 function process_args(exprs)
+    @nospecialize
     first = true
     in_kw = false
     parameters = Any[]
@@ -98,25 +99,15 @@ macro be(args...)
 end
 
 # Benchmarking
-
-function benchmark(init, setup, f, teardown; kw...)
-    :init in keys(kw) && throw(ArgumentError("init provided both as a positional argument and as a keyword argument"))
-    benchmark(setup, f, teardown; init=init, kw...)
-end
-function benchmark(setup, f, teardown; kw...)
-    :teardown in keys(kw) && throw(ArgumentError("teardown provided both as a positional argument and as a keyword argument"))
-    benchmark(setup, f; teardown=teardown, kw...)
-end
-function benchmark(setup, f; kw...)
-    :setup in keys(kw) && throw(ArgumentError("setup provided both as a positional argument and as a keyword argument"))
-    benchmark(f; setup=setup, kw...)
-end
+benchmark(f; kw...) = benchmark(nothing, f; kw...)
+benchmark(setup, f, teardown=nothing; kw...) = benchmark(nothing, setup, f, teardown; kw...)
 maybecall(::Nothing, x::Tuple{Any}) = x
 maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-function benchmark(f; init=nothing, setup=nothing, teardown=nothing, evals=nothing, samples=nothing, seconds=samples === nothing ? .1 : 1)
+function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Float64, Nothing}=samples===nothing ? .1 : 1)
+    @nospecialize
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
     evals === nothing || evals > 0 || throw(ArgumentError("evals must be positive"))
@@ -245,7 +236,7 @@ Base.maximum(b::Benchmark) = elementwise(maximum, b)
 
 
 # Output
-function print_rounded(io, x, digits)
+function print_rounded(@nospecialize(io::IO), x::Float64, digits::Int)
     1 ≤ digits ≤ 20 || throw(ArgumentError("digits must be between 1 and 20"))
     if x == 0
         print(io, '0')
@@ -256,6 +247,7 @@ function print_rounded(io, x, digits)
     end
 end
 function print_time(io, ns::Float64)
+    @nospecialize
     ns < 1e3 && return (print_rounded(io, ns, 3); print(io, " ns"))
     ns < 1e6 && return @printf io "%.3f μs" ns/1e3
     ns < 1e9 && return @printf io "%.3f ms" ns/1e6
@@ -268,7 +260,7 @@ function print_allocs(io, allocs, bytes)
         print_rounded(io, allocs, 2)
     end
     print(io, " allocs: ")
-    if bytes < 2^10
+    if bytes < 1<<10
         if isinteger(bytes)
             @printf io "%d" bytes
         else
@@ -277,13 +269,12 @@ function print_allocs(io, allocs, bytes)
         print(io, " bytes")
         return
     end
-    bytes < 2^20 && return @printf io "%.3f KiB" bytes/2^10
-    bytes < 2^30 && return @printf io "%.3f MiB" bytes/2^20
-    bytes < Int64(2)^40 && return @printf io "%.3f GiB" bytes/2^30
-    bytes < Int64(2)^50 && return @printf io "%.3f TiB" bytes/Int64(2)^40
-    @printf io "%.3f PiB" bytes/Int64(2)^50
+    for (i, c) in enumerate("KMGTP")
+        bytes < UInt64(1)<<(10*(i+1)) && return @printf io "%.3f %siB" bytes/(UInt64(1)<<10i) c
+    end
 end
 function Base.show(io::IO, ::MIME"text/plain", s::Sample)
+    @nospecialize
     print_time(io, s.time)
     open = false
     if s.allocs != 0 || s.bytes != 0
@@ -385,16 +376,10 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
     end
 end
 
-# precompilation
-precompile(benchmark, (Function,))
-precompile(benchmark, (Function,Function))
-precompile(benchmark, (Function,Function,Function))
-precompile(Base.show, (Base.IOContext{Base.TTY}, MIME"text/plain", Benchmark))
 precompile(minimum, (Benchmark,))
-precompile(process_args, (Tuple{Expr},))
-precompile(process_args, (Tuple{Expr, Expr},))
-precompile(process_args, (Tuple{Expr, Symbol},))
-precompile(process_args, (Tuple{Expr, Expr, Expr},))
-precompile(process_args, (Tuple{Expr, Symbol, Expr},))
+precompile(process_args, (Any,))
+precompile(create_function, (Symbol,))
+precompile(benchmark, (Any,Any,Any,Any))
+precompile(Base.show, (IO, MIME"text/plain", Sample))
 
 end

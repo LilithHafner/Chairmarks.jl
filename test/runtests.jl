@@ -89,7 +89,7 @@ end
         exe = joinpath(Sys.BINDIR, "julia")
         times = cd(dirname(dirname(pathof(QuickBenchmarkTools)))) do
             run(`$exe --startup-file=no --project -e 'using QuickBenchmarkTools'`) # precompile
-            [parse(Float64, read(`$exe --startup-file=no --project -e $program`, String)) for _ in 1:n]
+            [parse(Float64, split(read(`$exe --startup-file=no --project -e $program`, String), "\n")[end-1]) for _ in 1:n]
         end
         minimum(times), QuickBenchmarkTools.median(times), QuickBenchmarkTools.mean(times), maximum(times)
     end
@@ -105,7 +105,7 @@ end
     # end
 
     # @testset "Better TTFR tests" begin
-        t = inner_times("a = @elapsed @eval using QuickBenchmarkTools; b = @elapsed @eval @b rand hash seconds=.001; println(a+b)", 10)
+        t = inner_times("a = @elapsed @eval using QuickBenchmarkTools; b = @elapsed @eval display(@b rand hash seconds=.001); println(a+b)", 10)
         println("TTFR: $(join(round.(1000 .* t, digits=2),"/")) ms")
 
         @test t[1] < .15
