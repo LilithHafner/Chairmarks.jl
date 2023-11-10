@@ -19,28 +19,93 @@ struct Benchmark
 end
 
 # Input
-function process_kw(kw)
-    all(Base.Fix2(Base.isexpr, :(=)), kw) || error("Invalid syntax")
-    (Expr(:parameters, (Expr(:kw, x.args...) for x in kw)...),)
+substitute(f::Symbol, var::Symbol) = f === :_ ? (var, true) : (f, false)
+substitute(f, ::Symbol) = f, false
+function substitute(ex::Expr, var::Symbol)
+    changed = false
+    args = similar(ex.args)
+    i = firstindex(args)
+    if ex.head === :(=)
+        args[i] = ex.args[i]
+        i += 1
+    end
+    for i in i:lastindex(args)
+        args[i], c = substitute(ex.args[i], var)
+        changed |= c
+    end
+    changed ? Base.exprarray(ex.head, args) : ex, changed
 end
-macro b(x, kw...)
-    Base.isexpr(x, :call) || error("Can only benchmark function calls")
-    :($minimum($(Expr(:call, benchmark, process_kw(kw)..., x.args...))))
+
+create_first_function(f::Symbol) = f
+create_first_function(f) = :(() -> $f)
+function create_function(f)
+    f === :_ && return identity
+    var = gensym()
+    new, changed = substitute(f, var)
+    changed ? :($var -> $new) : f
 end
-macro B(x, kw...)
-    Base.isexpr(x, :call) || error("Can only benchmark function calls")
-    Expr(:call, benchmark, process_kw(kw)..., x.args...)
+function process_args(exprs)
+    first = true
+    in_kw = false
+    parameters = Any[]
+    args = Any[benchmark, Base.exprarray(:parameters, parameters)]
+    for ex in exprs
+        if Base.isexpr(ex, :(=))
+            in_kw = true
+            push!(parameters, Expr(:kw, ex.args...))
+        elseif in_kw
+            error("Positional argument after keyword argument")
+        elseif first
+            push!(args, create_first_function(ex))
+            first = false
+        else
+            push!(args, create_function(ex))
+        end
+    end
+    Base.exprarray(:call, args)
+end
+
+macro b(args...)
+    call = process_args(args)
+    :($minimum($call))
+end
+macro be(args...)
+    process_args(args)
 end
 
 # Benchmarking
-function benchmark(f, args...; evals=nothing, samples=nothing, seconds=samples === nothing ? .1 : 1)
+
+function benchmark(init, setup, f, teardown; kw...)
+    :init in keys(kw) && throw(ArgumentError("init provided both as a positional argument and as a keyword argument"))
+    benchmark(setup, f, teardown; init, kw...)
+end
+function benchmark(setup, f, teardown; kw...)
+    :teardown in keys(kw) && throw(ArgumentError("teardown provided both as a positional argument and as a keyword argument"))
+    benchmark(setup, f; teardown, kw...)
+end
+function benchmark(setup, f; kw...)
+    :setup in keys(kw) && throw(ArgumentError("setup provided both as a positional argument and as a keyword argument"))
+    benchmark(f; setup, kw...)
+end
+maybecall(f::Nothing, x) = x
+maybecall(f, x) = (f(x...),)
+function benchmark(f; init=nothing, setup=nothing, teardown=nothing, evals=nothing, samples=nothing, seconds=samples === nothing ? .1 : 1)
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
     evals === nothing || evals > 0 || throw(ArgumentError("evals must be positive"))
     samples === nothing || samples >= 0 || throw(ArgumentError("samples must be non-negative"))
     seconds === nothing || seconds >= 0 || throw(ArgumentError("seconds must be non-negative"))
 
-    warmup, start_time = _benchmark(f, args, 1, false)
+    args1 = maybecall(init, ())
+
+    function bench(evals, warmup=true)
+        args2 = maybecall(setup, args1)
+        sample, t, args3 = _benchmark(f, args2, evals, warmup)
+        maybecall(teardown, (args3,))
+        sample, t
+    end
+
+    warmup, start_time = bench(1, false)
 
     (samples == 0 || seconds == 0) && return Benchmark([warmup])
 
@@ -55,13 +120,13 @@ function benchmark(f, args...; evals=nothing, samples=nothing, seconds=samples =
             return Benchmark([warmup])
         end
 
-        calibration1, time = _benchmark(f, args, 1)
+        calibration1, time = bench(1)
 
         # We should be spending about 5% of runtime on calibration.
         # If we spent less than 1% then recalibrate with more evals.
         calibration2 = nothing
         if calibration1.time < .01ns
-            calibration2, time = _benchmark(f, args, floor(Int, .05ns/(calibration1.time+1)))
+            calibration2, time = bench(floor(Int, .05ns/(calibration1.time+1)))
         end
 
         # We need samples that take at least 30 nanoseconds for any reasonable measurements
@@ -88,37 +153,41 @@ function benchmark(f, args...; evals=nothing, samples=nothing, seconds=samples =
     elseif evals === nothing && calibration2 !== nothing && calibration2.evals == evals # Can't match both
         data[1] = calibration2
     else
-        data[1], time = _benchmark(f, args, evals)
+        data[1], time = bench(evals)
     end
 
     i = 1
     stop_time = seconds === nothing ? nothing : round(UInt64, start_time + 1e9seconds)
     while (seconds === nothing || time < stop_time) && (samples === nothing || i < samples)
-        sample, time = _benchmark(f, args, evals)
+        sample, time = bench(evals)
         samples === nothing ? push!(data, sample) : (data[i += 1] = sample)
     end
 
     Benchmark(data)
 end
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
-function _benchmark(f::F, args::A, evals::Int, warmup::Bool=true) where {F, A}
+struct Secretb45188098f2cd177828f6d91bb0b10ec end
+function _benchmark(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
     gcstats = Base.gc_num()
     Base.cumulative_compile_timing(true)
-    ctime, time0, time1 = try
+    ctime, time0, time1, res = try
+        res = Secretb45188098f2cd177828f6d91bb0b10ec()
         ctime = Base.cumulative_compile_time_ns()
         time0 = time_ns()
         for _ in 1:evals
-            f(args...)
+            res = f(args...)
         end
         time1 = time_ns()
         ctime = Base.cumulative_compile_time_ns() .- ctime
-        ctime, time0, time1
+
+        @assert !(res isa Secretb45188098f2cd177828f6d91bb0b10ec)
+        ctime, time0, time1, res
     finally
         Base.cumulative_compile_timing(false)
     end
     rtime = time1 - time0
     gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
-    Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1
+    Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
 end
 
 # Statistics
