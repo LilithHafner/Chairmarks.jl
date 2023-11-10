@@ -224,7 +224,7 @@ middle(x) = middle(x, x)
 middle(x, y) = (x + y)/2
 function median(x)
     if isodd(length(x))
-        middle(partialsort(x, Integer(firstindex(x)+lastindex(x)/2)))
+        middle(partialsort(x, Integer(middle(firstindex(x),lastindex(x)))))
     else
         i = Integer((firstindex(x)+lastindex(x)-1)/2)
         res = partialsort(x, i:i+1)

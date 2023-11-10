@@ -28,6 +28,10 @@ using Test
     @testset "blank space" begin
         @test 1e-9(@b sleep(.01) identity).time < .01 < 1e-9(@b _ sleep(.01) identity).time
     end
+
+    @testset "Median" begin
+        @test QuickBenchmarkTools.median([1, 2, 3]) == 2
+    end
 end
 
 @testset "Precision" begin
