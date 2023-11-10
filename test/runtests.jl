@@ -30,7 +30,8 @@ using Test
     end
 
     @testset "Median" begin
-        @test QuickBenchmarkTools.median([1, 2, 3]) == 2
+        @test QuickBenchmarkTools.median([1, 2, 3]) === 2.0
+        @test QuickBenchmarkTools.median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
     end
 end
 
