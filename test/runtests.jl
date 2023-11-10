@@ -22,7 +22,7 @@ end
 function verbose_check(baseline, test, tolerance)
     println("@test $baseline < $test < $(baseline + tolerance)")
     res = baseline < test < baseline + tolerance
-    res || printstyled("Performance Test Failed\n", color=:red)
+    res || printstyled("Load Time Performance Test Failed\n", color=:red)
     res
 end
 function load_time_tests(runtime = .1)
