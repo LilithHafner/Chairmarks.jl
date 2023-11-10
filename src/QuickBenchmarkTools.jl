@@ -1,4 +1,8 @@
+module QuickBenchmarkTools
+
 using Statistics, Printf
+
+export @b, @be
 
 # Types
 struct Sample
@@ -339,4 +343,6 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
         print("max    ")
         show(io, m, maximum(b))
     end
+end
+
 end
