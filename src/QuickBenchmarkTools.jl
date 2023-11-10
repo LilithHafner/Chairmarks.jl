@@ -70,7 +70,7 @@ function process_args(exprs)
     parameters = Any[]
     args = Any[benchmark, exprarray(:parameters, parameters)]
     for ex in exprs
-        if ex isa Expr && ex.head === :(=)
+        if ex isa Expr && ex.head === :(=) && ex.args[1] isa Symbol
             in_kw = true
             push!(parameters, Expr(:kw, ex.args...))
         elseif in_kw

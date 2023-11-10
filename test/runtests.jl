@@ -71,3 +71,10 @@ end
         @test t[2]-2runtime < time_in_function < t[2]-runtime # loose the warmup, but keep the calibration.
     end
 end
+
+@testset "Nonzero results" begin
+    @test_broken (@b rand() evalpoly(_, (1.0, 2.0, 3.0))).time > .01
+    X = Ref(1.0)
+    @test_broken (@b rand() X[]=evalpoly(_, (1.0, 2.0, 3.0))).time > .01
+    @test (@b rand() X[]+=evalpoly(_, (1.0, 2.0, 3.0))).time > .01
+end
