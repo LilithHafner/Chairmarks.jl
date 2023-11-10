@@ -52,4 +52,13 @@ end
             @test load_time_tests(.1) || load_time_tests(1) || load_time_tests(3)
         end
     end
+
+    @testset "@b @b x" begin
+        t = 1e-9(@b (@b sort(rand(100)) seconds=.01)).time
+        @test .01 < t < .0103
+        t = 1e-9(@b (@be sort(rand(100)) seconds=.01)).time
+        @test .01 < t < .0101
+        t = 1e-9(@b (@be 1+1 seconds=.01)).time
+        @test .01 < t < .01001
+    end
 end
