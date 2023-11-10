@@ -1,6 +1,6 @@
 module QuickBenchmarkTools
 
-using Statistics, Printf
+using Printf
 
 export @b, @be
 
@@ -219,13 +219,26 @@ function _benchmark(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
     Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
 end
 
-# Statistics
+# Statistics (Statistics.jl has too slow of a load time to use)
+middle(x) = middle(x, x)
+middle(x, y) = (x + y)/2
+function median(x)
+    if isodd(length(x))
+        middle(partialsort(x, Integer(firstindex(x)+lastindex(x)/2)))
+    else
+        i = Integer((firstindex(x)+lastindex(x)-1)/2)
+        res = partialsort(x, i:i+1)
+        middle(res[1], res[2])
+    end
+end
+mean(x) = sum(x)/length(x)
+
 function elementwise(f, b::Benchmark)
     Sample.((f(getproperty(s, p) for s in b.data) for p in fieldnames(Sample))...)
 end
 Base.minimum(b::Benchmark) = elementwise(minimum, b)
-Statistics.median(b::Benchmark) = elementwise(median, b)
-Statistics.mean(b::Benchmark) = elementwise(mean, b)
+median(b::Benchmark) = elementwise(median, b)
+mean(b::Benchmark) = elementwise(mean, b)
 Base.maximum(b::Benchmark) = elementwise(maximum, b)
 
 

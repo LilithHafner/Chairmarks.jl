@@ -66,7 +66,7 @@ end
         verbose_check(1e-9minimum(use_baseline).time, 1e-9minimum(use).time, .25) || return false
     end
 
-    if VERSION >= v"1.9"
+    if VERSION >= v"1.9" && get(ENV, "CI", nothing) == "true"
         @testset "Load time" begin
             print("\nLoad time tests")
             cd(dirname(@__DIR__)) do
@@ -76,6 +76,41 @@ end
     else
         @test_broken false
     end
+
+    if false
+    begin # Paste this into a REPL
+    println(VERSION)
+    function inner_times(program, n)
+        exe = joinpath(Sys.BINDIR, "julia")
+        times = cd(dirname(dirname(pathof(QuickBenchmarkTools)))) do
+            run(`$exe --startup-file=no --project -e 'using QuickBenchmarkTools'`) # precompile
+            [parse(Float64, read(`$exe --startup-file=no --project -e $program`, String)) for _ in 1:n]
+        end
+        minimum(times), QuickBenchmarkTools.median(times), QuickBenchmarkTools.mean(times), maximum(times)
+    end
+
+    # @testset "Better load time tests" begin
+        t = inner_times("println(@elapsed using QuickBenchmarkTools)", 10)
+        println("Load Time: $(join(round.(1000 .* t, digits=2),"/")) ms")
+
+        @test t[1] < .02
+        @test t[2] < .02
+        @test t[3] < .03
+        @test t[4] < .04
+    # end
+
+    # @testset "Better TTFR tests" begin
+        t = inner_times("a = @elapsed @eval using QuickBenchmarkTools; b = @elapsed @eval @b rand hash seconds=.001; println(a+b)", 10)
+        println("TTFR: $(join(round.(1000 .* t, digits=2),"/")) ms")
+
+        @test t[1] < .15
+        @test t[2] < .15
+        @test t[3] < .20
+        @test t[4] < .25
+    # end
+    end
+    end
+
 
     @testset "@b @b x" begin
         t = 1e-9(@b (@b sort(rand(100)) seconds=.01)).time
