@@ -340,37 +340,3 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
         show(io, m, maximum(b))
     end
 end
-
-g(seconds) = if seconds < 3e-8
-    seconds
-elseif seconds > 3e-2
-    3e-5
-else
-    # exp(evalpoly(log(seconds), (-10.85931838387908, -0.25381312421338964, -0.03619120682527099)))
-
-    exp(evalpoly(log(seconds), (
-        -log(30e-9)^2/4log(1000),
-        1+(2log(30e-9)/4log(1000)),
-        -1/4log(1000)
-    )))
-end
-
-
-h(seconds) = if seconds < 3e-8
-    seconds
-elseif seconds > 3e-8+2(3e-5-3e-8)
-    3e-5
-else
-    # exp(evalpoly(log(seconds), (-10.85931838387908, -0.25381312421338964, -0.03619120682527099)))
-
-    evalpoly(seconds, (
-        3e-8 + 3e-8^2/4(3e-5-3e-8) - 3e-8 * (1 + 3e-8/2(3e-5-3e-8)),
-        1 + 3e-8/2(3e-5-3e-8),
-        -1/4(3e-5-3e-8)
-    ))
-    # exp(evalpoly(log(seconds), (
-    #     -log(30e-9)^2/4log(1000),
-    #     1+(2log(30e-9)/4log(1000)),
-    #     -1/4log(1000)
-    # )))
-end
