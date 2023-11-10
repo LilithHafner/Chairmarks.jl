@@ -25,7 +25,11 @@ function process_kw(kw)
 end
 macro b(x, kw...)
     Base.isexpr(x, :call) || error("Can only benchmark function calls")
-    Expr(:call, :benchmark, process_kw(kw)..., x.args...)
+    :($minimum($(Expr(:call, benchmark, process_kw(kw)..., x.args...))))
+end
+macro B(x, kw...)
+    Base.isexpr(x, :call) || error("Can only benchmark function calls")
+    Expr(:call, benchmark, process_kw(kw)..., x.args...)
 end
 
 # Benchmarking
@@ -79,9 +83,9 @@ function benchmark(f, args...; evals=nothing, samples=nothing, seconds=samples =
     samples === nothing && resize!(data, 1)
 
     # Save calibration runs as data if they match the calibrate evals
-    if calibration1.evals == evals
+    if evals === nothing && calibration1.evals == evals
         data[1] = calibration1
-    elseif calibration2 !== nothing && calibration2.evals == evals # Can't match both
+    elseif evals === nothing && calibration2 !== nothing && calibration2.evals == evals # Can't match both
         data[1] = calibration2
     else
         data[1], time = _benchmark(f, args, evals)
