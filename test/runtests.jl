@@ -36,11 +36,22 @@ using Test
 end
 
 @testset "Precision" begin
+    nonzero(x) = x.time > .01
     @testset "Nonzero results" begin
-        @test_broken (@b rand() evalpoly(_, (1.0, 2.0, 3.0))).time > .01
+        @test_broken nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
         X = Ref(1.0)
-        @test_broken (@b rand() X[]=evalpoly(_, (1.0, 2.0, 3.0))).time > .01
-        @test (@b rand() X[]+=evalpoly(_, (1.0, 2.0, 3.0))).time > .01
+        @test_broken nonzero(@b rand() X[]=evalpoly(_, (1.0, 2.0, 3.0)))
+        @test nonzero(@b rand() X[]+=evalpoly(_, (1.0, 2.0, 3.0)))
+
+        # BenchmarkTools.jl gives nonzero results on all of these:
+        @test nonzero(@b rand)
+        @test nonzero(@b rand hash) # Fails on nightly 560ede5532
+        @test_broken nonzero(@b 1+1)
+        @test_broken nonzero(@b rand _^1)
+        @test_broken nonzero(@b rand _^2)
+        @test_broken nonzero(@b rand _^3)
+        @test nonzero(@b rand _^4)
+        @test nonzero(@b rand _^5)
     end
 end
 
