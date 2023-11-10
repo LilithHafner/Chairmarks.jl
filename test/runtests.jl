@@ -70,6 +70,12 @@ end
         time_in_function = 1e-9sum(s -> s.time * s.evals, t[1].data)
         @test t[2]-2runtime < time_in_function < t[2]-runtime # loose the warmup, but keep the calibration.
     end
+
+    @testset "no compilation" begin
+        res = @b @eval (@b 100 rand seconds=.001)
+        @test .001 < 1e-9res.time < .002
+        @test res.compile_fraction === 0.0
+    end
 end
 
 @testset "Nonzero results" begin

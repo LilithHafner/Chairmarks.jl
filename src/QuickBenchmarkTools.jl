@@ -57,7 +57,8 @@ function substitute(ex::Expr, var::Symbol)
 end
 
 create_first_function(f::Symbol) = f
-create_first_function(f) = :(() -> $f)
+create_first_function(x) = Returns(x)
+create_first_function(body::Expr) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
