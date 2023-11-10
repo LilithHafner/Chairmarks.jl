@@ -325,10 +325,10 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
     end
     if samples ≤ 4
         sd = sort(b.data, by=s -> s.time)
-        for s in sd
+        for (i, s) in enumerate(sd)
             print(io, "       ")
             show(io, m, s)
-            println(io)
+            i == length(sd) || println(io)
         end
     else
         print("min    ")
@@ -344,5 +344,17 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
         show(io, m, maximum(b))
     end
 end
+
+# precompilation
+precompile(benchmark, (Function,))
+precompile(benchmark, (Function,Function))
+precompile(benchmark, (Function,Function,Function))
+precompile(Base.show, (Base.IOContext{Base.TTY}, MIME"text/plain", Benchmark))
+precompile(minimum, (Benchmark,))
+precompile(process_args, (Tuple{Expr},))
+precompile(process_args, (Tuple{Expr, Expr},))
+precompile(process_args, (Tuple{Expr, Symbol},))
+precompile(process_args, (Tuple{Expr, Expr, Expr},))
+precompile(process_args, (Tuple{Expr, Symbol, Expr},))
 
 end
