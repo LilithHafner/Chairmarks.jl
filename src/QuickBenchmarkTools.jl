@@ -14,6 +14,7 @@ struct Sample
     compile_fraction   ::Float64
     recompile_fraction ::Float64
     warmup             ::Float64
+    value              ::Float64
 end
 Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0, warmup=true) =
     Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup)
@@ -99,6 +100,14 @@ macro be(args...)
 end
 
 # Benchmarking
+
+# Validation
+default_map(x) = x
+default_map(x::BigInt) = hash(x)
+default_map(x::Bool) = x+520705676
+default_reduction(x,y) = y
+default_reduction(x::T,y::T) where T <: Real = x*y
+
 benchmark(f; kw...) = benchmark(nothing, f; kw...)
 benchmark(setup, f, teardown=nothing; kw...) = benchmark(nothing, setup, f, teardown; kw...)
 maybecall(::Nothing, x::Tuple{Any}) = x
@@ -106,7 +115,7 @@ maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Float64, Nothing}=samples===nothing ? .1 : 1)
+function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Float64, Nothing}=samples===nothing ? .1 : 1, map=default_map, reduction=default_reduction)
     @nospecialize
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
@@ -118,7 +127,7 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
 
     function bench(evals, warmup=true)
         args2 = maybecall(setup, args1)
-        sample, t, args3 = _benchmark(f, args2, evals, warmup)
+        sample, t, args3 = _benchmark(f, map, reduction, args2, evals, warmup)
         maybecall(teardown, (args3,))
         sample, t
     end
@@ -144,7 +153,8 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
         # If we spent less than 1% then recalibrate with more evals.
         calibration2 = nothing
         if calibration1.time < .01ns
-            calibration2, time = bench(floor(Int, .05ns/(calibration1.time+1)))
+            caltime = calibration1.time < .00015ns ? bench(10)[1].time : calibration1.time # This line protects us against cases where runtime is dominated by the reduction.
+            calibration2, time = bench(floor(Int, .05ns/(caltime+1)))
         end
 
         # We need samples that take at least 30 nanoseconds for any reasonable measurements
@@ -186,28 +196,28 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
     Benchmark(data)
 end
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
-struct Secretb45188098f2cd177828f6d91bb0b10ec end
-function _benchmark(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
+function _benchmark(f::F, map::M, reduction::R, args::A, evals::Int, warmup::Bool) where {F, M, R, A}
     gcstats = Base.gc_num()
     cumulative_compile_timing(true)
-    ctime, time0, time1, res = try
-        res = Secretb45188098f2cd177828f6d91bb0b10ec()
+    ctime, time0, time1, res, acc = try
         ctime = cumulative_compile_time_ns()
         time0 = time_ns()
-        for _ in 1:evals
-            res = f(args...)
+        res = f(args...)
+        acc = map(res)
+        for _ in 2:evals
+            x = f(args...)
+            acc = reduction(acc, map(x))
         end
         time1 = time_ns()
         ctime = cumulative_compile_time_ns() .- ctime
 
-        @assert !(res isa Secretb45188098f2cd177828f6d91bb0b10ec)
-        ctime, time0, time1, res
+        ctime, time0, time1, res, acc
     finally
         cumulative_compile_timing(false)
     end
     rtime = time1 - time0
     gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
-    Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
+    Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup, hash(acc)/typemax(UInt)), time1, res
 end
 
 # Statistics (Statistics.jl has too slow of a load time to use)

@@ -38,18 +38,18 @@ end
 @testset "Precision" begin
     nonzero(x) = x.time > .01
     @testset "Nonzero results" begin
-        @test_broken nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
+        @test nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
         X = Ref(1.0)
-        @test_broken nonzero(@b rand() X[]=evalpoly(_, (1.0, 2.0, 3.0)))
+        @test nonzero(@b rand() X[]=evalpoly(_, (1.0, 2.0, 3.0)))
         @test nonzero(@b rand() X[]+=evalpoly(_, (1.0, 2.0, 3.0)))
 
         # BenchmarkTools.jl gives nonzero results on all of these:
         @test nonzero(@b rand)
-        @test nonzero(@b rand hash) # Fails on nightly 560ede5532
-        @test_broken nonzero(@b 1+1)
-        @test_broken nonzero(@b rand _^1)
-        @test_broken nonzero(@b rand _^2)
-        @test_broken nonzero(@b rand _^3)
+        @test nonzero(@b rand hash)
+        @test nonzero(@b 1+1)
+        @test nonzero(@b rand _^1)
+        @test nonzero(@b rand _^2)
+        @test nonzero(@b rand _^3)
         @test nonzero(@b rand _^4)
         @test nonzero(@b rand _^5)
     end
@@ -150,5 +150,21 @@ end
         res = @b @eval (@b 100 rand seconds=.001)
         @test .001 < 1e-9res.time < .002
         @test res.compile_fraction === 0.0
+    end
+
+    @testset "bignums don't explode in the reduction" begin
+        x = 721345234112341234123512341234123412351235
+        t = @elapsed @b rand Returns(x)
+        @test .1 < t < .4
+        t = @elapsed @b rand Returns(x)
+        @test .1 < t < .15
+        t = @elapsed @b rand Returns(float(x))
+        @test .1 < t < .4
+        t = @elapsed @b rand Returns(float(x))
+        @test .1 < t < .15
+        t = @elapsed @b rand Returns(float(x)) map=identity
+        @test .1 < t < .4
+        t = @elapsed @b rand Returns(float(x)) map=identity
+        @test .1 < t < .15
     end
 end
