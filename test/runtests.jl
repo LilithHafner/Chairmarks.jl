@@ -1,8 +1,8 @@
-using Tablemarks
+using Chairmarks
 using Test
 using Statistics
 
-@testset "Tablemarks" begin
+@testset "Chairmarks" begin
     @testset "Standard tests" begin
         @testset "Test within a benchmark" begin
             @b 4 _ > 3 @test _
@@ -32,13 +32,13 @@ using Statistics
         end
 
         @testset "Median" begin
-            @test Tablemarks.median([1, 2, 3]) === 2.0
-            @test Tablemarks.median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
+            @test Chairmarks.median([1, 2, 3]) === 2.0
+            @test Chairmarks.median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
         end
     end
 
     @testset "Precision" begin
-        evalpoly = Tablemarks.evalpoly # compat
+        evalpoly = Chairmarks.evalpoly # compat
         nonzero(x) = x.time > .01
         @testset "Nonzero results" begin
             @test nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
@@ -106,7 +106,7 @@ using Statistics
                 truth = runtime / n
                 @test 1e-9length(x) < truth < 2e-7length(x)
                 t = let C = Ref(UInt(0))
-                    1e-9Tablemarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
+                    1e-9Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
                 end
                 if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
                         !isapprox(t, truth, rtol=1, atol=1e-7) ||
@@ -134,7 +134,7 @@ using Statistics
             println("\nRuntime: $runtime")
             load_baseline = @be _ read(`julia --startup-file=no --project -e 'println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
             print("Load baseline: "); display(load_baseline)
-            load = @be _ read(`julia --startup-file=no --project -e 'using Tablemarks; println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
+            load = @be _ read(`julia --startup-file=no --project -e 'using Chairmarks; println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
             print("Load: "); display(load)
 
             verbose_check(1e-9minimum(load_baseline).time, 1e-9minimum(load).time, .07) || return false
@@ -142,7 +142,7 @@ using Statistics
             use_baseline = @be read(`julia --startup-file=no --project -e 'sort(rand(100))'`, String) seconds=5runtime
             print("Use baseline: "); display(use_baseline)
             inner_time = Ref(0.0)
-            use = @be _ read(`julia --startup-file=no --project -e 'sort(rand(100)); using Tablemarks; println(@elapsed @b sort(rand(100)))'`, String) (s -> inner_time[] = parse(Float64, s)) seconds=5runtime
+            use = @be _ read(`julia --startup-file=no --project -e 'sort(rand(100)); using Chairmarks; println(@elapsed @b sort(rand(100)))'`, String) (s -> inner_time[] = parse(Float64, s)) seconds=5runtime
             print("Use: "); display(use)
             println("Inner time: $inner_time")
 
@@ -166,15 +166,15 @@ using Statistics
         println(VERSION)
         function inner_times(program, n)
             exe = joinpath(Sys.BINDIR, "julia")
-            times = cd(dirname(dirname(pathof(Tablemarks)))) do
-                run(`$exe --startup-file=no --project -e 'using Tablemarks'`) # precompile
+            times = cd(dirname(dirname(pathof(Chairmarks)))) do
+                run(`$exe --startup-file=no --project -e 'using Chairmarks'`) # precompile
                 [parse(Float64, split(read(`$exe --startup-file=no --project -e $program`, String), "\n")[end-1]) for _ in 1:n]
             end
-            minimum(times), Tablemarks.median(times), Tablemarks.mean(times), maximum(times)
+            minimum(times), Chairmarks.median(times), Chairmarks.mean(times), maximum(times)
         end
 
         # @testset "Better load time tests" begin
-            t = inner_times("println(@elapsed using Tablemarks)", 10)
+            t = inner_times("println(@elapsed using Chairmarks)", 10)
             println("Load Time: $(join(round.(1000 .* t, digits=2),"/")) ms")
 
             @test t[1] < .02
@@ -184,7 +184,7 @@ using Statistics
         # end
 
         # @testset "Better TTFR tests" begin
-            t = inner_times("a = @elapsed @eval using Tablemarks; b = @elapsed @eval display(@b rand hash seconds=.001); println(a+b)", 10)
+            t = inner_times("a = @elapsed @eval using Chairmarks; b = @elapsed @eval display(@b rand hash seconds=.001); println(a+b)", 10)
             println("TTFR: $(join(round.(1000 .* t, digits=2),"/")) ms")
 
             @test t[1] < .15
@@ -222,7 +222,7 @@ using Statistics
 
         @testset "bignums don't explode in the reduction" begin
             x = 721345234112341234123512341234123412351235
-            Returns = Tablemarks.Returns
+            Returns = Chairmarks.Returns
             t = @elapsed @b rand Returns(x)
             @test .1 < t < .4
             t = @elapsed @b rand Returns(x)
@@ -240,6 +240,6 @@ using Statistics
 
     @testset "Aqua" begin
         using Aqua
-        Aqua.test_all(Tablemarks)
+        Aqua.test_all(Chairmarks)
     end
 end

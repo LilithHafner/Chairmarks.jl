@@ -1,4 +1,4 @@
-module Tablemarks
+module Chairmarks
 
 using Printf
 

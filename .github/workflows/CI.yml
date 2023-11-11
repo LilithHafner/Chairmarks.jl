@@ -58,6 +58,6 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using Tablemarks
-            DocMeta.setdocmeta!(Tablemarks, :DocTestSetup, :(using Tablemarks); recursive=true)
-            doctest(Tablemarks)'
+            using Chairmarks
+            DocMeta.setdocmeta!(Chairmarks, :DocTestSetup, :(using Chairmarks); recursive=true)
+            doctest(Chairmarks)'

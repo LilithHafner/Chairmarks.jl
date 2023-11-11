@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = Tablemarks
+CurrentModule = Chairmarks
 ```
 
-# Tablemarks
+# Chairmarks
 
-Documentation for [Tablemarks](https://github.com/LilithHafner/Tablemarks.jl).
+Documentation for [Chairmarks](https://github.com/LilithHafner/Chairmarks.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [Tablemarks]
+Modules = [Chairmarks]
 ```

@@ -147,7 +147,7 @@ version = "1.4.1"
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
-[[deps.Tablemarks]]
+[[deps.Chairmarks]]
 path = ".."
 uuid = "0ca39b1e-fe0b-4e98-acfc-b1656634c4de"
 version = "0.0.0"

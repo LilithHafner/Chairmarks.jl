@@ -1,16 +1,16 @@
-using Tablemarks
+using Chairmarks
 using Documenter
 
-DocMeta.setdocmeta!(Tablemarks, :DocTestSetup, :(using Tablemarks); recursive=true)
+DocMeta.setdocmeta!(Chairmarks, :DocTestSetup, :(using Chairmarks); recursive=true)
 
 makedocs(;
-    modules=[Tablemarks],
+    modules=[Chairmarks],
     authors="Lilith Orion Hafner <lilithhafner@gmail.com> and contributors",
-    repo="https://github.com/LilithHafner/Tablemarks.jl/blob/{commit}{path}#{line}",
-    sitename="Tablemarks.jl",
+    repo="https://github.com/LilithHafner/Chairmarks.jl/blob/{commit}{path}#{line}",
+    sitename="Chairmarks.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://tablemarks.lilithhafner.com",
+        canonical="https://Chairmarks.lilithhafner.com",
         edit_link="main",
         assets=String[],
     ),
@@ -20,6 +20,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/LilithHafner/Tablemarks.jl",
+    repo="github.com/LilithHafner/Chairmarks.jl",
     devbranch="main",
 )
