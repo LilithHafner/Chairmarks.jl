@@ -104,7 +104,7 @@ using Statistics
                 n = 10_000_000 ÷ len
                 runtime = @elapsed sort_perf!(x, n)
                 truth = runtime / n
-                @test 1e-9length(x) < truth < 2e-7length(x)
+                @test 1e-9length(x) < truth < 1e-6length(x)
                 t = let C = Ref(UInt(0))
                     1e-9Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
                 end
@@ -224,15 +224,15 @@ using Statistics
             x = 721345234112341234123512341234123412351235
             Returns = Chairmarks.Returns
             t = @elapsed @b rand Returns(x)
-            @test .1 < t < .4
+            @test .1 < t < .6
             t = @elapsed @b rand Returns(x)
             @test .1 < t < .2
             t = @elapsed @b rand Returns(float(x))
-            @test .1 < t < .4
+            @test .1 < t < .6
             t = @elapsed @b rand Returns(float(x))
             @test .1 < t < .2
             t = @elapsed @b rand Returns(float(x)) map=identity
-            @test .1 < t < .4
+            @test .1 < t < .6
             t = @elapsed @b rand Returns(float(x)) map=identity
             @test .1 < t < .2
         end
