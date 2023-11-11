@@ -76,7 +76,7 @@ using Statistics
                 @test_broken issorted(times) # This is too much to ask for
                 diffs = diff(times)
                 limit = VERSION >= v"1.9" ? 3 : 10
-                @test -limit < sortperm(diffs, 3) # Rarely more than a 3 nanoseconds of non-monotonicity
+                @test -limit < partialsort(diffs, 3) # Rarely more than a 3 nanoseconds of non-monotonicity
                 @test count(x -> x<=0, diffs[25:49]) <= 10 # Mostly monotonic
                 limit = VERSION >= v"1.9" ? .95 : VERSION >= v"1.6" ? .9 : .5
                 @test cor(25:50, times[25:50]) > limit # Highly correlated for large inputs
