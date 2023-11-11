@@ -32,6 +32,12 @@ else
     cumulative_compile_timing(x) = Base.cumulative_compile_timing(x)
     cumulative_compile_time_ns() = Base.cumulative_compile_time_ns()
 end
+if VERSION < v"1.7"
+    struct Returns{T} <: Function
+        value::T
+    end
+    (f::Returns)(args...; kw...) = f.value
+end
 if VERSION < v"1.4"
     evalpoly(x, t::Tuple) = evalpoly(x, last(t), Base.front(t))
     evalpoly(x, acc, t::Tuple) = evalpoly(x, muladd(x, acc, last(t)), Base.front(t))

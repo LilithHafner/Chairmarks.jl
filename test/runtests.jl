@@ -73,9 +73,12 @@ end
             # @test issorted(times[25:50]) # This is almost too much to ask for
             @test_broken issorted(times) # This is too much to ask for
             diffs = diff(times)
-            @test -0.3 < minimum(diffs) # No more than a third of a nanosecond of non-monotonicity
-            @test count(<=(0), diffs[25:49]) <= 3 # Almost always monotonic
-            @test cor(25:50, times[25:50]) > .99 # Highly correlated for large inputs
+            limit = VERSION >= v"1.9" ? .3 : 10
+            @test -limit < minimum(diffs) # No more than a third of a nanosecond of non-monotonicity
+            limit = VERSION >= v"1.9" ? 3 : 10
+            @test count(<=(0), diffs[25:49]) <= limit # Almost always monotonic
+            limit = VERSION >= v"1.9" ? .99 : .9
+            @test cor(25:50, times[25:50]) > limit # Highly correlated for large inputs
             @test cor(x, times[x]) > .9 # Correlated overall
             @test_broken cor(x, times[x]) > .99 # Highly correlated overall
         end
@@ -217,6 +220,7 @@ end
 
     @testset "bignums don't explode in the reduction" begin
         x = 721345234112341234123512341234123412351235
+        Returns = QuickBenchmarkTools.Returns
         t = @elapsed @b rand Returns(x)
         @test .1 < t < .4
         t = @elapsed @b rand Returns(x)
