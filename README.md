@@ -7,3 +7,7 @@
 
 Benchmarks with back support.
 
+|           | Width  | Back support  |
+|-----------|--------|---------------|
+|Benchmarks | Wide   | Sometimes     |
+|Chairmarks | Narrow | Almost Always |
