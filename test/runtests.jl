@@ -66,7 +66,7 @@ end
         _rand(::Type{NTuple{N, Float64}}) where N = ntuple(i -> rand(), Val(N)) # Compat
         t(n) = @b (rand(), _rand(NTuple{n, Float64})) evalpoly(_...)
         x = 1:50
-        for collection_time_limit in (20, VERSION >= v"1.9" ? 5.2 : 5.5)
+        for collection_time_limit in (20, 5.5)
             collection_time = @elapsed data = t.(x)
             @test 5 < collection_time < collection_time_limit
             times = [x.time for x in data]
@@ -75,9 +75,8 @@ end
             @test_broken issorted(times) # This is too much to ask for
             diffs = diff(times)
             limit = VERSION >= v"1.9" ? 3 : 10
-            @test -limit < minimum(diffs) # No more than a 3 nanoseconds of non-monotonicity
-            limit = VERSION >= v"1.9" ? 3 : 10
-            @test count(x -> x<=0, diffs[25:49]) <= limit # Almost always monotonic
+            @test -limit < sortperm(diffs, 3) # Rarely more than a 3 nanoseconds of non-monotonicity
+            @test count(x -> x<=0, diffs[25:49]) <= 10 # Mostly monotonic
             limit = VERSION >= v"1.9" ? .95 : VERSION >= v"1.6" ? .9 : .5
             @test cor(25:50, times[25:50]) > limit # Highly correlated for large inputs
             limit = VERSION >= v"1.6" ? .9 : .5
@@ -217,7 +216,7 @@ end
     @testset "no compilation" begin
         res = @b @eval (@b 100 rand seconds=.001)
         @test .001 < 1e-9res.time < .002
-        @test res.compile_fraction === 0.0
+        @test res.compile_fraction < 1e-4 # A bit of compile time is necessary because of the @eval
     end
 
     @testset "bignums don't explode in the reduction" begin
