@@ -112,9 +112,9 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
         evals = first(b.data).evals
         print_maybe_int(io, "", first(b.data).evals, " evaluation")
         evals == 1 || print(io, "s")
-        println()
+        println(io)
     else
-        println("variable evaluations")
+        println(io, "variable evaluations")
     end
     if samples ≤ 4
         sd = sort(b.data, by=s -> s.time)
@@ -124,16 +124,16 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
             i == length(sd) || println(io)
         end
     else
-        print("min    ")
+        print(io, "min    ")
         show(io, m, minimum(b))
         println(io)
-        print("median ")
+        print(io, "median ")
         show(io, m, median(b))
         println(io)
-        print("mean   ")
+        print(io, "mean   ")
         show(io, m, mean(b))
         println(io)
-        print("max    ")
+        print(io, "max    ")
         show(io, m, maximum(b))
     end
 end
