@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = QuickBenchmarkTools
+CurrentModule = Tablemarks
 ```
 
-# QuickBenchmarkTools
+# Tablemarks
 
-Documentation for [QuickBenchmarkTools](https://github.com/LilithHafner/QuickBenchmarkTools.jl).
+Documentation for [Tablemarks](https://github.com/LilithHafner/Tablemarks.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [QuickBenchmarkTools]
+Modules = [Tablemarks]
 ```

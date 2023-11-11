@@ -1,4 +1,4 @@
-module QuickBenchmarkTools
+module Tablemarks
 
 using Printf
 

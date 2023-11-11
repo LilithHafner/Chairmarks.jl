@@ -1,16 +1,16 @@
-using QuickBenchmarkTools
+using Tablemarks
 using Documenter
 
-DocMeta.setdocmeta!(QuickBenchmarkTools, :DocTestSetup, :(using QuickBenchmarkTools); recursive=true)
+DocMeta.setdocmeta!(Tablemarks, :DocTestSetup, :(using Tablemarks); recursive=true)
 
 makedocs(;
-    modules=[QuickBenchmarkTools],
+    modules=[Tablemarks],
     authors="Lilith Orion Hafner <lilithhafner@gmail.com> and contributors",
-    repo="https://github.com/LilithHafner/QuickBenchmarkTools.jl/blob/{commit}{path}#{line}",
-    sitename="QuickBenchmarkTools.jl",
+    repo="https://github.com/LilithHafner/Tablemarks.jl/blob/{commit}{path}#{line}",
+    sitename="Tablemarks.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://LilithHafner.github.io/QuickBenchmarkTools.jl",
+        canonical="https://LilithHafner.github.io/Tablemarks.jl",
         edit_link="main",
         assets=String[],
     ),
@@ -20,6 +20,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/LilithHafner/QuickBenchmarkTools.jl",
+    repo="github.com/LilithHafner/Tablemarks.jl",
     devbranch="main",
 )
