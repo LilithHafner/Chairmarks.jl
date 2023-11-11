@@ -237,3 +237,6 @@ end
         @test .1 < t < .15
     end
 end
+
+using Aqua
+Aqua.test_all(QuickBenchmarkTools)
