@@ -2,7 +2,7 @@
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "c489fc99404a6d44b37a033cfbf69b99f60e0c06"
+project_hash = "ef6e43479aba3746107a0992ed004e11aea09b81"
 
 [[deps.ANSIColoredPrinters]]
 git-tree-sha1 = "574baf8110975760d391c710b6341da1afa48d8c"
@@ -23,6 +23,12 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.Chairmarks]]
+deps = ["Printf"]
+path = ".."
+uuid = "0ca39b1e-fe0b-4e98-acfc-b1656634c4de"
+version = "0.0.0"
 
 [[deps.Dates]]
 deps = ["Printf"]
@@ -146,11 +152,6 @@ version = "1.4.1"
 [[deps.Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
-
-[[deps.Chairmarks]]
-path = ".."
-uuid = "0ca39b1e-fe0b-4e98-acfc-b1656634c4de"
-version = "0.0.0"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]

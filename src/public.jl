@@ -130,7 +130,7 @@ $(replace(DOCSTRING_BODY, "@bx" => "@be"))
 
 # Examples
 
-```jldoctest; filter = r"\\d+|evaluations?|, \\d+\\.\\d+% gc time", setup = :(using Random)
+```jldoctest; filter = r"\\d+|evaluations?|, \\d+\\.\\d+% gc time|max    \\d+\\.\\d+ ..", setup = :(using Random)
 julia> @be rand(10000) # Benchmark a function
 Benchmark: 267 samples with 2 evaluations
 min    8.500 μs (2 allocs: 78.172 KiB)
