@@ -42,6 +42,11 @@ if VERSION < v"1.4"
     evalpoly(x, t::Tuple) = evalpoly(x, last(t), Base.front(t))
     evalpoly(x, acc, t::Tuple) = evalpoly(x, muladd(x, acc, last(t)), Base.front(t))
     evalpoly(x, acc, ::Tuple{}) = acc
+    function only(x)
+        ret, i = iterate(x)
+        iterate(x, i) === nothing || throw(ArgumentError("Expected only one element"))
+        ret
+    end
 end
 
 
