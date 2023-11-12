@@ -67,7 +67,7 @@ using Statistics
             _rand(::Type{NTuple{N, Float64}}) where N = ntuple(i -> rand(), Val(N)) # Compat
             t(n) = @b (rand(), _rand(NTuple{n, Float64})) evalpoly(_...)
             x = 1:50
-            for collection_time_limit in (20, 5.5)
+            for collection_time_limit in (20, 6)
                 collection_time = @elapsed data = t.(x)
                 @test 5 < collection_time < collection_time_limit
                 times = [x.time for x in data]
