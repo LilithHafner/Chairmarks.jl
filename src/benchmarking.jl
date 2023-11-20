@@ -36,9 +36,7 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
     new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
 
-        ns = 1e9seconds
-
-        if warmup.time > 2ns && warmup.compile_fraction < .5
+        if warmup.time > 2seconds && warmup.compile_fraction < .5
             # The estimated runtime in the warmup already exceeds the time budget.
             # Return the warmup result (which is marked as not having a warmup).
             return Benchmark([warmup])
@@ -49,9 +47,9 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
         # We should be spending about 5% of runtime on calibration.
         # If we spent less than 1% then recalibrate with more evals.
         calibration2 = nothing
-        if calibration1.time < .01ns
-            caltime = calibration1.time < .00015ns ? bench(10)[1].time : calibration1.time # This line protects us against cases where runtime is dominated by the reduction.
-            calibration2, time = bench(floor(Int, .05ns/(caltime+1)))
+        if calibration1.time < .01seconds
+            caltime = calibration1.time < .00015seconds ? bench(10)[1].time : calibration1.time # This line protects us against cases where runtime is dominated by the reduction.
+            calibration2, time = bench(floor(Int, .05seconds/(caltime+1e-9)))
         end
 
         # We need samples that take at least 30 nanoseconds for any reasonable measurements
@@ -66,7 +64,7 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
             # exp(evalpoly(log(seconds), (-log(30e-9)^2/4log(1000),1+(2log(30e-9)/4log(1000)),-1/4log(1000))))
         end
 
-        max(1, floor(Int, 1e9target_sample_time/(something(calibration2, calibration1).time+1)))
+        max(1, floor(Int, target_sample_time/(something(calibration2, calibration1).time+1e-9)))
     else
         evals
     end
@@ -114,5 +112,5 @@ function _benchmark(f::F, map::M, reduction::R, args::A, evals::Int, warmup::Boo
     end
     rtime = time1 - time0
     gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
-    Sample(evals, rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup, hash(acc)/typemax(UInt)), time1, res
+    Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup, hash(acc)/typemax(UInt)), time1, res
 end

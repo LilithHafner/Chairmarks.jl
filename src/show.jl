@@ -8,12 +8,12 @@ function print_rounded(@nospecialize(io::IO), x::Float64, digits::Int)
         print(io, Base.Ryu.writefixed(x, digits))
     end
 end
-function print_time(io, ns::Float64)
+function print_time(io, seconds::Float64)
     @nospecialize
-    ns < 1e3 && return (print_rounded(io, ns, 3); print(io, " ns"))
-    ns < 1e6 && return @printf io "%.3f μs" ns/1e3
-    ns < 1e9 && return @printf io "%.3f ms" ns/1e6
-    @printf io "%.3f s" ns/1e9
+    seconds < 1e-6 && return (print_rounded(io, seconds*1e9, 3); print(io, " ns"))
+    seconds < 1e3 && return @printf io "%.3f μs" seconds*1e6
+    seconds < 1 && return @printf io "%.3f ms" seconds*1e2
+    @printf io "%.3f s" seconds
 end
 function print_allocs(io, allocs, bytes)
     if isinteger(allocs)

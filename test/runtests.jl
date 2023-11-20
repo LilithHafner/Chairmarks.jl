@@ -28,7 +28,7 @@ using Statistics
         end
 
         @testset "blank space" begin
-            @test 1e-9(@b sleep(.01) identity).time < .01 < 1e-9(@b _ sleep(.01) identity).time
+            @test (@b sleep(.01) identity).time < .01 < (@b _ sleep(.01) identity).time
         end
 
         @testset "Median" begin
@@ -39,7 +39,7 @@ using Statistics
 
     @testset "Precision" begin
         evalpoly = Chairmarks.evalpoly # compat
-        nonzero(x) = x.time > .01
+        nonzero(x) = x.time > 1e-11
         @testset "Nonzero results" begin
             @test nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
             X = Ref(1.0)
@@ -75,7 +75,7 @@ using Statistics
                 # @test issorted(times[25:50]) # This is almost too much to ask for
                 @test_broken issorted(times) # This is too much to ask for
                 diffs = diff(times)
-                limit = VERSION >= v"1.9" ? 3 : 10
+                limit = VERSION >= v"1.9" ? 3e-9 : 10e-9
                 @test -limit < partialsort(diffs, 3) # Rarely more than a 3 nanoseconds of non-monotonicity
                 @test count(x -> x<=0, diffs[25:49]) <= 10 # Mostly monotonic
                 limit = VERSION >= v"1.9" ? .95 : VERSION >= v"1.6" ? .9 : .5
@@ -106,7 +106,7 @@ using Statistics
                 truth = runtime / n
                 @test 1e-9length(x) < truth < 1e-6length(x)
                 t = let C = Ref(UInt(0))
-                    1e-9Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
+                    Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
                 end
                 if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
                         !isapprox(t, truth, rtol=1, atol=1e-7) ||
@@ -137,7 +137,7 @@ using Statistics
             load = @be _ read(`julia --startup-file=no --project -e 'using Chairmarks; println("hello world")'`, String) (@test _ == "hello world\n") seconds=1runtime
             print("Load: "); display(load)
 
-            verbose_check(1e-9minimum(load_baseline).time, 1e-9minimum(load).time, .07) || return false
+            verbose_check(minimum(load_baseline).time, minimum(load).time, .07) || return false
 
             use_baseline = @be read(`julia --startup-file=no --project -e 'sort(rand(100))'`, String) seconds=5runtime
             print("Use baseline: "); display(use_baseline)
@@ -147,7 +147,7 @@ using Statistics
             println("Inner time: $inner_time")
 
             verbose_check(.1, inner_time[], .05) || return false
-            verbose_check(1e-9minimum(use_baseline).time, 1e-9minimum(use).time, .25) || return false
+            verbose_check(minimum(use_baseline).time, minimum(use).time, .25) || return false
         end
 
         if false && VERSION >= v"1.9" && get(ENV, "CI", nothing) == "true"
@@ -197,12 +197,9 @@ using Statistics
 
 
         @testset "@b @b x" begin
-            t = 1e-9(@b (@b sort(rand(100)) seconds=.01)).time
-            @test .01 < t < .0103
-            t = 1e-9(@b (@be sort(rand(100)) seconds=.01)).time
-            @test .01 < t < .0101
-            t = 1e-9(@b (@be 1+1 seconds=.01)).time
-            @test .01 < t < .01003
+            @test .01 < (@b (@b sort(rand(100)) seconds=.01)).time < .0103
+            @test .01 < (@b (@be sort(rand(100)) seconds=.01)).time < .0101
+            @test .01 < (@b (@be 1+1 seconds=.01)).time < .01003
         end
 
         @testset "efficiency" begin
@@ -210,13 +207,13 @@ using Statistics
             f() = @be sleep(runtime)
             f()
             t = @timed f()
-            time_in_function = 1e-9sum(s -> s.time * s.evals, t[1].data)
+            time_in_function = sum(s -> s.time * s.evals, t[1].data)
             @test t[2]-2runtime < time_in_function < t[2]-runtime # loose the warmup, but keep the calibration.
         end
 
         @testset "no compilation" begin
             res = @b @eval (@b 100 rand seconds=.001)
-            @test .001 < 1e-9res.time < .005
+            @test .001 < res.time < .005
             @test res.compile_fraction < 1e-4 # A bit of compile time is necessary because of the @eval
         end
 
