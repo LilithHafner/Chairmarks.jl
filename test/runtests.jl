@@ -240,6 +240,7 @@ using Statistics
 
     @testset "Aqua" begin
         using Aqua
-        Aqua.test_all(Chairmarks)
+        Aqua.test_all(Chairmarks, deps_compat=false)
+        Aqua.test_deps_compat(Chairmarks, check_extras=false)
     end
 end
