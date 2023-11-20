@@ -11,8 +11,8 @@ end
 function print_time(io, seconds::Float64)
     @nospecialize
     seconds < 1e-6 && return (print_rounded(io, seconds*1e9, 3); print(io, " ns"))
-    seconds < 1e3 && return @printf io "%.3f μs" seconds*1e6
-    seconds < 1 && return @printf io "%.3f ms" seconds*1e2
+    seconds < 1e-3 && return @printf io "%.3f μs" seconds*1e6
+    seconds < 1 && return @printf io "%.3f ms" seconds*1e3
     @printf io "%.3f s" seconds
 end
 function print_allocs(io, allocs, bytes)
