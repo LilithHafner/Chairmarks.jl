@@ -35,6 +35,11 @@ using Statistics
             @test Chairmarks.median([1, 2, 3]) === 2.0
             @test Chairmarks.median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
         end
+
+        @testset "seconds kw" begin
+            @b 1+1 seconds=1
+            @b 1+1 seconds=.001
+        end
     end
 
     @testset "Precision" begin

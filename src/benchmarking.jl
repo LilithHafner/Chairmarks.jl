@@ -12,7 +12,7 @@ maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Float64, Nothing}=samples===nothing ? .1 : 1, map=default_map, reduction=default_reduction)
+function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, map=default_map, reduction=default_reduction)
     @nospecialize
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
