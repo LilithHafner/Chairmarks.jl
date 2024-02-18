@@ -17,6 +17,14 @@ makedocs(;
     pages=[
         "Home" => "index.md",
     ],
+    doctestfilters=[
+        # If a line is talking about time, that can't be counted on at all
+        # e.g. "median 10.354 μs (2 allocs: 78.172 KiB)"
+        # the very existence of the line may also change if nubmer of samples is low
+        r".*\d\.\d\d\d [nμm]?s.*",
+        # Numbers are volatile e.g. "Benchmark: 267 samples with 2 evaluations"
+        r"\d+",
+    ]
 )
 
 deploydocs(;
