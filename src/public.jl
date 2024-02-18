@@ -128,6 +128,8 @@ Use `@b` for abbreviated results.
 
 $(replace(DOCSTRING_BODY, "@bx" => "@be"))
 
+a
+
 # Examples
 
 ```jldoctest; setup = :(using Random)
