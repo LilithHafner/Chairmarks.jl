@@ -17,6 +17,7 @@ makedocs(;
     pages=[
         "Home" => "index.md",
     ],
+    build = joinpath(@__DIR__, "build") # TODO: remove this line once https://github.com/LuxDL/DocumenterVitepress.jl/pull/32 is released
 )
 
 deploydocs(;
