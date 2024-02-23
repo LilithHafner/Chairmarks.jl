@@ -108,7 +108,7 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
     print(io, "Benchmark: $samples sample")
     samples == 1 || print(io, "s")
     print(io, " with ")
-    if all(==(b.data[0].evals), getproperty.(b.data, :evals)) # allequal not defined in Julia <1.8
+    if all(==(first(b.data).evals), getproperty.(b.data, :evals)) # allequal not defined in Julia <1.8
         evals = first(b.data).evals
         print_maybe_int(io, "", first(b.data).evals, " evaluation")
         evals == 1 || print(io, "s")
