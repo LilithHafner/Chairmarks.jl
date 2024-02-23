@@ -75,7 +75,7 @@ See [`@b`](@ref) for more info
 
 |           | Chairmarks.jl | BenchmarkTools.jl | Ratio
 |-----------|--------|---------------|--------|
-|[TTFX](contrib/ttfx_rm_rf_julia.sh) | 3.4s | 13.4s | 4x
+|[TTFX](https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx_rm_rf_julia.sh) | 3.4s | 13.4s | 4x
 | Load time | 4.2ms | 131ms | 31x
 | TTFX excluding precompile time | 43ms | 1118ms | 26x
 | minimum runtime | 34μs | 459ms | 13,500x
