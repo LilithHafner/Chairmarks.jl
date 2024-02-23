@@ -1,5 +1,9 @@
 ```@meta
 CurrentModule = Chairmarks
+DocTestSetup = quote
+    using Chairmarks
+end
+DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
 ```
 
 # Chairmarks
@@ -10,7 +14,7 @@ CurrentModule = Chairmarks
 
 Capable of detecting 1% difference in runtime in ideal conditions
 
-```julia
+```jldoctest
 julia> f(n) = sum(rand() for _ in 1:n)
 f (generic function with 1 method)
 
@@ -37,28 +41,28 @@ julia> @b f(1010)
 
 Chairmarks uses a concise pipeline syntax to define benchmarks. When providing a single argument, that argument is automatically wrapped in a function for higher performance and executed
 
-```julia
+```jldoctest
 julia> @b sort(rand(100))
 1.500 μs (3 allocs: 2.625 KiB)
 ```
 
 When providing two arguments, the first is setup code and only the runtime of the second is measured
 
-```julia
+```jldoctest
 julia> @b rand(100) sort
 1.018 μs (2 allocs: 1.750 KiB)
 ```
 
 You may use `_` in the later arguments to refer to the output of previous arguments
 
-```julia
+```jldoctest
 julia> @b rand(100) sort(_, by=x -> exp(-x))
 5.521 μs (2 allocs: 1.750 KiB)
 ```
 
 A third argument can run a "teardown" function to integrate testing into the benchmark and ensure that the benchmarked code is behaving correctly
 
-```julia
+```jldoctest
 julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_) || error()
 ERROR:
 Stacktrace:
