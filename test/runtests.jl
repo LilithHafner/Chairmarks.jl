@@ -78,6 +78,10 @@ using Chairmarks: Sample, Benchmark
                    101.540 ms (166 allocs: 16.195 KiB)
                    101.591 ms (166 allocs: 16.195 KiB)
                    102.239 ms (166 allocs: 16.195 KiB)"""
+
+            x = Benchmark(x.data[1:0])
+            @test eval(Meta.parse(repr(x))).data == x.data
+            @test sprint(show, MIME"text/plain"(), x) == "Benchmark: 0 samples"
         end
     end
 
