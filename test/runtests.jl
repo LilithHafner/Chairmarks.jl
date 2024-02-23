@@ -1,6 +1,6 @@
-using Chairmarks
 using Test
 using Statistics
+using Chairmarks
 using Chairmarks: Sample, Benchmark
 
 @testset "Chairmarks" begin
