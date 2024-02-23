@@ -5,7 +5,7 @@ function print_rounded(@nospecialize(io::IO), x::Float64, digits::Int)
     elseif 0 < x < 1/10^digits
         print(io, "<0.", '0'^(digits-1), "1")
     else
-        print(io, Base.Ryu.writefixed(x, digits))
+        print(io, VERSION < v"1.6" ? string(x) : Base.Ryu.writefixed(x, digits))
     end
 end
 function print_time(io, seconds::Float64)
@@ -107,8 +107,9 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
     samples = length(b.data)
     print(io, "Benchmark: $samples sample")
     samples == 1 || print(io, "s")
+    samples == 0 && return
     print(io, " with ")
-    if allequal(getproperty.(b.data, :evals))
+    if all(==(first(b.data).evals), getproperty.(b.data, :evals)) # allequal not defined in Julia <1.8
         evals = first(b.data).evals
         print_maybe_int(io, "", first(b.data).evals, " evaluation")
         evals == 1 || print(io, "s")
