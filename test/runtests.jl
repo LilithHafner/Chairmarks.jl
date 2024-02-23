@@ -42,7 +42,13 @@ using Chairmarks: Sample, Benchmark
             @b 1+1 seconds=.001
         end
 
+        @testset "errors" begin
+            @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
+        end
+
         @testset "display" begin
+
+            # Basic
             x = Sample(evals=20076, time=2.822275353656107e-10)
             @test repr(x) == "Sample(evals=20076, time=2.822275353656107e-10)"
             @test eval(Meta.parse(repr(x))) === x
@@ -82,6 +88,63 @@ using Chairmarks: Sample, Benchmark
             x = Benchmark(x.data[1:0])
             @test eval(Meta.parse(repr(x))).data == x.data
             @test sprint(show, MIME"text/plain"(), x) == "Benchmark: 0 samples"
+
+
+            # Edge cases
+
+            # very fast
+            x = Sample(time=1e-100)
+            @test eval(Meta.parse(repr(x))) === x
+            @test sprint(show, MIME"text/plain"(), x) == "<0.001 ns"
+
+            x = Sample(time=0)
+            @test eval(Meta.parse(repr(x))) === x
+            @test sprint(show, MIME"text/plain"(), x) == "0 ns"
+
+
+            if VERSION >= v"1.6"
+                # In earlier versions we don't round digits so all these tests would need
+                # to be specially adapted. But I don't care taht much about pre-1.6.
+
+                # Fractional allocs
+                x = Sample(time=0.006083914078095797, allocs=1.5, bytes=1729)
+                @test eval(Meta.parse(repr(x))) === x
+                @test sprint(show, MIME"text/plain"(), x) == "6.084 ms (1.50 allocs: 1.688 KiB)"
+
+                # Few bytes
+                x = Sample(time=0.006083914078095797, allocs=.5, bytes=0.5)
+                @test eval(Meta.parse(repr(x))) === x
+                @test sprint(show, MIME"text/plain"(), x) == "6.084 ms (0.50 allocs: 0.500 bytes)"
+                x = Sample(time=0.006083914078095797, allocs=.5, bytes=5)
+                @test eval(Meta.parse(repr(x))) === x
+                @test sprint(show, MIME"text/plain"(), x) == "6.084 ms (0.50 allocs: 5 bytes)"
+
+                # GC time
+                x = Sample(time=0.0019334290000000002, allocs=2, bytes=800048, gc_fraction=0.9254340345572555)
+                @test eval(Meta.parse(repr(x))) === x
+                @test sprint(show, MIME"text/plain"(), x) == "1.933 ms (2 allocs: 781.297 KiB, 92.54% gc time)"
+
+                # Non-integral warmup
+                x = Sample(time=0.006083914078095797, warmup=0)
+                @test eval(Meta.parse(repr(x))) === x
+                @test sprint(show, MIME"text/plain"(), x) == "6.084 ms (without a warmup)"
+                x = Sample(time=0.006083914078095797, warmup=0.5)
+                @test eval(Meta.parse(repr(x))) === x
+                @test sprint(show, MIME"text/plain"(), x) == "6.084 ms (50.0% warmed up)"
+                x = Sample(time=0.006083914078095797, warmup=1)
+                @test eval(Meta.parse(repr(x))) === x
+                @test sprint(show, MIME"text/plain"(), x) == "6.084 ms"
+
+                x = Benchmark([
+                    Sample(time=0.1, evals=2)
+                    Sample(time=0.1)
+                ])
+                @test eval(Meta.parse(repr(x))).data == x.data
+                @test sprint(show, MIME"text/plain"(), x) == """
+                Benchmark: 2 samples with variable evaluations
+                       100.000 ms
+                       100.000 ms"""
+            end
         end
     end
 
