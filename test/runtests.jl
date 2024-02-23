@@ -46,11 +46,13 @@ using Chairmarks: Sample, Benchmark
             x = Sample(evals=20076, time=2.822275353656107e-10)
             @test repr(x) == "Sample(evals=20076, time=2.822275353656107e-10)"
             @test eval(Meta.parse(repr(x))) === x
-            @test sprint(show, MIME"text/plain"(), x) == "0.282 ns"
+            @test sprint(show, MIME"text/plain"(), x) == (VERSION < v"1.6" ? "0.28222753536561074 ns" : "0.282 ns")
 
             x = Sample(time=1.013617427, allocs=30354, bytes=2045496, compile_fraction=0.01090194061945622, recompile_fraction=0.474822474626834, warmup=0)
             @test eval(Meta.parse(repr(x))) === x
-            @test sprint(show, MIME"text/plain"(), x) == "1.014 s (30354 allocs: 1.951 MiB, 1.09% compile time 47.48% of which was recompilation, without a warmup)"
+            @test sprint(show, MIME"text/plain"(), x) == (VERSION < v"1.6" ?
+                "1.014 s (30354 allocs: 1.951 MiB, 1.0901940619456219% compile time 47.482247462683404% of which was recompilation, without a warmup)" :
+                "1.014 s (30354 allocs: 1.951 MiB, 1.09% compile time 47.48% of which was recompilation, without a warmup)")
 
             x = Benchmark([
                 Sample(time=0.10223923, allocs=166, bytes=16584)
@@ -61,7 +63,7 @@ using Chairmarks: Sample, Benchmark
             ])
 
             @test eval(Meta.parse(repr(x))).data == x.data
-            @test sprint(show, MIME"text/plain"(), x) == """
+            VERSION >= v"1.6" && @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 5 samples with 1 evaluation
             min    101.540 ms (166 allocs: 16.195 KiB)
             median 101.623 ms (166 allocs: 16.195 KiB)
@@ -71,7 +73,7 @@ using Chairmarks: Sample, Benchmark
             x = Benchmark(x.data[1:3])
 
             @test eval(Meta.parse(repr(x))).data == x.data
-            @test sprint(show, MIME"text/plain"(), x) == """
+            VERSION >= v"1.6" && @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 3 samples with 1 evaluation
                    101.540 ms (166 allocs: 16.195 KiB)
                    101.591 ms (166 allocs: 16.195 KiB)
