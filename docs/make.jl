@@ -9,7 +9,9 @@ makedocs(;
     authors="Lilith Orion Hafner <lilithhafner@gmail.com> and contributors",
     repo="https://github.com/LilithHafner/Chairmarks.jl/blob/{commit}{path}#{line}",
     sitename="Chairmarks.jl",
-    format=DocumenterVitepress.MarkdownVitepress(),
+    format=DocumenterVitepress.MarkdownVitepress(
+        repo = "https://github.com/LilithHafner/Chairmarks.jl",
+    ),
     pages=[
         "Home" => "index.md",
     ],
