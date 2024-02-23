@@ -22,4 +22,5 @@ makedocs(;
 deploydocs(;
     repo="github.com/LilithHafner/Chairmarks.jl",
     devbranch="main",
+    push_preview=true,
 )
