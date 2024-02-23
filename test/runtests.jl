@@ -43,7 +43,7 @@ using Chairmarks: Sample, Benchmark
         end
 
         @testset "errors" begin
-            @test_throws ArgumentError Sample(allocs=1.5, bytes=1729) # needs `time`
+            @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
         end
 
         @testset "display" begin
@@ -142,8 +142,8 @@ using Chairmarks: Sample, Benchmark
                 @test eval(Meta.parse(repr(x))).data == x.data
                 @test sprint(show, MIME"text/plain"(), x) == """
                 Benchmark: 2 samples with variable evaluations
-                    100.000 ms
-                    100.000 ms"""
+                       100.000 ms
+                       100.000 ms"""
             end
         end
     end
