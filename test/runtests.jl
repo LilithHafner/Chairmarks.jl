@@ -57,6 +57,10 @@ using Chairmarks: Sample, Benchmark
             @test Chairmarks.writefixed(0.005, 2) == "0.01"
             @test Chairmarks.writefixed(0.005, 3) == "0.005"
             @test Chairmarks.writefixed(0.005, 4) == "0.0050"
+            @test Chairmarks.writefixed(-0.005, 1) == "-0.0"
+            @test Chairmarks.writefixed(-0.005, 2) == "-0.01"
+            @test Chairmarks.writefixed(-0.005, 3) == "-0.005"
+            @test Chairmarks.writefixed(-0.005, 4) == "-0.0050"
         end
 
         @testset "display" begin
