@@ -50,8 +50,8 @@ using Chairmarks: Sample, Benchmark
             @test Chairmarks.writefixed(-1.23045, 4) == "-1.2305"
             @test Chairmarks.writefixed(-1.23045, 3) == "-1.230"
             @test Chairmarks.writefixed(1.23045, 6) == "1.230450"
-            @test Chairmarks.writefixed(10, 1) == "10.0"
-            @test Chairmarks.writefixed(11, 1) == "11.0"
+            @test Chairmarks.writefixed(10.0, 1) == "10.0"
+            @test Chairmarks.writefixed(11.0, 1) == "11.0"
         end
 
         @testset "display" begin
