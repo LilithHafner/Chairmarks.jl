@@ -24,7 +24,7 @@ if VERSION < v"1.4"
 end
 @static if VERSION < v"1.6"
     writefixed(x, digits) = rpad(string(round(x, digits=digits, RoundNearestTiesAway)),
-                                 digits+2+floor(Int, log10(abs(x))+(x<0)), '0')
+                                 digits+2+max(0,floor(Int, log10(abs(x))+(x<0))), '0')
 else
     const writefixed = Base.Ryu.writefixed
 end
