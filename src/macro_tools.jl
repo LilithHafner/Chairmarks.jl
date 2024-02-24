@@ -15,9 +15,9 @@ function substitute(ex::Expr, var::Symbol)
     changed ? exprarray(ex.head, args) : ex, changed
 end
 
-create_first_function(f::Symbol) = f
-create_first_function(x) = Returns(x)
-create_first_function(body::Expr) = :(() -> $body)
+create_first_function(f::Symbol, _) = f
+create_first_function(x, optimize) = optimize ? :(() -> $x) : Returns(x)
+create_first_function(body::Expr, _) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
@@ -40,14 +40,8 @@ function process_args(exprs)
         elseif ex === :_
             push!(args, nothing)
         elseif first
-            if lastindex(exprs) == i || exprs[i+1] isa Expr && exprs[i+1].head === :(=) && exprs[i+1].args[1] isa Symbol
-                # create_first_function gives errors and slower results when it is the first
-                # and only argument. Use this more runtime performant option that triggers
-                # compilation instead. It's okay to be low performance on `@b 1` and `@b x`.
-                push!(args, :(() -> $ex))
-            else
-                push!(args, create_first_function(ex))
-            end
+            # If this is the last function (and therefore the primary function) don't deoptimize with Returns.
+            push!(args, create_first_function(ex, lastindex(exprs) == i || exprs[i+1] isa Expr && exprs[i+1].head === :(=) && exprs[i+1].args[1] isa Symbol))
             first = false
         else
             push!(args, create_function(ex))
