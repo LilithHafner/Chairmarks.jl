@@ -44,7 +44,7 @@ using Chairmarks: Sample, Benchmark
 
         @testset "symbol as first arg" begin
             x = 2
-            @b x
+            @test_throws MethodError @b x
         end
 
         @testset "errors" begin
