@@ -42,6 +42,11 @@ using Chairmarks: Sample, Benchmark
             @b 1+1 seconds=.001
         end
 
+        @testset "symbol as first arg" begin
+            x = 2
+            @b x
+        end
+
         @testset "errors" begin
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
         end
