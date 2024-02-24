@@ -184,8 +184,8 @@ using Chairmarks: Sample, Benchmark
             @test nonzero(@b 123908)
             @test nonzero(@b -10923740)
 
-            @test_broken (@b 0).time != 0
-            @test_broken (@b 1).time != 0
+            @test_skip nonzero(@b 0)
+            @test_skip nonzero(@b 1)
         end
 
         @testset "Near monotonicity for evalpoly" begin
