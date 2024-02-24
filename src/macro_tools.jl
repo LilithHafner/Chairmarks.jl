@@ -15,6 +15,9 @@ function substitute(ex::Expr, var::Symbol)
     changed ? exprarray(ex.head, args) : ex, changed
 end
 
+create_first_function(f::Symbol) = f
+create_first_function(x) = Returns(x)
+create_first_function(body::Expr) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
@@ -27,7 +30,7 @@ function process_args(exprs)
     in_kw = false
     parameters = Any[]
     args = Any[benchmark, exprarray(:parameters, parameters)]
-    for ex in exprs
+    for (i, ex) in enumerate(exprs)
         if ex isa Expr && ex.head === :(=) && ex.args[1] isa Symbol
             in_kw = true
             ex.args[1] ∈ (:init, :setup, :teardown) && error("Keyword argument $(ex.args[1]) is not supported in macro calls, use positional arguments instead or use the function form of benchmark")
@@ -37,10 +40,14 @@ function process_args(exprs)
         elseif ex === :_
             push!(args, nothing)
         elseif first
-            # This could be `Returns` for literals, symbols, etc, but `Returns` has weaker
-            # type information and I don't want `2.0` to be slower than `1.0+1.0` or `x`
-            # where `x` is a `const`.
-            push!(args, :(() -> $body))
+            if lastindex(exprs) == i || exprs[i+1] isa Expr && exprs[i+1].head === :(=) && exprs[i+1].args[1] isa Symbol
+                # create_first_function gives errors and slower results when it is the first
+                # and only argument. Use this more runtime performant option that triggers
+                # compilation instead. It's okay to be low performance on `@b 1` and `@b x`.
+                push!(args, :(() -> $ex))
+            else
+                push!(args, create_first_function(ex))
+            end
             first = false
         else
             push!(args, create_function(ex))
