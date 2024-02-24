@@ -15,9 +15,9 @@ function substitute(ex::Expr, var::Symbol)
     changed ? exprarray(ex.head, args) : ex, changed
 end
 
-create_first_function(f::Symbol) = f
-create_first_function(x) = Returns(x)
-create_first_function(body::Expr) = :(() -> $body)
+# This could be `Returns` for literals, symbols, etc, but `Returns` has weaker type
+# information and I don't want `2.0` to be slower than `1.0+1.0` or `x` where `x` is `const`
+create_first_function(body) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
