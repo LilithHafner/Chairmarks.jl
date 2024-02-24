@@ -46,6 +46,14 @@ using Chairmarks: Sample, Benchmark
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
         end
 
+        @testset "writefixed" begin
+            @test Chairmarks.writefixed(-1.23045, 4) == "-1.2305"
+            @test Chairmarks.writefixed(-1.23045, 3) == "-1.230"
+            @test Chairmarks.writefixed(1.23045, 6) == "1.230450"
+            @test Chairmarks.writefixed(10, 1) == "10.0"
+            @test Chairmarks.writefixed(11, 1) == "11.0"
+        end
+
         @testset "display" begin
 
             # Basic
@@ -135,8 +143,8 @@ using Chairmarks: Sample, Benchmark
             @test eval(Meta.parse(repr(x))).data == x.data
             @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 2 samples with variable evaluations
-                    100.000 ms
-                    100.000 ms"""
+                   100.000 ms
+                   100.000 ms"""
         end
     end
 

@@ -22,3 +22,9 @@ if VERSION < v"1.4"
         ret
     end
 end
+@static if VERSIOM < v"1.6"
+    writefixed(x, digits) = rpad(string(round(x, digits=digits, RoundNearestTiesAway)),
+                                 digits+2+floor(Int, log10(abs(x))+(x<0)), '0')
+else
+    const writefixed = Base.Ryu.writefixed
+end

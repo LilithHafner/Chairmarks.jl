@@ -5,7 +5,7 @@ function print_rounded(@nospecialize(io::IO), x::Float64, digits::Int)
     elseif 0 < x < 1/10^digits
         print(io, "<0.", '0'^(digits-1), "1")
     else
-        print(io, VERSION < v"1.6" ? string(round(x, digits=digits)) : Base.Ryu.writefixed(x, digits))
+        print(io, writefixed(x, digits))
     end
 end
 function print_time(io, seconds::Float64)
