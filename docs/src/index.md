@@ -75,6 +75,32 @@ julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_, rev=true) || error()
 
 See [`@b`](@ref) for more info
 
+## Truthful
+
+Charimarks.jl automatically computes a checksum based on the results of the provided
+computations, and returns that checksum to the user along with benchmark results. This makes
+it impossible for the compiler to elide any part of the computation that has an impact on
+its return value.
+
+While the checksums are fast, one negative side effect of this is that they add a bit of
+overhead to the measured runtime, and that overhead can vary depending on the function being
+benchmarked. These checksums are performed by computing a map over the returned values and a
+reduction over those mapped values. You can disable this by overwriting the map with
+something trivial. For example, `map=Returns(nothing)`, possibly in combination with a
+custom teardown function that verifies computation results. Be aware that as the compiler
+improves, it may become better at eliding benchmarks whose results are not saved.
+
+```jldoctest
+julia> @b 1
+0.713 ns
+
+julia> @b 1.0
+1.135 ns
+
+julia> @b 1.0 map=Returns(nothing)
+0 ns
+```
+
 ## Efficient
 
 |           | Chairmarks.jl | BenchmarkTools.jl | Ratio
