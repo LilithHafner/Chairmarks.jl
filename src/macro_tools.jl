@@ -15,9 +15,6 @@ function substitute(ex::Expr, var::Symbol)
     changed ? exprarray(ex.head, args) : ex, changed
 end
 
-# This could be `Returns` for literals, symbols, etc, but `Returns` has weaker type
-# information and I don't want `2.0` to be slower than `1.0+1.0` or `x` where `x` is `const`
-create_first_function(body) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
@@ -40,7 +37,10 @@ function process_args(exprs)
         elseif ex === :_
             push!(args, nothing)
         elseif first
-            push!(args, create_first_function(ex))
+            # This could be `Returns` for literals, symbols, etc, but `Returns` has weaker
+            # type information and I don't want `2.0` to be slower than `1.0+1.0` or `x`
+            # where `x` is a `const`.
+            push!(args, :(() -> $body))
             first = false
         else
             push!(args, create_function(ex))
