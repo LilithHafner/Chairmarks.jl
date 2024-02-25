@@ -205,7 +205,7 @@ Modules = [Chairmarks]
 
 Chairmarks.jl has a similar samples/evals model to BenchmarkTools. It preserves the keyword
 arguments `samples`, `evals`, and `seconds`. Unlike BenchmarkTools.jl, the `seconds` argument
-is honored even as it drops down to the order of 1μs (`@b @b hash(rand()) seconds=.00003`).
+is honored even as it drops down to the order of 30μs (`@b @b hash(rand()) seconds=.00003`).
 While accuracy does decay as the total number of evaluations and samples decreases, it
 remains quite reasonable (e.g. I see a noise of about 30% when benchmarking
 `@b hash(rand()) seconds=.00003`). This makes it much more reasonable to perform
@@ -244,6 +244,7 @@ Here are some examples of corresponding invocations in BenchmarkTools.jl and Cha
 |-------------------|-------------|
 | `@btime rand();`  | `@b rand()` |
 | `@btime sort!(x) setup=(x=rand(100)) evals=1;` | `@b rand(100) sort! evals=1` |
+| `@btime sort!(x, rev=true) setup=(x=rand(100)) evals=1;` | `@b rand(100) sort!(_, rev=true) evals=1` |
 | `@btime issorted(sort!(x)) \|\| error() setup=(x=rand(100)) evals=1` | `@b rand(100) sort! issorted(_) \|\| error() evals=1` |
 | `let X = rand(100); @btime issorted(sort!($X)) \|\| error() setup=(rand!($X)) evals=1 end` | `@b rand(100) rand! sort! issorted(_) \|\| error() evals=1` |
 
