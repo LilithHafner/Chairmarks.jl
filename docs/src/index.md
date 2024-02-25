@@ -248,14 +248,14 @@ Here are some examples of corresponding invocations in BenchmarkTools.jl and Cha
 | `@btime issorted(sort!(x)) \|\| error() setup=(x=rand(100)) evals=1` | `@b rand(100) sort! issorted(_) \|\| error() evals=1` |
 | `let X = rand(100); @btime issorted(sort!($X)) \|\| error() setup=(rand!($X)) evals=1 end` | `@b rand(100) rand! sort! issorted(_) \|\| error() evals=1` |
 
-For regression tests, [RegressionTests.jl](https://github.com/LilithHafner/RegressionTests.jl)
+For automated regression tests, [RegressionTests.jl](https://github.com/LilithHafner/RegressionTests.jl)
 is a work in progress replacement for the `BenchmarkGroup` and `judge` system. Because
 Chairmarks is efficiently and stably autotuned and RegressionTests.jl is inherently robust
 to noise, there is no need for parameter caching.
 
-### nonconstant globals and interpolation
+### Nonconstant globals and interpolation
 
-The arguments to Charimarks.jl are lowered to functions, not quoted expressions.
+The arguments to Chairmarks.jl are lowered to functions, not quoted expressions.
 Consequently, there is no need to interpolate variables and interpolation is therefore not
 supported. Like BenchmarkTools.jl, benchmarks that includes access to nonconstant globals
 will receive a performance overhead for that access. Two possible ways to avoid this are
