@@ -116,6 +116,9 @@ julia> @b 1.0 map=Returns(nothing)
 
 ### For interactive use
 
+There are several ways to use Chairmarks in your interactive sessions, ordered from simplest
+to install first to most streamlined user experience last.
+
 1. Add Chairmarks to your default environment with `import Pkg; Pkg.activate(); Pkg.add("Chairmarks")`.
 Chairmarks has no non-stdlib dependencies, and precompiles in less than one second, so this
 should not have any adverse impacts on your environments nor slow load times nor package
