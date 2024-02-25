@@ -50,7 +50,7 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
         if calibration1.time < .00015seconds # This branch protects us against cases where runtime is dominated by the reduction.
             calibration2, time = bench(10)
             trials = floor(Int, .05seconds/(calibration2.time+1e-9))
-            if trials > 10
+            if trials > 20
                 calibration2, time = bench(trials)
             end
         elseif calibration1.time < .01seconds
