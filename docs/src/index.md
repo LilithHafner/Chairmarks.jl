@@ -90,7 +90,7 @@ something trivial. For example, `map=Returns(nothing)`, possibly in combination 
 custom teardown function that verifies computation results. Be aware that as the compiler
 improves, it may become better at eliding benchmarks whose results are not saved.
 
-```jldoctest; filters=r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|0 ns|<0.001 ns"
+```jldoctest; filter=r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|0 ns|<0.001 ns"
 julia> @b 1
 0.713 ns
 
