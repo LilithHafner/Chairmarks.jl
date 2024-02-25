@@ -112,7 +112,7 @@ julia> @b 1.0 map=Returns(nothing)
 |Width | Narrow   | Wide     |     2–4x
 |Back Support | Almost Always | Sometimes | N/A
 
-## Installation / Integrating Chairmarks into your workflow
+## [Installation / Integrating Chairmarks into your workflow](@id Installation)
 
 ### For interactive use
 
