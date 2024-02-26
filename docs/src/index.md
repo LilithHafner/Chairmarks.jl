@@ -85,10 +85,10 @@ its return value.
 While the checksums are fast, one negative side effect of this is that they add a bit of
 overhead to the measured runtime, and that overhead can vary depending on the function being
 benchmarked. These checksums are performed by computing a map over the returned values and a
-reduction over those mapped values. You can disable this by overwriting the map with
-something trivial. For example, `map=Returns(nothing)`, possibly in combination with a
-custom teardown function that verifies computation results. Be aware that as the compiler
-improves, it may become better at eliding benchmarks whose results are not saved.
+reduction over those mapped values. You can disable this by passing the `checksum=false`
+keyword argument, possibly in combination with a custom teardown function that verifies
+computation results. Be aware that as the compiler improves, it may become better at eliding
+benchmarks whose results are not saved.
 
 ```jldoctest; filter=r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|0 ns|<0.001 ns"
 julia> @b 1
@@ -97,9 +97,13 @@ julia> @b 1
 julia> @b 1.0
 1.135 ns
 
-julia> @b 1.0 map=Returns(nothing)
+julia> @b 1.0 checksum=false
 0 ns
 ```
+
+You may experiment with custom reductions using the internal _map and _reduction keyword
+arguments. The default maps and reductions (`Chairmarks.default_map` and
+`Chairmarks.default_reduction`) are internal and subject to change and/or removal in future.
 
 ## Efficient
 
@@ -249,9 +253,46 @@ Here are some examples of corresponding invocations in BenchmarkTools.jl and Cha
 | `let X = rand(100); @btime issorted(sort!($X)) \|\| error() setup=(rand!($X)) evals=1 end` | `@b rand(100) rand! sort! issorted(_) \|\| error() evals=1` |
 
 For automated regression tests, [RegressionTests.jl](https://github.com/LilithHafner/RegressionTests.jl)
-is a work in progress replacement for the `BenchmarkGroup` and `judge` system. Because
-Chairmarks is efficiently and stably autotuned and RegressionTests.jl is inherently robust
-to noise, there is no need for parameter caching.
+is a work in progress replacement for the `BenchmarkGroup` and `@benchmarkable` system.
+Because Chairmarks is efficiently and stably autotuned and RegressionTests.jl is inherently
+robust to noise, there is no need for parameter caching.
+
+### Toplevel API
+
+Chairmarks always returns the benchmark result, while BenchmarkTools mirrors the more
+diverse base API.
+
+| BenchmarkTools        | Chairmarks       | Base         |
+|-----------------------|------------------|--------------|
+| minimum(@benchmark _) | @b               | N/A          |
+| @benchmark            | @be              | N/A          |
+| @belapsed             | (@b _).time      | @elapsed     |
+| @btime                | display(@b _); _ | @time        |
+| N/A                   | (@b _).allocs    | @allocations |
+| @ballocated           | (@b _).bytes     | @allocated   |
+
+Chairmarks may provide `@belapsed`, `@btime`, `@ballocated`, and `@ballocations` in the
+future.
+
+### Fields
+
+Benchmark results have the following fields:
+
+| Chairmarks           | BenchmarkTools    | Description            |
+|----------------------|------------- -----|------------------------|
+| x.time               | x.time*1e9        | Runtime in seconds     |
+| x.time/1e9           | x.time            | Runtime in nanoseconds |
+| x.allocs             | x.allocs          | Number of allocations  |
+| x.bytes              | x.memory          | Number of bytes allocated across all allocations |
+| x.gc_fraction        | x.gctime / x.time | Fraction of time spent in garbage collection |
+| x.gc_time*x.time     | x.gctime          | Time spent in garbage collection |
+| x.compile_fraction   | N/A               | Fraction of time spent compiling |
+| x.recompile_fraction | N/A               | Fraction of time spent compiling which was on recompilation |
+| x.warmup             | true              | weather or not the sample had a warmup run before it |
+| x.checksum           | N/A               | a checksum computed from the return values of the benchmarked code |
+| x.evals              | x.params.evals    | the number of evaluations in the sample |
+
+Note that these fields are likely to change in Chairmarks 1.0.
 
 ### Nonconstant globals and interpolation
 

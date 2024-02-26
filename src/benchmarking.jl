@@ -12,7 +12,7 @@ maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, map=default_map, reduction=default_reduction)
+function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, checksum::Bool=true, _map=(checksum ? default_map : Returns(nothing)), _reduction=default_reduction)
     @nospecialize
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
@@ -24,7 +24,7 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
 
     function bench(evals, warmup=true)
         args2 = maybecall(setup, args1)
-        sample, t, args3 = _benchmark(f, map, reduction, args2, evals, warmup)
+        sample, t, args3 = _benchmark(f, _map, _reduction, args2, evals, warmup)
         maybecall(teardown, (args3,))
         sample, t
     end
@@ -47,9 +47,14 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
         # We should be spending about 5% of runtime on calibration.
         # If we spent less than 1% then recalibrate with more evals.
         calibration2 = nothing
-        if calibration1.time < .01seconds
-            caltime = calibration1.time < .00015seconds ? bench(10)[1].time : calibration1.time # This line protects us against cases where runtime is dominated by the reduction.
-            calibration2, time = bench(floor(Int, .05seconds/(caltime+1e-9)))
+        if calibration1.time < .00015seconds # This branch protects us against cases where runtime is dominated by the reduction.
+            calibration2, time = bench(10)
+            trials = floor(Int, .05seconds/(calibration2.time+1e-9))
+            if trials > 20
+                calibration2, time = bench(trials)
+            end
+        elseif calibration1.time < .01seconds
+            calibration2, time = bench(floor(Int, .05seconds/(calibration1.time+1e-9)))
         end
 
         # We need samples that take at least 30 nanoseconds for any reasonable measurements
