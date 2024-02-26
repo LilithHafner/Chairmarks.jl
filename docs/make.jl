@@ -12,7 +12,8 @@ makedocs(;
     format=DocumenterVitepress.MarkdownVitepress(
         repo = "https://github.com/LilithHafner/Chairmarks.jl",
         devbranch = "main",
-        devurl = "dev"
+        devurl = "dev",
+        deploy_url = "chairmarks.lilithhafner.com",
     ),
     pages=[
         "Home" => "index.md",
