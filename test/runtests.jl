@@ -348,9 +348,9 @@ using Chairmarks: Sample, Benchmark
             @test .1 < t < .6
             t = @elapsed @b rand Returns(float(x))
             @test .1 < t < .2
-            t = @elapsed @b rand Returns(float(x)) map=identity
+            t = @elapsed @b rand Returns(float(x)) _map=identity
             @test .1 < t < .6
-            t = @elapsed @b rand Returns(float(x)) map=identity
+            t = @elapsed @b rand Returns(float(x)) _map=identity
             @test .1 < t < .2
         end
     end
