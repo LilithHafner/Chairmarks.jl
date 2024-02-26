@@ -9,7 +9,7 @@ using Chairmarks: Sample, Benchmark
             @b 4 _ > 3 @test _
         end
 
-        @testset "macro hygene" begin
+        @testset "macro hygiene" begin
             x = 4
             @be x > 3 @test _
         end
