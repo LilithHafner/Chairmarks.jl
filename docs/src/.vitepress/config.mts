@@ -51,7 +51,7 @@ export default defineConfig({
     ],
     footer: {
       message: 'Made with <a href="https://documenter.juliadocs.org/stable/" target="_blank"><strong>Documenter.jl</strong></a> & <a href="https://vitepress.dev" target="_blank"><strong>VitePress</strong></a> <br>',
-      copyright: `© Copyright ${new Date().getUTCFullYear()}. Released under the MIT License.`
+      copyright: `© Copyright ${new Date().getUTCFullYear()}. Released under the GPT-3.0 License.`
     }
   }
 })
