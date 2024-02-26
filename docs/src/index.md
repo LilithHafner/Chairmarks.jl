@@ -285,7 +285,7 @@ Benchmark results have the following fields:
 | x.compile_fraction   | N/A               | Fraction of time spent compiling |
 | x.recompile_fraction | N/A               | Fraction of time spent compiling which was on recompilation |
 | x.warmup             | true              | weather or not the sample had a warmup run before it |
-| x.value              | N/A               | a checksum computed from the return values of the benchmarked code |
+| x.checksum           | N/A               | a checksum computed from the return values of the benchmarked code |
 | x.evals              | x.params.evals    | the number of evaluations in the sample |
 
 Note that these fields are likely to change in Chairmarks 1.0.

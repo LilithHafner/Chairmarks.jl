@@ -39,11 +39,11 @@ struct Sample
     "Whether this sample had a warmup run before it (1.0 = yes. 0.0 = no)."
     warmup             ::Float64
 
-    "The value returned by the accumulator"
-    value              ::Float64
+    "The checksum value returned by the accumulator"
+    checksum              ::Float64
 end
-Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0, warmup=true, value=0) =
-    Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup, value)
+Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0, warmup=true, checksum=0) =
+    Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup, checksum)
 
 struct Benchmark
     data::Vector{Sample}
