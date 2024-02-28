@@ -14,7 +14,6 @@ makedocs(;
         devbranch = "main",
         devurl = "dev",
         deploy_url = "chairmarks.lilithhafner.com",
-        build_vitepress = false,
     ),
     pages=[
         "Home" => "index.md",
