@@ -3,7 +3,7 @@ CurrentModule = Chairmarks
 DocTestSetup = quote
     using Chairmarks
 end
-DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
+DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|Benchmark: \d+ samples with \d+ evaluations"]
 ```
 
 # Tutorial
@@ -11,7 +11,7 @@ DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
 Welcome! This tutorial assumes very little prior knowledge and walks you through how to
 become a proficient user of Chairmarks.jl. If you are already an experienced user of
 BenchmarkTools, you may want to read about
-[how to transition from BenchmarkTools to Chairmarks](@ref migration) instead.
+[how to migrate from BenchmarkTools to Chairmarks](@ref migration) instead.
 
 If you don't have Julia already, download it from
 [julialang.org/downloads](https://julialang.org/downloads/).
@@ -69,7 +69,7 @@ reported runtimes and allocations are those differences divided by the number of
 evaluations. We can see here that the runtime of `rand(100)` is pretty stable. 50% of the
 time it ranges between 95 and 103.3 nanoseconds. However, the maximum time is two orders
 of magnitude slower than the mean time. This is because the maximum time includes a garbage
-collection event that took 96.95% of the time[^1].
+collection event that took 96.95% of the time.[^1]
 
 Sometimes, we wish to measure the runtime of a function that requires some data to operate
 on, but don't want to measure the runtime of the function that generates the data. For
@@ -101,7 +101,7 @@ about one clock cycle per element, with a bit of overhead. The second, on the ot
 appears to be running much faster than that, likely because it is making use of SIMD
 instructions.
 
-[^1]: note that the samples are compared element wise, so the max field reports the maximum
+[^1]: note that the samples are aggregated element wise, so the max field reports the maximum
     runtime and the maximum proportion of runtime spent in garbage collection (gc). Thus it
     is possible that the trial which had a 19.748 μs runtime was not the same trial that
     spent 96.95% of its time in garbage collection. This is in order to make the results
