@@ -1,7 +1,7 @@
 """
     @b [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the fastest result
+Benchmark `f` and return the fastest result.
 
 Use `@be` for full results.
 
@@ -44,7 +44,7 @@ end
 """
     @be [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the results
+Benchmark `f` and return the results.
 
 Use `@b` for abbreviated results.
 
