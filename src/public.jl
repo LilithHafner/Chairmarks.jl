@@ -88,12 +88,12 @@ may provide a `teardown` and no `setup` with
 Provide keyword arguments using `name=value` syntax similar to how you provide keyword
 arguments to ordinary functions. Keyword arguments to control executions are
 
-    - `evals::Integer` How many function evaluations to perform in each sample. Defaults to
+  - `evals::Integer` How many function evaluations to perform in each sample. Defaults to
     automatic calibration.
-    - `samples::Integer` Maximum number of samples to take. Defaults to unlimited and cannot
+  - `samples::Integer` Maximum number of samples to take. Defaults to unlimited and cannot
     be specified without also specifying `evals`. Specifying `samples = 0` will cause `@be`
     to run the warmup sample only and return that sample.
-    - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to `0.1` seconds
+  - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to `0.1` seconds
     unless `samples` is specified in which case it defaults to `1` second. Set to `Inf`
     to disable the time limit. Compile time is typically not counted against this limit.
     A reasonable effort is made to respect the time limit, but it is always exceeded by a
