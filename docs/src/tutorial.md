@@ -112,7 +112,7 @@ passed to the function each evaluation in a sample. This can cause problems if t
 does not expect to repeatedly operate on the same input.
 
 ```jldoctest
-@b rand(100) sort!
+julia> @b rand(100) sort!
 129.573 ns (0.02 allocs: 11.317 bytes)
 ```
 
