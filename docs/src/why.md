@@ -33,6 +33,19 @@ julia> @b f(1010)
 1.087 μs
 ```
 
+## Efficient
+
+|               | Chairmarks.jl  | BenchmarkTools.jl | Ratio
+|---------------|----------------|-------------------|-------|
+| TTFX          | 3.4s           | 13.4s             | 4x
+| TTFX excluding precompilation | 43ms | 1118ms      | 26x
+| Load time     | 4.2ms          | 131ms             | 31x
+| minimum runtime | 34μs         | 459ms             | 13,500x
+| default runtime | 0.1s         | 5s                | 50x
+
+See [https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx\_rm\_rf\_julia.sh](https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx_rm_rf_julia.sh)
+for methodology.
+
 ## Concise
 
 Chairmarks uses a concise pipeline syntax to define benchmarks. When providing a single
@@ -105,18 +118,6 @@ You may experiment with custom reductions using the internal `_map` and `_reduct
 arguments. The default maps and reductions (`Chairmarks.default_map` and
 `Chairmarks.default_reduction`) are internal and subject to change and/or removal in
 future.
-
-## Efficient
-
-|               | Chairmarks.jl  | BenchmarkTools.jl | Ratio
-|---------------|----------------|-------------------|-------|
-| TTFX          | 3.4s           | 13.4s             | 4x
-| TTFX excluding precompilation | 43ms | 1118ms      | 26x
-| Load time     | 4.2ms          | 131ms             | 31x
-| minimum runtime | 34μs         | 459ms             | 13,500x
-
-See [https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx\_rm\_rf\_julia.sh](https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx_rm_rf_julia.sh)
-for methodology.
 
 ## Innate qualities
 
