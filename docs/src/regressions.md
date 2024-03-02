@@ -8,6 +8,11 @@ DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
 
 # How to use Chairmarks for regression testing
 
+!!! warning "Regression Testing is a Work in Progress"
+    Regression testing is a difficult task. RegressionTests.jl has ambitious goals and is
+    already state of the art within the Julia ecosystem, but it is very much a work in
+    progress. Proceed at your own risk, or wait for that package to reach maturity.
+
 Use [`RegressionTests.jl`](https://github.com/LilithHafner/RegressionTests.jl)! Make a file
 `bench/runbenchmarks.jl` with the following content:
 
