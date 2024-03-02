@@ -35,7 +35,7 @@ julia> @b f(1010)
 
 ## Efficient
 
-|               | Chairmarks.jl  | BenchmarkTools.jl | Ratio
+|               | Chairmarks     | BenchmarkTools    | Ratio
 |---------------|----------------|-------------------|-------|
 | TTFX          | 3.4s           | 13.4s             | 4x
 | TTFX excluding precompilation | 43ms | 1118ms      | 26x
@@ -90,7 +90,7 @@ See [`@b`](@ref) for more info
 
 ## Truthful
 
-Charimarks.jl automatically computes a checksum based on the results of the provided
+Charimarks automatically computes a checksum based on the results of the provided
 computations, and returns that checksum to the user along with benchmark results. This makes
 it impossible for the compiler to elide any part of the computation that has an impact on
 its return value.

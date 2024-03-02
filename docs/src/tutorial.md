@@ -9,7 +9,7 @@ DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|Benchmark: \d+ samples wi
 # Tutorial
 
 Welcome! This tutorial assumes very little prior knowledge and walks you through how to
-become a proficient user of Chairmarks.jl. If you are already an experienced user of
+become a proficient user of Chairmarks. If you are already an experienced user of
 BenchmarkTools, you may want to read about
 [how to migrate from BenchmarkTools to Chairmarks](@ref migration) instead.
 

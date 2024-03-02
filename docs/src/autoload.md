@@ -29,7 +29,7 @@ to install first to most streamlined user experience last.
 if isinteractive() && (local REPL = get(Base.loaded_modules, Base.PkgId(Base.UUID("3fa0cd96-eef1-5676-8a61-b3b8758bbffb"), "REPL"), nothing); REPL !== nothing)
     # https://github.com/fredrikekre/.dotfiles/blob/65b96f492da775702c05dd2fd460055f0706457b/.julia/config/startup.jl
     # Automatically load tooling on demand. These packages should be stdlibs or part of the default environment.
-    # - Chairmarks.jl when encountering @b or @be
+    # - Chairmarks when encountering @b or @be
     # - add more as desired...
     local tooling = [
         ["@b", "@be"] => :Chairmarks,
