@@ -105,7 +105,7 @@ about one clock cycle per element, with a bit of overhead. The second, on the ot
 appears to be running much faster than that, likely because it is making use of SIMD
 instructions.
 
-## Advanced usage
+## Common pitfalls
 
 When benchmarking a function which mutates it arguments, be aware that the same input is
 passed to the function each evaluation in a sample. This can cause problems if the function
@@ -188,6 +188,13 @@ julia> 201.917/67.334
 Longer runtimes and macrobenchmarks are much more trustworthy than microbenchmarks, though
 microbenchmarks are often a great tool for identifying performance bottlenecks and
 optimizing macrobenchmarks.
+
+## Advanced usage
+
+It is possible to manually specify the number of evaluations, samples, and/or seconds to run
+benchmarking for. Setting these values too low can result in noisy results. It is also
+possible to pass a teardown function or an initialization function that runs only once. See
+the docstring of [`@be`](@ref) for more information on these additional arguments.
 
 [^1]: note that the samples are aggregated element wise, so the max field reports the maximum
     runtime and the maximum proportion of runtime spent in garbage collection (gc). Thus it
