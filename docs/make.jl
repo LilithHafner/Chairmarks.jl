@@ -17,6 +17,7 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Why use Chairmarks?" => "why.md",
+        "Tutorial" => "tutorial.md",
         "How To" => [
             "...migrate from BenchmarkTools" => "migration.md",
             "...install Charimarks ergonomically" => "autoload.md",
