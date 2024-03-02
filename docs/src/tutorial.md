@@ -47,6 +47,10 @@ nanoseconds to run and allocates 928 bytes of memory spread across two distinct 
 events. The exact results you get will likely differ based on your hardware and the Julia
 version you are using. These results from Julia 1.11.
 
+Chairmarks reports results in seconds (s), milliseconds (ms), microseconds (μs), or
+nanoseconds (ns) depending on the magnitude of the runtime. Each of these units is 1000
+times smaller than the last according to the standard SI unit system.
+
 By default, Chairmarks reports the _fastest_ runtime of the expression. This is typically
 the best choice for reducing noise in microbenchmarks as things like garbage collection and
 other background tasks can cause inconsistent slowdowns but but speedups. If you want to
@@ -100,6 +104,90 @@ These measurements are on a 3.5 GHz CPU so it appears that the first implementat
 about one clock cycle per element, with a bit of overhead. The second, on the other hand,
 appears to be running much faster than that, likely because it is making use of SIMD
 instructions.
+
+## Advanced usage
+
+When benchmarking a function which mutates it arguments, be aware that the same input is
+passed to the function each evaluation in a sample. This can cause problems if the function
+does not expect to repeatedly operate on the same input.
+
+```jldoctest
+@b rand(100) sort!
+129.573 ns (0.02 allocs: 11.317 bytes)
+```
+
+We can see immediately that something suspicious is going on here: the reported number of
+allocations (which we expect to be an integer) is a floating point number. This is because
+each sample, the array is sorted once, which involves allocating a scratchspace, and then
+that same array is re-sorted repeatedly. It turns out `sort!` operates very quickly and
+does not allocate at all when it is passed a sorted array. To benchmark this more
+accurately, we may specify the number of evaluations
+
+```jldoctest
+julia> @b rand(100) sort! evals=1
+1.208 μs (2 allocs: 928 bytes)
+```
+
+or copy the input before sorting it
+
+```jldoctest
+julia> @b rand(100) sort!(copy(_))
+1.250 μs (4 allocs: 1.812 KiB)
+```
+
+copy the input into a pre-allocated array
+
+```jldoctest
+julia> @b (x = rand(100); (x, copy(x))) sort!(copyto!(_[1], _[2]))
+675.926 ns (2 allocs: 928 bytes)
+```
+
+or re-generate the input each evaluation
+
+```jldoctest
+julia> @b sort!(rand(100))
+1.405 μs (4 allocs: 1.812 KiB)
+```
+
+Notice that each of these invocations produces a different output. Setting `evals` to 1 can
+cause strange effects whenever the runtime of the expression is less than about 30 μs both
+due to the overhead of starting and stopping the timers and due to the imprecision of timer
+results on most machines. Any form of pre-processing included in the primary function will
+be included in the reported runtime, so each of the latter options also introduce artifacts.
+
+In general, it is important to use the same methodology when comparing two different
+functions. Chairmarks is optimized to produce reliable results for answering questions of
+the form "which of these two implementations of the same specification is faster", more so
+than providing absolute measurements of the runtime of fast-running functions.
+
+That said, for functions which take more than about 30 μs to run, Chairmarks can reliably
+provide accurate absolute timings. In general, the faster the runtime of the expression
+being measured, the more strange behavior and artifacts you will see, and the more careful
+you have to be.
+
+```jldoctest
+julia> f() = sum(rand(100_000))
+f (generic function with 1 method)
+
+julia> @b f()
+67.167 μs (3 allocs: 781.312 KiB)
+
+julia> @b f() evals=1
+67.334 μs (3 allocs: 781.312 KiB)
+
+julia> @b for _ in 1:3 f() end
+201.917 μs (9 allocs: 2.289 MiB)
+
+julia> 201.917/67.167
+3.0061935176500363
+
+julia> 201.917/67.334
+2.998737636261027
+```
+
+Longer runtimes and macrobenchmarks are much more trustworthy than microbenchmarks, though
+microbenchmarks are often a great tool for identifying performance bottlenecks and
+optimizing macrobenchmarks.
 
 [^1]: note that the samples are aggregated element wise, so the max field reports the maximum
     runtime and the maximum proportion of runtime spent in garbage collection (gc). Thus it
