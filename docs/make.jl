@@ -16,6 +16,8 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Why use Chairmarks?" => "why.md",
+        "Reference" => "reference.md",
     ],
 )
 
