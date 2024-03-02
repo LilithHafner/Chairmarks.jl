@@ -13,7 +13,7 @@ of times faster than BenchmarkTools.jl without compromising on accuracy.
 
 Installation
 
-```julia
+```julia-repl
 julia> import Pkg; Pkg.add("Chairmarks")
 ```
 
