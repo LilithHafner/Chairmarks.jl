@@ -100,9 +100,11 @@ Note that these fields are likely to change in Chairmarks 1.0.
 The arguments to Chairmarks are lowered to functions, not quoted expressions.
 Consequently, there is no need to interpolate variables and interpolation is therefore not
 supported. Like BenchmarkTools, benchmarks that includes access to nonconstant globals
-will receive a performance overhead for that access. Two possible ways to avoid this are
-to make the global constant, and to include it in the setup or initiaization phase. For
-example,
+will receive a performance overhead for that access. However, Chairmarks evaluates
+expressions in the scope of the macro call, not in global scope, so nonconstant global
+access is much less of an issue in Chairmarks than BenchmarkTools. Three possible ways to
+avoid it are to put the `@b` call in a function, make the global constant, or to include it
+in the setup or initiaization phase. For example,
 
 ```jldoctest
 julia> x = 6 # nonconstant global
@@ -110,6 +112,12 @@ julia> x = 6 # nonconstant global
 
 julia> @b rand(x) # slow
 39.616 ns (1.02 allocs: 112.630 bytes)
+
+julia> f(len) = @b rand(len)
+f (generic function with 1 method)
+
+julia> f(x) # fast
+19.010 ns (1 allocs: 112 bytes)
 
 julia> @b x rand # fast
 18.939 ns (1 allocs: 112 bytes)
