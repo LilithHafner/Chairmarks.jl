@@ -54,7 +54,7 @@ times smaller than the last according to the standard
 
 By default, Chairmarks reports the _fastest_ runtime of the expression. This is typically
 the best choice for reducing noise in microbenchmarks as things like garbage collection and
-other background tasks can cause inconsistent slowdowns but but speedups. If you want to
+other background tasks can cause inconsistent slowdowns but not speedups. If you want to
 get the full results, use the `@be` macro. (`@be` is longer than `@b` and gives a longer
 output)
 
