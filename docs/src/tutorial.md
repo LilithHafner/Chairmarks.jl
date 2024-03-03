@@ -54,7 +54,7 @@ times smaller than the last according to the standard
 
 By default, Chairmarks reports the _fastest_ runtime of the expression. This is typically
 the best choice for reducing noise in microbenchmarks as things like garbage collection and
-other background tasks can cause inconsistent slowdowns but but speedups. If you want to
+other background tasks can cause inconsistent slowdowns but speedups. If you want to
 get the full results, use the `@be` macro. (`@be` is longer than `@b` and gives a longer
 output)
 
@@ -88,7 +88,7 @@ julia> @b rand(100) hash
 ```
 
 The first argument is called once per sample, and the second argument is called once per
-evaluation, each time passed the result of the first argument. We can also use the special
+evaluation, each time passing the result of the first argument. We can also use the special
 `_` variable to refer to the output of the previous step. Here, we compare two different
 implementations of the norm of a vector
 
@@ -109,7 +109,7 @@ instructions.
 ## Common pitfalls
 
 When benchmarking a function which mutates its arguments, be aware that the same input is
-passed to the function each evaluation in a sample. This can cause problems if the function
+passed to the function for each evaluation in a sample. This can cause problems if the function
 does not expect to repeatedly operate on the same input.
 
 ```jldoctest
@@ -119,7 +119,7 @@ julia> @b rand(100) sort!
 
 We can see immediately that something suspicious is going on here: the reported number of
 allocations (which we expect to be an integer) is a floating point number. This is because
-each sample, the array is sorted once, which involves allocating a scratchspace, and then
+for each sample, the array is sorted once, which involves allocating a scratchspace, and then
 that same array is re-sorted repeatedly. It turns out `sort!` operates very quickly and
 does not allocate at all when it is passed a sorted array. To benchmark this more
 accurately, we may specify the number of evaluations
@@ -154,7 +154,7 @@ Notice that each of these invocations produces a different output. Setting `eval
 cause strange effects whenever the runtime of the expression is less than about 30 μs both
 due to the overhead of starting and stopping the timers and due to the imprecision of timer
 results on most machines. Any form of pre-processing included in the primary function will
-be included in the reported runtime, so each of the latter options also introduce artifacts.
+be included in the reported runtime, so each of the latter options also introduces artifacts.
 
 In general, it is important to use the same methodology when comparing two different
 functions. Chairmarks is optimized to produce reliable results for answering questions of
