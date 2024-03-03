@@ -1,9 +1,9 @@
 """
     @b [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the fastest result.
+Benchmark `f` and return the fastest [`Sample`](@ref).
 
-Use `@be` for full results.
+Use [`@be`](@ref) for full results.
 
 `@b args...` is equivalent to `minimum(@b args...)`. See the docstring for [`@be`](@ref)
 for more information.
@@ -44,9 +44,9 @@ end
 """
     @be [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the results.
+Benchmark `f` and return the results as a [`Benchmark`](@ref).
 
-Use `@b` for abbreviated results.
+Use [`@b`](@ref) for abbreviated results.
 
 # Positional argument pipeline syntax
 

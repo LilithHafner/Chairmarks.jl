@@ -8,9 +8,14 @@ Specific display behavior is not part of the API, nor are the internal fields of
 `Sample` type. Please open an issue or a pull request if you would like to rely on internal
 behavior and we can make it public.
 
-```@index
-```
+- [`Chairmarks.Sample`](@ref)
+- [`Chairmarks.Benchmark`](@ref)
+- [`@b`](@ref)
+- [`@be`](@ref)
 
-```@autodocs
-Modules = [Chairmarks]
+```@docs
+Chairmarks.Sample
+Chairmarks.Benchmark
+@b
+@be
 ```
