@@ -83,7 +83,7 @@ using Chairmarks: Sample, Benchmark
                 Sample(time=0.10162322700000001, allocs=166, bytes=16584)
             ])
 
-            @test eval(Meta.parse(repr(x))).data == x.data
+            @test eval(Meta.parse(repr(x))).samples == x.samples
             VERSION >= v"1.6" && @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 5 samples with 1 evaluation
             min    101.540 ms (166 allocs: 16.195 KiB)
@@ -91,17 +91,17 @@ using Chairmarks: Sample, Benchmark
             mean   101.728 ms (166 allocs: 16.195 KiB)
             max    102.239 ms (166 allocs: 16.195 KiB)"""
 
-            x = Benchmark(x.data[1:3])
+            x = Benchmark(x.samples[1:3])
 
-            @test eval(Meta.parse(repr(x))).data == x.data
+            @test eval(Meta.parse(repr(x))).samples == x.samples
             VERSION >= v"1.6" && @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 3 samples with 1 evaluation
                    101.540 ms (166 allocs: 16.195 KiB)
                    101.591 ms (166 allocs: 16.195 KiB)
                    102.239 ms (166 allocs: 16.195 KiB)"""
 
-            x = Benchmark(x.data[1:0])
-            @test eval(Meta.parse(repr(x))).data == x.data
+            x = Benchmark(x.samples[1:0])
+            @test eval(Meta.parse(repr(x))).samples == x.samples
             @test sprint(show, MIME"text/plain"(), x) == "Benchmark: 0 samples"
 
 
@@ -149,7 +149,7 @@ using Chairmarks: Sample, Benchmark
                 Sample(time=0.1, evals=2)
                 Sample(time=0.1)
             ])
-            @test eval(Meta.parse(repr(x))).data == x.data
+            @test eval(Meta.parse(repr(x))).samples == x.samples
             @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 2 samples with variable evaluations
                    100.000 ms
@@ -327,7 +327,7 @@ using Chairmarks: Sample, Benchmark
             f() = @be sleep(runtime)
             f()
             t = @timed f()
-            time_in_function = sum(s -> s.time * s.evals, t[1].data)
+            time_in_function = sum(s -> s.time * s.evals, t[1].samples)
             @test t[2]-2runtime < time_in_function < t[2]-runtime # loose the warmup, but keep the calibration.
         end
 

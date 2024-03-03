@@ -43,7 +43,7 @@ Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, re
 
 """
     struct Benchmark
-        data::Vector{Sample}
+        samples::Vector{Sample}
         ...more fields may be added...
     end
 
@@ -69,5 +69,5 @@ julia> minimum(ans)
 ```
 """
 struct Benchmark
-    data::Vector{Sample}
+    samples::Vector{Sample}
 end
