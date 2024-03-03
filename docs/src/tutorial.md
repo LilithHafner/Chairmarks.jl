@@ -49,7 +49,8 @@ version you are using. These results from Julia 1.11.
 
 Chairmarks reports results in seconds (s), milliseconds (ms), microseconds (μs), or
 nanoseconds (ns) depending on the magnitude of the runtime. Each of these units is 1000
-times smaller than the last according to the standard SI unit system.
+times smaller than the last according to the standard
+[SI unit system](https://en.wikipedia.org/wiki/Metric_prefix).
 
 By default, Chairmarks reports the _fastest_ runtime of the expression. This is typically
 the best choice for reducing noise in microbenchmarks as things like garbage collection and
