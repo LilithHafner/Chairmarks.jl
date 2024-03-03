@@ -117,7 +117,7 @@ julia> @b 1.0 checksum=false
 You may experiment with custom reductions using the internal `_map` and `_reduction` keyword
 arguments. The default maps and reductions (`Chairmarks.default_map` and
 `Chairmarks.default_reduction`) are internal and subject to change and/or removal in
-future.
+the future.
 
 ## Innate qualities
 
