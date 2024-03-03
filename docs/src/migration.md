@@ -93,7 +93,7 @@ Benchmark results have the following fields:
 | `x.checksum`           | N/A                 | a checksum computed from the return values of the benchmarked code |
 | `x.evals`              | `x.params.evals`    | the number of evaluations in the sample |
 
-Note that these fields are likely to change in Chairmarks 1.0.
+Note that more fields may be added as more information becomes available.
 
 ### Nonconstant globals and interpolation
 
