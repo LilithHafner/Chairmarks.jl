@@ -4,7 +4,6 @@ using Documenter
 DocMeta.setdocmeta!(Chairmarks, :DocTestSetup, :(using Chairmarks); recursive=true)
 
 makedocs(;
-    modules=[Chairmarks],
     authors="Lilith Orion Hafner <lilithhafner@gmail.com> and contributors",
     repo=Remotes.GitHub("LilithHafner", "Chairmarks.jl"),
     sitename="Chairmarks.jl",
