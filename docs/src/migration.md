@@ -116,7 +116,7 @@ julia> @b rand(x) # slow
 julia> f(x) = @b rand(x)
 f (generic function with 1 method)
 
-julia> f(6) # fast
+julia> f(x) # fast
 19.010 ns (1 allocs: 112 bytes)
 
 julia> @b x rand # fast
