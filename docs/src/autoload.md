@@ -18,7 +18,7 @@ to install first to most streamlined user experience last.
 
 2. Add Chairmarks to your default environment and put `isinteractive() && using Chairmarks`
    in your startup.jl file. This will make Chairmarks available in all your REPL sessions
-   while still requiring and explicit load in scripts and packages. This will slow down
+   while still requiring an explicit load in scripts and packages. This will slow down
    launching a new Julia session by a few milliseconds (for comparison, this is about 20x
    faster than loading `Revise` in your startup.jl file).
 
