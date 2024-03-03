@@ -59,3 +59,8 @@ jobs:
             using Chairmarks
             DocMeta.setdocmeta!(Chairmarks, :DocTestSetup, :(using Chairmarks); recursive=true)
             doctest(Chairmarks)'
+  typos:
+    name: Typos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: crate-ci/typos@v1
