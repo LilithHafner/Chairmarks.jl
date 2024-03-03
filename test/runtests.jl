@@ -168,20 +168,20 @@ using Chairmarks: Sample, Benchmark
         ])
 
         @test minimum(data) === Sample(time=0.1, gc_fraction=0)
-        @test median(data) === Sample(time=0.3, gc_fraction=.25)
-        @test mean(data) === Sample(time=0.3, gc_fraction=.39)
+        VERSION >= v"1.9" && @test median(data) === Sample(time=0.3, gc_fraction=.25)
+        VERSION >= v"1.9" && @test mean(data) === Sample(time=0.3, gc_fraction=.39)
         @test maximum(data) === Sample(time=0.5, gc_fraction=1)
-        @test quantile(data, .25) === Sample(time=0.2, gc_fraction=.2)
-        @test quantile(data, 0:.25:1) == [
+        VERSION >= v"1.9" && @test quantile(data, .25) === Sample(time=0.2, gc_fraction=.2)
+        VERSION >= v"1.9" &&  @test quantile(data, 0:.25:1) == [
             Sample(time=0.1, gc_fraction=0)
             Sample(time=0.2, gc_fraction=.2)
             Sample(time=0.3, gc_fraction=.25)
             Sample(time=0.4, gc_fraction=.5)
             Sample(time=0.5, gc_fraction=1)
         ]
-        res = quantile(data, 0:.2:1)
-        @test first(res) === minimum(data)
-        @test last(res) === maximum(data)
+        VERSION >= v"1.9" && res = quantile(data, 0:.2:1)
+        VERSION >= v"1.9" && @test first(res) === minimum(data)
+        VERSION >= v"1.9" && @test last(res) === maximum(data)
         # testing the middle elements would either be fragile due to floating point error
         # or require isapprox
     end

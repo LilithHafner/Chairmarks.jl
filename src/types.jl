@@ -53,8 +53,11 @@ A struct representing a complete benchmark result.
 
 More fields may be added in the future to represent non sample specific information.
 
-The statistical functions `minimum`, `maximum`, `Statistics.median`, `Statistics.mean`, and
-`Statistics.quantile` are defined field wise on `Benchmark` objects and return `Sample`s.
+The functions `minimum` and `maximum` are defined field wise on `Benchmark` objects and
+return `Sample`s. On Julia 1.9 and above, the functions `Statistics.median`,
+`Statistics.mean`, and `Statistics.quantile` are also defined field wise on `Benchmark`
+objects and return `Sample`s.
+"""
 
 ```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES"]
 julia> @be eval(:(for _ in 1:10; sqrt(rand()); end))
