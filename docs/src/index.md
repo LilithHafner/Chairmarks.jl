@@ -8,8 +8,8 @@ DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
 
 # Chairmarks
 
-[Chairmarks](https://github.com/LilithHafner/Chairmarks.jl) measures performance hundreds
-of times faster than BenchmarkTools without compromising on accuracy.
+[Chairmarks](https://github.com/LilithHafner/Chairmarks.jl) measures performance [hundreds
+of times faster](@ref Efficient) than BenchmarkTools [without compromising on accuracy](@ref Precise).
 
 Installation
 

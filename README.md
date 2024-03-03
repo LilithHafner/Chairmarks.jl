@@ -5,106 +5,32 @@
 [![Build Status](https://github.com/LilithHafner/Chairmarks.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/LilithHafner/Chairmarks.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/LilithHafner/Chairmarks.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/LilithHafner/Chairmarks.jl)
 
-Benchmarks with back support. Often hundreds of times faster than BenchmarkTools.jl without compromising on accuracy.
+Chairmarks measures performance [hundreds of times faster](https://Chairmarks.lilithhafner.com/stable/why/#Efficient)
+than BenchmarkTools [without compromising on accuracy](https://Chairmarks.lilithhafner.com/stable/why/#Precise).
 
-## Precise
-
-Capable of detecting 1% difference in runtime in ideal conditions
-
-```julia
-julia> f(n) = sum(rand() for _ in 1:n)
-f (generic function with 1 method)
-
-julia> @b f(1000)
-1.074 μs
-
-julia> @b f(1000)
-1.075 μs
-
-julia> @b f(1000)
-1.076 μs
-
-julia> @b f(1010)
-1.086 μs
-
-julia> @b f(1010)
-1.087 μs
-
-julia> @b f(1010)
-1.087 μs
-```
-
-## Concise
-
-Chairmarks uses a concise pipeline syntax to define benchmarks. When providing a single argument, that argument is automatically wrapped in a function for higher performance and executed
+Installation
 
 ```julia
-julia> @b sort(rand(100))
-1.500 μs (3 allocs: 2.625 KiB)
+julia> import Pkg; Pkg.add("Chairmarks")
 ```
 
-When providing two arguments, the first is setup code and only the runtime of the second is measured
+Usage
 
 ```julia
-julia> @b rand(100) sort
-1.018 μs (2 allocs: 1.750 KiB)
+julia> using Chairmarks
+
+julia> @b rand(1000) # How long does it take to generate a random array of length 1000?
+720.214 ns (3 allocs: 7.875 KiB)
+
+julia> @b rand(1000) hash # How long does it take to hash that array?
+1.689 μs
+
+julia> @b rand(1000) _.*5 # How long does it take to multiply it by 5 element wise?
+172.970 ns (3 allocs: 7.875 KiB)
 ```
 
-You may use `_` in the later arguments to refer to the output of previous arguments
+[Why Chairmarks?](https://Chairmarks.lilithhafner.com/stable/why)
 
-```julia
-julia> @b rand(100) sort(_, by=x -> exp(-x))
-5.521 μs (2 allocs: 1.750 KiB)
-```
+[Tutorial](https://Chairmarks.lilithhafner.com/stable/tutorial)
 
-A third argument can run a "teardown" function to integrate testing into the benchmark and ensure that the benchmarked code is behaving correctly
-
-```julia
-julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_) || error()
-ERROR:
-Stacktrace:
- [1] error()
-[...]
-
-julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_, rev=true) || error()
-5.358 μs (2 allocs: 1.750 KiB)
-```
-
-See the [docstring of `@b`](https://chairmarks.lilithhafner.com/dev/#Chairmarks.@b-Tuple) for more info
-
-## Truthful
-
-Charimarks.jl automatically computes a checksum based on the results of the provided
-computations, and returns that checksum to the user along with benchmark results. This makes
-it impossible for the compiler to elide any part of the computation that has an impact on
-its return value.
-
-While the checksums are fast, one negative side effect of this is that they add a bit of
-overhead to the measured runtime, and that overhead can vary depending on the function being
-benchmarked. These checksums are performed by computing a map over the returned values and a
-reduction over those mapped values. You can disable this by overwriting the map with
-something trivial. For example, `map=Returns(nothing)`, possibly in combination with a
-custom teardown function that verifies computation results. Be aware that as the compiler
-improves, it may become better at eliding benchmarks whose results are not saved.
-
-```julia
-julia> @b 1
-0.713 ns
-
-julia> @b 1.0
-1.135 ns
-
-julia> @b 1.0 map=Returns(nothing)
-0 ns
-```
-
-## Efficient
-
-|           | Chairmarks.jl | BenchmarkTools.jl | Ratio
-|-----------|--------|---------------|--------|
-|[TTFX](contrib/ttfx_rm_rf_julia.sh) | 3.4s | 13.4s | 4x
-| Load time | 4.2ms | 131ms | 31x
-| TTFX excluding precompile time | 43ms | 1118ms | 26x
-| minimum runtime | 34μs | 459ms | 13,500x
-|Width | Narrow   | Wide     |     2–4x
-|Back Support | Almost Always | Sometimes | N/A
+[API Reference](https://Chairmarks.lilithhafner.com/stable/reference)
