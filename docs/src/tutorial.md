@@ -107,7 +107,7 @@ instructions.
 
 ## Common pitfalls
 
-When benchmarking a function which mutates it arguments, be aware that the same input is
+When benchmarking a function which mutates its arguments, be aware that the same input is
 passed to the function each evaluation in a sample. This can cause problems if the function
 does not expect to repeatedly operate on the same input.
 
