@@ -1,90 +1,12 @@
-const DOCSTRING_BODY = """
-# Positional argument pipeline syntax
-
-The four positional arguments form a pipeline with the return value of each passed as an
-argument to the next. Consequently, the first expression in the pipeline must be a nullary
-function. If you use a symbol like `rand`, it will be interpreted as a function and called
-normally. If you use any other expression, it will be interpreted as the body of a nullary
-function. For example in `@bx rand(10)` the function being benchmarked is `() -> rand(10)`.
-
-Later positions in the pipeline must be unary functions. As with the first function, you may
-provide either a function, or an expression. However, the rules are slightly different. If
-the expression you provide contains an `_` as an rvalue (which would otherwise error), it is
-interpreted as a unary function and any such occurrences of `_` are replaced with result
-from the previous function in the pipeline. For example, in `@bx rand(10) sort(_, rev=true)`
-the setup function is `() -> rand(10)` and the primary function is `x -> sort(x, rev=true)`.
-If the expression you provide does not contain an `_` as an rvalue, it is assumed to produce
-a function and is called with the result from the previous function in the pipeline. For
-example, in `@bx rand(10) sort!∘shuffle!`, the primary function is simply `sort!∘shuffle!`
-and receives no preprocessing. `@macroexpand` can help elucidate what is going on in
-specific cases.
-
-# Positional argument disambiguation
-
-`setup`, `teardown`, and `init` are optional and are parsed with that precedence giving
-these possible forms:
-
-    @bx f
-    @bx setup f
-    @bx setup f teardown
-    @bx init setup f teardown
-
-You may use an underscore `_` to provide other combinations of arguments. For example, you
-may provide a `teardown` and no `setup` with
-
-    @bx _ f teardown
-
-# Keyword arguments
-
-Provide keyword arguments using `name=value` syntax similar to how you provide keyword
-arguments to ordinary functions. Keyword arguments to control executions are
-
-  - `evals::Integer` How many function evaluations to perform in each sample. Defaults to
-    automatic calibration.
-  - `samples::Integer` Maximum number of samples to take. Defaults to unlimited and cannot
-    be specified without also specifying `evals`. Specifying `samples = 0` will cause `@bx`
-    to run the warmup sample only and return that sample.
-  - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to `0.1` seconds
-    unless `samples` is specified in which case it defaults to `1` second. Set to `Inf`
-    to disable the time limit. Compile time is typically not counted against this limit.
-    A reasonable effort is made to respect the time limit, but it is always exceeded by a
-    small about (less than 1%) and can be significantly exceeded when benchmarking long
-    running functions.
-
-# Evaluation model
-
-At a high level, the implementation of this function looks like this
-
-    x = init()
-    results = []
-    for sample in 1:samples
-        y = setup(x)
-
-        t0 = time()
-
-        z = f(y)
-        for _ in 2:evals
-            f(y)
-        end
-
-        push!(results, time()-t0)
-
-        teardown(z)
-
-    end
-
-So `init` will be called once, `setup` and `teardown` will be called once per sample, and
-`f` will be called `evals` times per sample.
-"""
-
 """
     @b [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the fastest result
+Benchmark `f` and return the fastest result.
 
 Use `@be` for full results.
 
-$(replace(DOCSTRING_BODY, "@bx" => "@b"))
+`@b args...` is equivalent to `minimum(@b args...)`. See the docstring for [`@be`](@ref)
+for more information.
 
 # Examples
 
@@ -122,11 +44,85 @@ end
 """
     @be [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the results
+Benchmark `f` and return the results.
 
 Use `@b` for abbreviated results.
 
-$(replace(DOCSTRING_BODY, "@bx" => "@be"))
+# Positional argument pipeline syntax
+
+The four positional arguments form a pipeline with the return value of each passed as an
+argument to the next. Consequently, the first expression in the pipeline must be a nullary
+function. If you use a symbol like `rand`, it will be interpreted as a function and called
+normally. If you use any other expression, it will be interpreted as the body of a nullary
+function. For example in `@be rand(10)` the function being benchmarked is `() -> rand(10)`.
+
+Later positions in the pipeline must be unary functions. As with the first function, you may
+provide either a function, or an expression. However, the rules are slightly different. If
+the expression you provide contains an `_` as an rvalue (which would otherwise error), it is
+interpreted as a unary function and any such occurrences of `_` are replaced with result
+from the previous function in the pipeline. For example, in `@be rand(10) sort(_, rev=true)`
+the setup function is `() -> rand(10)` and the primary function is `x -> sort(x, rev=true)`.
+If the expression you provide does not contain an `_` as an rvalue, it is assumed to produce
+a function and is called with the result from the previous function in the pipeline. For
+example, in `@be rand(10) sort!∘shuffle!`, the primary function is simply `sort!∘shuffle!`
+and receives no preprocessing. `@macroexpand` can help elucidate what is going on in
+specific cases.
+
+# Positional argument disambiguation
+
+`setup`, `teardown`, and `init` are optional and are parsed with that precedence giving
+these possible forms:
+
+    @be f
+    @be setup f
+    @be setup f teardown
+    @be init setup f teardown
+
+You may use an underscore `_` to provide other combinations of arguments. For example, you
+may provide a `teardown` and no `setup` with
+
+    @be _ f teardown
+
+# Keyword arguments
+
+Provide keyword arguments using `name=value` syntax similar to how you provide keyword
+arguments to ordinary functions. Keyword arguments to control executions are
+
+  - `evals::Integer` How many function evaluations to perform in each sample. Defaults to
+    automatic calibration.
+  - `samples::Integer` Maximum number of samples to take. Defaults to unlimited and cannot
+    be specified without also specifying `evals`. Specifying `samples = 0` will cause `@be`
+    to run the warmup sample only and return that sample.
+  - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to `0.1` seconds
+    unless `samples` is specified in which case it defaults to `1` second. Set to `Inf`
+    to disable the time limit. Compile time is typically not counted against this limit.
+    A reasonable effort is made to respect the time limit, but it is always exceeded by a
+    small about (less than 1%) and can be significantly exceeded when benchmarking long
+    running functions.
+
+# Evaluation model
+
+At a high level, the implementation of this function looks like this
+
+    x = init()
+    results = []
+    for sample in 1:samples
+        y = setup(x)
+
+        t0 = time()
+
+        z = f(y)
+        for _ in 2:evals
+            f(y)
+        end
+
+        push!(results, time()-t0)
+
+        teardown(z)
+    end
+
+So `init` will be called once, `setup` and `teardown` will be called once per sample, and
+`f` will be called `evals` times per sample.
 
 # Examples
 
@@ -188,5 +184,3 @@ Benchmark: 1 sample with 1 evaluation
 macro be(args...)
     process_args(args)
 end
-
-

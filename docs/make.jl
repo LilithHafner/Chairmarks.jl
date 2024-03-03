@@ -7,7 +7,7 @@ DocMeta.setdocmeta!(Chairmarks, :DocTestSetup, :(using Chairmarks); recursive=tr
 makedocs(;
     modules=[Chairmarks],
     authors="Lilith Orion Hafner <lilithhafner@gmail.com> and contributors",
-    repo="https://github.com/LilithHafner/Chairmarks.jl/blob/{commit}{path}#{line}",
+    repo=Remotes.GitHub("LilithHafner", "Chairmarks.jl"),
     sitename="Chairmarks.jl",
     format=DocumenterVitepress.MarkdownVitepress(
         repo = "https://github.com/LilithHafner/Chairmarks.jl",
@@ -16,7 +16,16 @@ makedocs(;
         deploy_url = "chairmarks.lilithhafner.com"),
     pages=[
         "Home" => "index.md",
+        "Why use Chairmarks?" => "why.md",
+        "Tutorial" => "tutorial.md",
+        "How To" => [
+            "...migrate from BenchmarkTools" => "migration.md",
+            "...install Charimarks ergonomically" => "autoload.md",
+            "...perform automated regression testing on a package" => "regressions.md",
+        ],
+        "Reference" => "reference.md",
     ],
+    linkcheck=true,
 )
 
 deploydocs(;
