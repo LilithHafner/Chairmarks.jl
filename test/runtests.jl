@@ -179,7 +179,7 @@ using Chairmarks: Sample, Benchmark
             Sample(time=0.4, gc_fraction=.5)
             Sample(time=0.5, gc_fraction=1)
         ]
-        VERSION >= v"1.9" && res = quantile(data, 0:.2:1)
+        VERSION >= v"1.9" && (res = quantile(data, 0:.2:1))
         VERSION >= v"1.9" && @test first(res) === minimum(data)
         VERSION >= v"1.9" && @test last(res) === maximum(data)
         # testing the middle elements would either be fragile due to floating point error
