@@ -29,8 +29,8 @@ julia> @b rand(1000) _.*5 # How long does it take to multiply it by 5 element wi
 172.970 ns (3 allocs: 7.875 KiB)
 ```
 
-[Why Chairmarks?](https://Chairmarks.lilithhafner.com/stable/why.html)
+[Why Chairmarks?](https://Chairmarks.lilithhafner.com/stable/why)
 
-[Tutorial](https://Chairmarks.lilithhafner.com/stable/tutorial.html)
+[Tutorial](https://Chairmarks.lilithhafner.com/stable/tutorial)
 
-[API Reference](https://Chairmarks.lilithhafner.com/stable/reference.html)
+[API Reference](https://Chairmarks.lilithhafner.com/stable/reference)
