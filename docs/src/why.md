@@ -121,6 +121,6 @@ the future.
 
 ## Innate qualities
 
-Charimarks is inherently narrower than BenchmarkTools by construction. It also has more
+Chairmarks is inherently narrower than BenchmarkTools by construction. It also has more
 reliable back support. Back support is a defining feature of chairs while benches are known
 to sometimes lack back support.

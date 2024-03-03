@@ -19,7 +19,7 @@ makedocs(;
         "Tutorial" => "tutorial.md",
         "How To" => [
             "...migrate from BenchmarkTools" => "migration.md",
-            "...install Charimarks ergonomically" => "autoload.md",
+            "...install Chairmarks ergonomically" => "autoload.md",
             "...perform automated regression testing on a package" => "regressions.md",
         ],
         "Reference" => "reference.md",

@@ -45,7 +45,7 @@ interpolation using BenchmarkTools.
 
 Here are some examples of corresponding invocations in BenchmarkTools and Chairmarks:
 
-| BenchmarkTools    | Charimarks |
+| BenchmarkTools    | Chairmarks |
 |-------------------|-------------|
 | `@btime rand();`  | `@b rand()` |
 | `@btime sort!(x) setup=(x=rand(100)) evals=1;` | `@b rand(100) sort! evals=1` |
