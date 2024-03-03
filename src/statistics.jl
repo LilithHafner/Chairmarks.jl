@@ -16,7 +16,7 @@ mean(x) = sum(x)/length(x)
 
 # Extensions (can't be a package extension because we need this for show)
 function elementwise(f, b::Benchmark)
-    Sample.((f(getproperty(s, p) for s in b.data) for p in fieldnames(Sample))...)
+    Sample.((f(getfield(s, p) for s in b.data) for p in fieldnames(Sample))...)
 end
 Base.minimum(b::Benchmark) = elementwise(minimum, b)
 median(b::Benchmark) = elementwise(median, b)

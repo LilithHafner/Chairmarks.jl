@@ -52,6 +52,21 @@ A struct representing a complete benchmark result.
 [`@be`](@ref) returns a `Benchmark` object.
 
 More fields may be added in the future to represent non sample specific information.
+
+The statistical functions `minimum`, `maximum`, `Statistics.median`, `Statistics.mean`, and
+`Statistics.quantile` are defined field wise on `Benchmark` objects and return `Sample`s.
+
+```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES"]
+julia> @be eval(:(for _ in 1:10; sqrt(rand()); end))
+Benchmark: 15 samples with 1 evaluation
+min    4.307 ms (3608 allocs: 173.453 KiB, 92.21% compile time)
+median 4.778 ms (3608 allocs: 173.453 KiB, 94.65% compile time)
+mean   6.494 ms (3608 allocs: 173.453 KiB, 94.15% compile time)
+max    12.021 ms (3608 allocs: 173.453 KiB, 95.03% compile time)
+
+julia> minimum(ans)
+4.307 ms (3608 allocs: 173.453 KiB, 92.21% compile time)
+```
 """
 struct Benchmark
     data::Vector{Sample}
