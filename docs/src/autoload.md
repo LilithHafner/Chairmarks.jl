@@ -6,6 +6,8 @@ end
 DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
 ```
 
+instalation
+
 # [How to integrate Chairmarks into your workflow](@id installation)
 
 There are several ways to use Chairmarks in your interactive sessions, ordered from simplest
