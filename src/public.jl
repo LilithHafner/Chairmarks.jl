@@ -3,8 +3,6 @@
 
 Benchmark `f` and return the fastest result.
 
-Instalation
-
 Use `@be` for full results.
 
 `@b args...` is equivalent to `minimum(@b args...)`. See the docstring for [`@be`](@ref)
