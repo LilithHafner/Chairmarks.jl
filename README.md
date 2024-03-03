@@ -8,7 +8,7 @@
 Chairmarks measures performance [hundreds of times faster](https://Chairmarks.lilithhafner.com/stable/why/#Efficient)
 than BenchmarkTools [without compromising on accuracy](https://Chairmarks.lilithhafner.com/stable/why/#Precise).
 
-Instalation
+Installation
 
 ```julia
 julia> import Pkg; Pkg.add("Chairmarks")
