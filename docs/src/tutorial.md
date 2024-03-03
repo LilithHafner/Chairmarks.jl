@@ -3,7 +3,7 @@ CurrentModule = Chairmarks
 DocTestSetup = quote
     using Chairmarks
 end
-DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|Benchmark: \d+ samples with \d+ evaluations"]
+DocTestFilters = [r"\d\d?\d?\.\d{3}( [μmn]?s|\d* seconds)( \(.*\))?|Benchmark: \d+ samples with \d+ evaluations"]
 ```
 
 # Tutorial
@@ -189,12 +189,71 @@ Longer runtimes and macrobenchmarks are much more trustworthy than microbenchmar
 microbenchmarks are often a great tool for identifying performance bottlenecks and
 optimizing macrobenchmarks.
 
+## Running many benchmarks
+
+It's pretty straightforward to benchmark a whole parameter sweep to check performance
+figures. Just invoke `@b` or `@be` repeatedly. For example, if you want to know how
+allocation times vary with input size, you could run this list comprehension which runs
+`@b fill(0, n)` for each power of 4 from 4 to 4^10:
+
+```jldoctest
+julia> [@b fill(0, n) for n in 4 .^ (1:10)]
+10-element Vector{Chairmarks.Sample}:
+ 9.752 ns (2 allocs: 96 bytes)
+ 11.040 ns (2 allocs: 192 bytes)
+ 27.859 ns (2 allocs: 576 bytes)
+ 128.009 ns (3 allocs: 2.062 KiB)
+ 122.513 ns (3 allocs: 8.062 KiB)
+ 346.962 ns (3 allocs: 32.062 KiB)
+ 1.055 μs (3 allocs: 128.062 KiB)
+ 3.597 μs (3 allocs: 512.062 KiB)
+ 11.417 μs (3 allocs: 2.000 MiB)
+ 88.084 μs (3 allocs: 8.000 MiB)
+```
+
+The default runtime of a benchmark is 0.1 seconds, so this invocation should take just over
+1 second to run. Let's verify:
+
+```jldoctest
+julia> @time [@b fill(0, n) for n in 4 .^ (1:10)];
+  1.038502 seconds (27.16 M allocations: 22.065 GiB, 27.03% gc time, 3.59% compilation time)
+```
+
+If we want a wider parameter sweep, we can use the `seconds` parameter to configure how
+long benchmarking will take. However, once we start setting seconds to a value below .1, the
+benchmarking itself becomes performance sensitive and, from
+[the performance tips](https://docs.julialang.org/en/v1/manual/performance-tips/#Performance-critical-code-should-be-inside-a-function),
+performance critical code should be inside a function. So we should put the call to `@b` or
+`@be` into a function.
+
+```julia-repl
+julia> f(n, t) = @b fill(0, n) seconds=t
+f (generic function with 1 method)
+
+julia> @time f.(1:1000, .001)
+  1.089171 seconds (20.88 M allocations: 18.901 GiB, 19.87% gc time, 1.81% compilation time)
+1000-element Vector{Chairmarks.Sample}:
+ 10.286 ns (2 allocs: 64 bytes)
+ 10.628 ns (2 allocs: 80 bytes)
+ 10.607 ns (2 allocs: 80 bytes)
+ 10.723 ns (2 allocs: 96 bytes)
+ ⋮
+ 129.294 ns (3 allocs: 7.875 KiB)
+ 129.294 ns (3 allocs: 7.875 KiB)
+ 129.471 ns (3 allocs: 7.875 KiB)
+ 130.570 ns (3 allocs: 7.875 KiB)
+```
+
+Setting the `seconds` parameter too low can cause benchmarks to be noisy. It's good practice
+to run a benchmark at least a couple of times no matter what the configuration is to make
+sure it's reasonably stable.
+
 ## Advanced usage
 
 It is possible to manually specify the number of evaluations, samples, and/or seconds to run
-benchmarking for. Setting these values too low can result in noisy results. It is also
-possible to pass a teardown function or an initialization function that runs only once. See
-the docstring of [`@be`](@ref) for more information on these additional arguments.
+benchmarking for. It is also possible to pass a teardown function or an initialization
+function that runs only once. See the docstring of [`@be`](@ref) for more information on
+these additional arguments.
 
 [^1]: note that the samples are aggregated element wise, so the max field reports the maximum
     runtime and the maximum proportion of runtime spent in garbage collection (gc). Thus it
