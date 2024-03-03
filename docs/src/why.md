@@ -42,9 +42,12 @@ julia> @b f(1010)
 | Load time     | 4.2ms          | 131ms             | 31x
 | minimum runtime | 34μs         | 459ms             | 13,500x
 | default runtime | 0.1s         | 5s                | 50x
+| proportion of time spent benchmarking | 90%-99% | 13%-65% | 1.5-7x
 
 See [https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx\_rm\_rf\_julia.sh](https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx_rm_rf_julia.sh)
-for methodology.
+for methodology on the first four entries and
+[https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/efficiency.jl](https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/efficiency.jl)
+for the last.
 
 ## Concise
 
