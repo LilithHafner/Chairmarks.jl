@@ -7,9 +7,9 @@ julia> @b evalpooly(rand(), rand(100))
 198.077 ns (2 allocs: 928 bytes)
 ```
 
-Documentation: [https://chairmarks.lilithhafner.com/stable/](@ref https://chairmarks.lilithhafner.com/stable/)
+Documentation: [https://chairmarks.lilithhafner.com/stable/](@ref index)
 
-Tutorial: [https://chairmarks.lilithhafner.com/stable/tutorial.html](@ref https://chairmarks.lilithhafner.com/stable/tutorial.html)
+Tutorial: [https://chairmarks.lilithhafner.com/stable/tutorial.html](@ref tutorial)
 
 Reference: see docstrings of [`@be`](@ref) and [`@b`](@ref)
 """
