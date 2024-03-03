@@ -1,6 +1,6 @@
 """
 Chairmarks provides the macros [`@b`](@ref) and [`@be`](@ref) for benchmarking code. See
-their respecitve docstrings for usage.
+their respective docstrings for usage.
 
 ```julia
 julia> @b evalpooly(rand(), rand(100))
