@@ -126,7 +126,7 @@ So `init` will be called once, `setup` and `teardown` will be called once per sa
 
 # Examples
 
-```jldoctest;  filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES", r"\\d+ (sample|evaluation)s?"=>s"### \\1"], setup=(using Random)
+```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES", r"\\d+ (sample|evaluation)s?"=>s"### \\1"], setup=(using Random)
 julia> @be rand(10000) # Benchmark a function
 Benchmark: 267 samples with 2 evaluations
 min    8.500 μs (2 allocs: 78.172 KiB)

@@ -58,7 +58,7 @@ return [`Sample`](@ref)s. On Julia 1.9 and above, the functions `Statistics.medi
 `Statistics.mean`, and `Statistics.quantile` are also defined field wise on `Benchmark`
 objects and return `Sample`s.
 
-```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES"]
+```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES", r"\\d+ (sample|evaluation)s?"=>s"### \\1"]
 julia> @be eval(:(for _ in 1:10; sqrt(rand()); end))
 Benchmark: 15 samples with 1 evaluation
 min    4.307 ms (3608 allocs: 173.453 KiB, 92.21% compile time)
