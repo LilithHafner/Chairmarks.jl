@@ -10,13 +10,13 @@ than BenchmarkTools [without compromising on accuracy](https://Chairmarks.lilith
 
 Installation
 
-```julia-repl
+```julia
 julia> import Pkg; Pkg.add("Chairmarks")
 ```
 
 Usage
 
-```jldoctest
+```julia
 julia> using Chairmarks
 
 julia> @b rand(1000) # How long does it take to generate a random array of length 1000?
