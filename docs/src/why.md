@@ -90,7 +90,7 @@ See [`@b`](@ref) for more info
 
 ## Truthful
 
-Charimarks automatically computes a checksum based on the results of the provided
+Chairmarks automatically computes a checksum based on the results of the provided
 computations, and returns that checksum to the user along with benchmark results. This makes
 it impossible for the compiler to elide any part of the computation that has an impact on
 its return value.
