@@ -90,7 +90,7 @@ See [`@b`](@ref) for more info
 
 ## Truthful
 
-Charimarks automatically computes a checksum based on the results of the provided
+Chairmarks automatically computes a checksum based on the results of the provided
 computations, and returns that checksum to the user along with benchmark results. This makes
 it impossible for the compiler to elide any part of the computation that has an impact on
 its return value.
@@ -117,7 +117,7 @@ julia> @b 1.0 checksum=false
 You may experiment with custom reductions using the internal `_map` and `_reduction` keyword
 arguments. The default maps and reductions (`Chairmarks.default_map` and
 `Chairmarks.default_reduction`) are internal and subject to change and/or removal in
-future.
+the future.
 
 ## Innate qualities
 

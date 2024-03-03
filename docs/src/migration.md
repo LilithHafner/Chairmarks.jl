@@ -89,7 +89,7 @@ Benchmark results have the following fields:
 | `x.gc_time*x.time`     | `x.gctime`          | Time spent in garbage collection |
 | `x.compile_fraction`   | N/A                 | Fraction of time spent compiling |
 | `x.recompile_fraction` | N/A                 | Fraction of time spent compiling which was on recompilation |
-| `x.warmup`             | `true`              | weather or not the sample had a warmup run before it |
+| `x.warmup`             | `true`              | whether or not the sample had a warmup run before it |
 | `x.checksum`           | N/A                 | a checksum computed from the return values of the benchmarked code |
 | `x.evals`              | `x.params.evals`    | the number of evaluations in the sample |
 
@@ -99,12 +99,12 @@ Note that more fields may be added as more information becomes available.
 
 The arguments to Chairmarks are lowered to functions, not quoted expressions.
 Consequently, there is no need to interpolate variables and interpolation is therefore not
-supported. Like BenchmarkTools, benchmarks that includes access to nonconstant globals
+supported. Like BenchmarkTools, benchmarks that include access to nonconstant globals
 will receive a performance overhead for that access. However, Chairmarks evaluates
 expressions in the scope of the macro call, not in global scope, so nonconstant global
 access is much less of an issue in Chairmarks than BenchmarkTools. Three possible ways to
 avoid it are to put the `@b` call in a function, make the global constant, or to include it
-in the setup or initiaization phase. For example,
+in the setup or initialization phase. For example,
 
 ```jldoctest
 julia> x = 6 # nonconstant global
