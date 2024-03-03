@@ -48,7 +48,7 @@ BenchmarkTools efficiency: 13%-65%
 Chairmarks efficiency: 90%-99%
 
 note: dropping low end of reported Chairmarks efficiency because I'm sure there are cases
-where it's less efficeint. Still, this aims to be a "representitive" efficiency, not
+where it's less efficient. Still, this aims to be a "representative" efficiency, not
 absolute bounds.
 
 =#
