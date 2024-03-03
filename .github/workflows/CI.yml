@@ -63,4 +63,4 @@ jobs:
     name: Typos
     runs-on: ubuntu-latest
     steps:
-      - uses: crate-ci/typos@v1
+      - uses: crate-ci/typos@master
