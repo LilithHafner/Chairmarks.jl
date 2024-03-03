@@ -47,7 +47,7 @@ Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, re
         ...more fields may be added...
     end
 
-A struct representing a complete benchmark result returned from [`@be`](@ref).
+A struct representing a complete benchmark result; returned from [`@be`](@ref).
 
 More fields may be added in the future to represent non sample specific information.
 
