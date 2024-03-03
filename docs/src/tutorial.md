@@ -221,8 +221,8 @@ julia> @time [@b fill(0, n) for n in 4 .^ (1:10)];
 ```
 
 If we want a wider parameter sweep, we can use the `seconds` parameter to configure how
-long benchmarking will take. However, once we start setting seconds to a value below .1, the
-benchmarking itself becomes performance sensitive and, from
+long benchmarking will take. However, once we start setting seconds to a value below `0.1`,
+the benchmarking itself becomes performance sensitive and, from
 [the performance tips](https://docs.julialang.org/en/v1/manual/performance-tips/#Performance-critical-code-should-be-inside-a-function),
 performance critical code should be inside a function. So we should put the call to `@b` or
 `@be` into a function.
