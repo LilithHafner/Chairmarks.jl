@@ -113,7 +113,7 @@ julia> x = 6 # nonconstant global
 julia> @b rand(x) # slow
 39.616 ns (1.02 allocs: 112.630 bytes)
 
-julia> f(x) = @b rand(x)
+julia> f(len) = @b rand(len)
 f (generic function with 1 method)
 
 julia> f(x) # fast
