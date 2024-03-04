@@ -60,7 +60,7 @@ using Chairmarks: Sample, Benchmark
             @test 2fast.time < slow.time # should be about 3000x
 
             global interpolation_test_global = 1
-            slow = @b interpolation_test_global + 1 evals=300
+            slow = @b interpolation_test_global + 1 evals=300 # evals must be specified for checksums to match
             fast = @b $interpolation_test_global + 1 evals=300
             @test slow.checksum == fast.checksum
             @test slow.allocs > 0
