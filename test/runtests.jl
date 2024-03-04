@@ -73,7 +73,8 @@ using Chairmarks: Sample, Benchmark
         end
 
         @testset "no warmup" begin
-            res = @be sleep(.1) seconds=.05
+            runtime = @elapsed res = @be sleep(.1) seconds=.05
+            @test runtime < .2 # hopefully this is not going to get too many false positives
             sample = only(res.samples)
             @test .1 < sample.time
             @test sample.warmup == 0
