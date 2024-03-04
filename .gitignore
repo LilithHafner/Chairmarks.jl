@@ -3,3 +3,5 @@
 *.jl.mem
 **/Manifest.toml
 /docs/build/
+/docs/node_modules/
+/docs/package-lock.json
