@@ -42,10 +42,9 @@ using Chairmarks: Sample, Benchmark
         end
 
         @testset "seconds-limited while specitying samples (#56)" begin
-            for _ in 1:3 # loop because this requires reading garbage from undef to fail
-                res = @b sleep(.01) evals=2 samples=100 seconds=0.1
-                @test 0.01 < res.time < 10
-            end
+            res = @be sleep(.01) evals=2 samples=100 seconds=0.1
+            @test 0.01 < minimum(res).time < 10
+            @test length(res.samples) < 100
         end
 
         @testset "errors" begin
