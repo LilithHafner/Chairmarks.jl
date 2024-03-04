@@ -101,9 +101,9 @@ Like BenchmarkTools, benchmarks that include access to nonconstant globals will 
 performance overhead for that access.
 
 However, Chairmarks's arguments are functions evaluated in the scope of the macro call, not
-quoted expressions `eval`ed at global scope. This makes nonconstant global access is much
-less of an issue in Chairmarks than BenchmarkTools, which, in turn eliminates much of the
-need to interpolate variables and so interpolation is not directly supported. You can always
+quoted expressions `eval`ed at global scope. This makes nonconstant global access much less
+of an issue in Chairmarks than BenchmarkTools which, in turn, eliminates much of the need to
+interpolate variables. Consequently, interpolation is not directly supported. You can always
 throw an `@eval` in front and then use interpolation if you would like, though this will
 leak memory.[^1]
 
@@ -118,13 +118,13 @@ julia> x = 6 # nonconstant global
 julia> @b rand(x) # slow
 38.449 ns (2.01 allocs: 112.449 bytes)
 
-julia> f(len) = @b rand(len) # put the `@b` call in a function
+julia> f(len) = @b rand(len) # put the `@b` call in a function (highest performance for repeated benchmarks)
 f (generic function with 1 method)
 
 julia> f(x)
 15.318 ns (2 allocs: 112 bytes)
 
-julia> @b x rand # put the access in the setup phase
+julia> @b x rand # put the access in the setup phase (most concise in simple cases)
 15.507 ns (2 allocs: 112 bytes)
 
 julia> const X = x # make the global constant
@@ -133,7 +133,7 @@ julia> const X = x # make the global constant
 julia> @b rand(X)
 15.448 ns (2 allocs: 112 bytes)
 
-julia> @eval @b rand($x) # use eval and interpolation (leaks a small amount of memory)
+julia> @eval @b rand($x) # use eval and interpolation (most familiar, but leaks a small amount of memory)
 15.620 ns (2 allocs: 112 bytes)
 ```
 
