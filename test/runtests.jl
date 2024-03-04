@@ -72,6 +72,15 @@ using Chairmarks: Sample, Benchmark
             @test a.checksum == b.checksum
         end
 
+        @testset "no warmup" begin
+            res = @be sleep(.1) seconds=.05
+            sample = only(res.samples)
+            @test .1 < sample.time
+            @test sample.warmup == 0
+            @test occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
+            @test occursin("without a warmup", sprint(show, MIME"text/plain"(), res))
+        end
+
         @testset "writefixed" begin
             @test Chairmarks.writefixed(-1.23045, 4) == "-1.2305"
             @test Chairmarks.writefixed(-1.23045, 3) == "-1.230"
