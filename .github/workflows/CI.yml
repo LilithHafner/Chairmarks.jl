@@ -50,8 +50,6 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/julia-buildpkg@v1
-      - name: 'Install experimental packages'
-        run: julia --project=docs -e 'using Pkg; pkg"add DocumenterVitepress#master"'
       - uses: julia-actions/julia-docdeploy@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
