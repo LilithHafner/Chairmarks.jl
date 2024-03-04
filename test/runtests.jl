@@ -41,6 +41,13 @@ using Chairmarks: Sample, Benchmark
             @b 1+1 seconds=.001
         end
 
+        @testset "seconds-limited while specitying samples (#56)" begin
+            for _ in 1:3 # loop because this requires reading garbage from undef to fail
+                res = @b sleep(.01) evals=2 samples=100 seconds=0.1
+                @test 0.01 < res.time < 10
+            end
+        end
+
         @testset "errors" begin
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
         end
