@@ -1,7 +1,7 @@
 """
     substitute_underscores(expr, var) -> new, changed
 
-Replace all occurrances of `_` in `expr` with `var` and return the new expression and a Bool
+Replace all occurrences of `_` in `expr` with `var` and return the new expression and a Bool
 indicating whether the expression was changed.
 """
 substitute_underscores(f::Symbol, var::Symbol) = f === :_ ? (var, true) : (f, false)
