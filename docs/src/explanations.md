@@ -38,7 +38,7 @@ and heed the advice that
 ## How is this faster than BenchmarkTools?
 
 A few reasons
-- Chairmarks doesn't run garbage collection between each sample by default
+- Chairmarks doesn't run garbage collection at the start of every benchmark by default
 - Chairmarks has faster and more efficient auto-tuning
 - Chairmarks runs its arguments as functions in the scope that the benchmark was invoked
   from, rather than `eval`ing them at global scope. This makes it possible to get
