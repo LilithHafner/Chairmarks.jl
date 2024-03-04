@@ -72,6 +72,16 @@ using Chairmarks: Sample, Benchmark
             @test a.checksum == b.checksum
         end
 
+        @testset "no warmup" begin
+            runtime = @elapsed res = @be sleep(.1) seconds=.05
+            @test runtime < .2 # hopefully this is not going to get too many false positives
+            sample = Chairmarks.only(res.samples) # qualify for compat
+            @test .1 < sample.time
+            @test sample.warmup == 0
+            @test occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
+            @test occursin("without a warmup", sprint(show, MIME"text/plain"(), res))
+        end
+
         @testset "writefixed" begin
             @test Chairmarks.writefixed(-1.23045, 4) == "-1.2305"
             @test Chairmarks.writefixed(-1.23045, 3) == "-1.230"
@@ -408,6 +418,15 @@ using Chairmarks: Sample, Benchmark
             @test .1 < t < .6
             t = @elapsed @b rand Returns(float(x)) _map=identity
             @test .1 < t < .2
+        end
+
+        @testset "very fast runtimes" begin
+            f(t) = @b rand seconds=t
+            @test (@b f(1e-10)).time < 3e-5
+            @test (@b f(1e-8)).time < 3e-5
+            @test (@b f(1e-6)).time < 1e-4
+            @test (@b f(1e-5)).time < 5e-4
+            @test f(1e-5).time != 0
         end
     end
 
