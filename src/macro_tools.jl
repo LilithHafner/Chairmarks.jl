@@ -1,12 +1,12 @@
 """
-    substitute_undescores(expr, var) -> new, changed
+    substitute_underscores(expr, var) -> new, changed
 
-Replace all occurances of `_` in `expr` with `var` and return the new expression and a Bool
+Replace all occurrances of `_` in `expr` with `var` and return the new expression and a Bool
 indicating whether the expression was changed.
 """
-substitute_undescores(f::Symbol, var::Symbol) = f === :_ ? (var, true) : (f, false)
-substitute_undescores(f, ::Symbol) = f, false
-function substitute_undescores(ex::Expr, var::Symbol)
+substitute_underscores(f::Symbol, var::Symbol) = f === :_ ? (var, true) : (f, false)
+substitute_underscores(f, ::Symbol) = f, false
+function substitute_underscores(ex::Expr, var::Symbol)
     changed = false
     args = similar(ex.args)
     i = firstindex(args)
@@ -15,7 +15,7 @@ function substitute_undescores(ex::Expr, var::Symbol)
         i += 1
     end
     for i in i:lastindex(args)
-        args[i], c = substitute_undescores(ex.args[i], var)
+        args[i], c = substitute_underscores(ex.args[i], var)
         changed |= c
     end
     changed ? exprarray(ex.head, args) : ex, changed
@@ -48,7 +48,7 @@ create_first_function(body::Expr) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
-    new, changed = substitute_undescores(f, var)
+    new, changed = substitute_underscores(f, var)
     changed ? :($var -> $new) : f
 end
 function process_args(exprs)
