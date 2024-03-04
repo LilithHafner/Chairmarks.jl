@@ -12,7 +12,7 @@ This page of the documentation is not targeted at teaching folks how to use this
 Instead, it is designed to offer insight into how the the internals work, why I made certain
 design decisions. That said, it certainly won't hurt your user experience to read this!
 
-!!! Warning "This is not part of the API"
+!!! warning "This is not part of the API"
     The things listed on this page are true (or should be fixed) but are not guarantees.
     They may change in future 1.x releases.
 
@@ -22,12 +22,12 @@ The obvious and formulaic choice, [Benchmarks.jl](https://github.com/johnmyleswh
 was taken. This package is very similar to Benchmarks.jl and BenchmarkTools.jl, but has a
 significantly different implementation and a distinct API. When differentiating multiple
 similar things, I prefer distinctive names over synonyms or different parts of speech. The
-difference between the names should, if possible, reflect the difference in the concepts,
-and if that's not possible, it should be clear that the difference between the names does
-not reflect the difference between concepts. This rules out most names like "Benchmarker",
-"Benchmarking", "BenchmarkSystem", etc. I could have chosen "EfficientBenchmarks.jl", but
-that is pretty pretentious and also would become misleading of "BenchmarkTools.jl" becomes
-more efficient in the future.
+difference between the names should, if possible, reflect the difference in the concepts. If
+that's not possible, it should be clear that the difference between the names does not
+reflect the difference between concepts. This rules out most names like "Benchmarker.jl",
+"Benchmarking.jl", "BenchmarkSystem.jl", etc. I could have chosen "EfficientBenchmarks.jl",
+but that is pretty pretentious and also would become misleading if "BenchmarkTools.jl"
+becomes more efficient in the future.
 
 Ultimately, I decided to follow Julia's
 [package naming conventions](https://docs.julialang.org/en/v1.12-dev/tutorials/creating-packages/#Package-naming-guidelines)
@@ -48,9 +48,9 @@ A few reasons
   ([discourse](https://discourse.julialang.org/t/memory-leak-with-benchmarktools/31282),
   [github](https://github.com/JuliaCI/BenchmarkTools.jl/issues/339))
 - Because Charimarks does not use toplevel eval, it can run arbitrarily quickly, as limited
-  by a user's noise tolerance. Consequently, I spend time tuning the auto-tuning algorithm
-  for low benchmarking runtime budgets in addition to long runtimes so its precision doesn't
-  degrade too much at low runtimes.
+  by a user's noise tolerance. Consequently, the auto-tuning algorithm is tuned for low
+  runtime budgets in addition to high budgets so its precision doesn't degrade too much at
+  low runtime budgets.
 - Chairmarks tries very hard not to discard data. For example, if your function takes longer
   to evaluate then the runtime budget, Chairmarks will simply report the warmup runtime
   (with a disclaimer that there was no warmup). This makes Chairmarks a viable complete
@@ -78,6 +78,7 @@ time budget or sample budget is exhausted.
 
 If `evals` is not provided and `seconds` is (by default we have `seconds=0.1`), then we
 target spending 5% of the time budget on calibration. We have a multi-phase approach where
-we start by running the function just once, use that to decide the order of the bnechmark
+we start by running the function just once, use that to decide the order of the benchmark
 and how much additional calibration is needed. See
-https://github.com/LilithHafner/Chairmarks.jl/blob/main/src/benchmarking.jl for details.
+[https://github.com/LilithHafner/Chairmarks.jl/blob/main/src/benchmarking.jl](https://github.com/LilithHafner/Chairmarks.jl/blob/main/src/benchmarking.jl)
+for details.
