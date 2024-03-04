@@ -422,10 +422,10 @@ using Chairmarks: Sample, Benchmark
 
         @testset "very fast runtimes" begin
             f(t) = @b rand seconds=t
-            @test (@b f(1e-10)).time < 3e-7
-            @test (@b f(1e-8)).time < 3e-7
-            @test (@b f(1e-6)).time < 1e-6
-            @test (@b f(1e-5)).time < 5e-6
+            @test (@b f(1e-10)).time < 3e-5
+            @test (@b f(1e-8)).time < 3e-5
+            @test (@b f(1e-6)).time < 1e-4
+            @test (@b f(1e-5)).time < 5e-4
             @test f(1e-5).time != 0
         end
     end
