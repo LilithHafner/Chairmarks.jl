@@ -52,23 +52,23 @@ using Chairmarks: Sample, Benchmark
         end
 
         @testset "interpolation" begin
-            slow = @b length(rand(100))
-            fast = @b length($(rand(100)))
+            slow = @b length(rand(100)) evals=50
+            fast = @b length($(rand(100))) evals=50
             @test slow.checksum == fast.checksum
             @test slow.allocs > 0
             @test fast.allocs == 0
             @test 2fast.time < slow.time # should be about 3000x
 
             global interpolation_test_global = 1
-            slow = @b interpolation_test_global + 1
-            fast = @b $interpolation_test_global + 1
+            slow = @b interpolation_test_global + 1 evals=300
+            fast = @b $interpolation_test_global + 1 evals=300
             @test slow.checksum == fast.checksum
             @test slow.allocs > 0
             @test fast.allocs == 0
             @test 2fast.time < slow.time # should be about 100x
 
-            a = @b 6 $interpolation_test_global + $interpolation_test_global + _
-            b = @b 8
+            a = @b 6 $interpolation_test_global + $interpolation_test_global + _ evals=42
+            b = @b 8 evals=42
             @test a.checksum == b.checksum
         end
 
