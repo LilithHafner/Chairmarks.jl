@@ -2,7 +2,6 @@
 middle(x) = middle(x, x)
 middle(x, y) = (x + y)/2
 median(x) = median(collect(x))
-median(x::AbstractArray) = median(vec(x))
 function median(x::AbstractVector)
     if isodd(length(x))
         middle(partialsort(x, Integer(middle(firstindex(x),lastindex(x)))))
