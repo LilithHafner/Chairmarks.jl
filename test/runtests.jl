@@ -419,6 +419,15 @@ using Chairmarks: Sample, Benchmark
             t = @elapsed @b rand Returns(float(x)) _map=identity
             @test .1 < t < .2
         end
+
+        @testset "very fast runtimes" begin
+            f(t) = @b rand seconds=t
+            @test (@b f(1e-10)).time < 3e-6
+            @test (@b f(1e-8)).time < 3e-6
+            @test (@b f(1e-6)).time < 1e-5
+            @test (@b f(1e-5)).time < 5e-5
+            @test f(1e-5).time != 0
+        end
     end
 
     @testset "Aqua" begin
