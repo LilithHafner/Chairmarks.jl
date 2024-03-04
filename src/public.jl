@@ -100,6 +100,19 @@ arguments to ordinary functions. Keyword arguments to control executions are
     small about (less than 1%) and can be significantly exceeded when benchmarking long
     running functions.
 
+# Interpolation
+
+You may use standard interpolation syntax within any of the positional arguments. This will
+cause the interpolated values to be evaluated only once upon execution of the benchmark and
+the runtime of that evlaution will not be included in reported results. For example,
+
+    x = [1,2,3]
+    @b length(\$x)
+
+is equivalent to
+
+    @b [1,2,3] _ length _
+
 # Evaluation model
 
 At a high level, the implementation of this function looks like this

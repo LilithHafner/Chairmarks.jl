@@ -51,6 +51,27 @@ using Chairmarks: Sample, Benchmark
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
         end
 
+        @testset "interpolation" begin
+            slow = @b length(rand(100)) evals=50
+            fast = @b length($(rand(100))) evals=50
+            @test slow.checksum == fast.checksum
+            @test slow.allocs > 0
+            @test fast.allocs == 0
+            @test 2fast.time < slow.time # should be about 3000x
+
+            global interpolation_test_global = 1
+            slow = @b interpolation_test_global + 1 evals=300 # evals must be specified for checksums to match
+            fast = @b $interpolation_test_global + 1 evals=300
+            @test slow.checksum == fast.checksum
+            @test slow.allocs > 0
+            @test fast.allocs == 0
+            @test 2fast.time < slow.time # should be about 100x
+
+            a = @b 6 $interpolation_test_global + $interpolation_test_global + _ evals=42
+            b = @b 8 evals=42
+            @test a.checksum == b.checksum
+        end
+
         @testset "writefixed" begin
             @test Chairmarks.writefixed(-1.23045, 4) == "-1.2305"
             @test Chairmarks.writefixed(-1.23045, 3) == "-1.230"
