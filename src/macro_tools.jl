@@ -15,9 +15,9 @@ function substitute(ex::Expr, var::Symbol)
     changed ? exprarray(ex.head, args) : ex, changed
 end
 
-create_first_function(f::Symbol) = f
-create_first_function(x) = Returns(x)
-create_first_function(body::Expr) = :(() -> $body)
+create_first_function(f::Symbol, _) = f
+create_first_function(x, optimize) = optimize ? :(() -> $x) : Returns(x)
+create_first_function(body::Expr, _) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
@@ -30,7 +30,7 @@ function process_args(exprs)
     in_kw = false
     parameters = Any[]
     args = Any[benchmark, exprarray(:parameters, parameters)]
-    for ex in exprs
+    for (i, ex) in enumerate(exprs)
         if ex isa Expr && ex.head === :(=) && ex.args[1] isa Symbol
             in_kw = true
             ex.args[1] ∈ (:init, :setup, :teardown) && error("Keyword argument $(ex.args[1]) is not supported in macro calls, use positional arguments instead or use the function form of benchmark")
@@ -40,7 +40,8 @@ function process_args(exprs)
         elseif ex === :_
             push!(args, nothing)
         elseif first
-            push!(args, create_first_function(ex))
+            # If this is the last function (and therefore the primary function) don't deoptimize with Returns.
+            push!(args, create_first_function(ex, lastindex(exprs) == i || exprs[i+1] isa Expr && exprs[i+1].head === :(=) && exprs[i+1].args[1] isa Symbol))
             first = false
         else
             push!(args, create_function(ex))
