@@ -1,5 +1,6 @@
 using Chairmarks
 using Documenter
+using DocumenterVitepress
 
 DocMeta.setdocmeta!(Chairmarks, :DocTestSetup, :(using Chairmarks); recursive=true)
 
@@ -7,12 +8,11 @@ makedocs(;
     authors="Lilith Orion Hafner <lilithhafner@gmail.com> and contributors",
     repo=Remotes.GitHub("LilithHafner", "Chairmarks.jl"),
     sitename="Chairmarks.jl",
-    format=Documenter.HTML(;
-        prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://Chairmarks.lilithhafner.com",
-        edit_link="main",
-        assets=String[],
-    ),
+    format=DocumenterVitepress.MarkdownVitepress(
+        repo = "https://github.com/LilithHafner/Chairmarks.jl",
+        devbranch = "main",
+        devurl = "dev",
+        deploy_url = "chairmarks.lilithhafner.com"),
     pages=[
         "Home" => "index.md",
         "Why use Chairmarks?" => "why.md",
