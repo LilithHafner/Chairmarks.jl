@@ -23,6 +23,7 @@ makedocs(;
             "...perform automated regression testing on a package" => "regressions.md",
         ],
         "Reference" => "reference.md",
+        "Explanations" => "explanations.md",
     ],
     linkcheck=true,
 )
