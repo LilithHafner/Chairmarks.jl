@@ -1,9 +1,9 @@
 """
     @b [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the fastest result.
+Benchmark `f` and return the fastest [`Sample`](@ref).
 
-Use `@be` for full results.
+Use [`@be`](@ref) for full results.
 
 `@b args...` is equivalent to `minimum(@b args...)`. See the docstring for [`@be`](@ref)
 for more information.
@@ -44,9 +44,9 @@ end
 """
     @be [[init] setup] f [teardown] keywords...
 
-Benchmark `f` and return the results.
+Benchmark `f` and return the results as a [`Benchmark`](@ref).
 
-Use `@b` for abbreviated results.
+Use [`@b`](@ref) for abbreviated results.
 
 # Positional argument pipeline syntax
 
@@ -126,7 +126,7 @@ So `init` will be called once, `setup` and `teardown` will be called once per sa
 
 # Examples
 
-```jldoctest;  filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES", r"\\d+ (sample|evaluation)s?"=>s"### \\1"], setup=(using Random)
+```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES", r"\\d+ (sample|evaluation)s?"=>s"### \\1"], setup=(using Random)
 julia> @be rand(10000) # Benchmark a function
 Benchmark: 267 samples with 2 evaluations
 min    8.500 μs (2 allocs: 78.172 KiB)

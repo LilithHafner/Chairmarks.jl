@@ -1,13 +1,20 @@
 name = "Chairmarks"
 uuid = "0ca39b1e-fe0b-4e98-acfc-b1656634c4de"
 authors = ["Lilith Orion Hafner <lilithhafner@gmail.com> and contributors"]
-version = "0.3.1"
+version = "1.0.2"
 
 [deps]
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
+[weakdeps]
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[extensions]
+"StatisticsChairmarksExt" = ["Statistics"]
+
 [compat]
 Printf = "<0.0.1, 1"
+Statistics = "<0.0.1, 1"
 julia = "1"
 
 [extras]

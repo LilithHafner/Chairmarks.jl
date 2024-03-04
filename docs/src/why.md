@@ -42,9 +42,12 @@ julia> @b f(1010)
 | Load time     | 4.2ms          | 131ms             | 31x
 | minimum runtime | 34μs         | 459ms             | 13,500x
 | default runtime | 0.1s         | 5s                | 50x
+| proportion of time spent benchmarking | 90%-99% | 13%-65% | 1.5-7x
 
 See [https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx\_rm\_rf\_julia.sh](https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/ttfx_rm_rf_julia.sh)
-for methodology.
+for methodology on the first four entries and
+[https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/efficiency.jl](https://github.com/LilithHafner/Chairmarks.jl/blob/main/contrib/efficiency.jl)
+for the last.
 
 ## Concise
 
@@ -90,7 +93,7 @@ See [`@b`](@ref) for more info
 
 ## Truthful
 
-Charimarks automatically computes a checksum based on the results of the provided
+Chairmarks automatically computes a checksum based on the results of the provided
 computations, and returns that checksum to the user along with benchmark results. This makes
 it impossible for the compiler to elide any part of the computation that has an impact on
 its return value.
@@ -117,10 +120,10 @@ julia> @b 1.0 checksum=false
 You may experiment with custom reductions using the internal `_map` and `_reduction` keyword
 arguments. The default maps and reductions (`Chairmarks.default_map` and
 `Chairmarks.default_reduction`) are internal and subject to change and/or removal in
-future.
+the future.
 
 ## Innate qualities
 
-Charimarks is inherently narrower than BenchmarkTools by construction. It also has more
+Chairmarks is inherently narrower than BenchmarkTools by construction. It also has more
 reliable back support. Back support is a defining feature of chairs while benches are known
 to sometimes lack back support.

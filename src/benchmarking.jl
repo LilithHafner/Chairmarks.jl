@@ -93,6 +93,8 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
         samples === nothing ? push!(data, sample) : (data[i += 1] = sample)
     end
 
+    samples === nothing || resize!(data, i-1)
+
     Benchmark(data)
 end
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b

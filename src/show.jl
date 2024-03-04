@@ -98,27 +98,27 @@ end
 
 function Base.show(io::IO, b::Benchmark)
     println(io, "Benchmark([")
-    for s in b.data
+    for s in b.samples
         println(io, "  ", s)
     end
     print(io, "])")
 end
 function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
-    samples = length(b.data)
+    samples = length(b.samples)
     print(io, "Benchmark: $samples sample")
     samples == 1 || print(io, "s")
     samples == 0 && return
     print(io, " with ")
-    if all(==(first(b.data).evals), getproperty.(b.data, :evals)) # allequal not defined in Julia <1.8
-        evals = first(b.data).evals
-        print_maybe_int(io, "", first(b.data).evals, " evaluation")
+    if all(==(first(b.samples).evals), getproperty.(b.samples, :evals)) # allequal not defined in Julia <1.8
+        evals = first(b.samples).evals
+        print_maybe_int(io, "", first(b.samples).evals, " evaluation")
         evals == 1 || print(io, "s")
         println(io)
     else
         println(io, "variable evaluations")
     end
     if samples ≤ 4
-        sd = sort(b.data, by=s -> s.time)
+        sd = sort(b.samples, by = s->s.time)
         for (i, s) in enumerate(sd)
             print(io, "       ")
             show(io, m, s)
