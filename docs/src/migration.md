@@ -97,34 +97,51 @@ Note that more fields may be added as more information becomes available.
 
 ### Nonconstant globals and interpolation
 
-The arguments to Chairmarks are lowered to functions, not quoted expressions.
-Consequently, there is no need to interpolate variables and interpolation is therefore not
-supported. Like BenchmarkTools, benchmarks that include access to nonconstant globals
-will receive a performance overhead for that access. However, Chairmarks evaluates
-expressions in the scope of the macro call, not in global scope, so nonconstant global
-access is much less of an issue in Chairmarks than BenchmarkTools. Three possible ways to
-avoid it are to put the `@b` call in a function, make the global constant, or to include it
-in the setup or initialization phase. For example,
+Like BenchmarkTools, benchmarks that include access to nonconstant globals will receive a
+performance overhead for that access.
+
+However, Chairmarks's arguments are functions evaluated in the scope of the macro call, not
+quoted expressions `eval`ed at global scope. This makes nonconstant global access much less
+of an issue in Chairmarks than BenchmarkTools which, in turn, eliminates much of the need to
+interpolate variables. Consequently, interpolation is not directly supported. You can always
+throw an `@eval` in front and then use interpolation if you would like, though this will
+leak memory.[^1]
+
+Four possible ways to avoid nonconstant globals are to put the `@b` call in a function,
+put the global access in the setup or initialization phase, make the global constant, or use
+`@eval` and interpolate it. For example,
 
 ```jldoctest
 julia> x = 6 # nonconstant global
 6
 
 julia> @b rand(x) # slow
-39.616 ns (1.02 allocs: 112.630 bytes)
+38.449 ns (2.01 allocs: 112.449 bytes)
 
-julia> f(len) = @b rand(len)
+julia> f(len) = @b rand(len) # put the `@b` call in a function (highest performance for repeated benchmarks)
 f (generic function with 1 method)
 
-julia> f(x) # fast
-19.010 ns (1 allocs: 112 bytes)
+julia> f(x)
+15.318 ns (2 allocs: 112 bytes)
 
-julia> @b x rand # fast
-18.939 ns (1 allocs: 112 bytes)
+julia> @b x rand # put the access in the setup phase (most concise in simple cases)
+15.507 ns (2 allocs: 112 bytes)
 
-julia> const X = x
+julia> const X = x # make the global constant
 6
 
-julia> @b rand(X) # fast
-18.860 ns (1 allocs: 112 bytes)
+julia> @b rand(X)
+15.448 ns (2 allocs: 112 bytes)
+
+julia> @eval @b rand($x) # use eval and interpolation (most familiar, but leaks a small amount of memory)
+15.620 ns (2 allocs: 112 bytes)
 ```
+
+[^1]: Note that `eval` and friends leak a wee bit of memory in Julia
+    ([issue](https://github.com/JuliaLang/julia/issues/14495)) so the later approach is not
+    recommended in loops or functions because, like all benchmarking with BenchmarkTools.jl
+    ([issue](https://github.com/JuliaCI/BenchmarkTools.jl/issues/339)), it leaks memory on each
+    invocation. Don't use `f(x) = @eval @b rand($x)` when `f(x) = @b rand(x)` reports equally
+    fast results and doesn't leak memory. If you are only invoking a benchmark once per time
+    you type it (e.g. typing `@b` at the REPL) then this sort of memory leak is not typically an
+    issue.
