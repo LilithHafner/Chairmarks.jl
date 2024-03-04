@@ -31,7 +31,7 @@ more efficient in the future.
 
 Ultimately, I decided to follow Julia's
 [package naming conventions](https://docs.julialang.org/en/v1.12-dev/tutorials/creating-packages/#Package-naming-guidelines)
-and heed teh advice that
+and heed the advice that
 
 > A less systematic name may suit a package that implements one of several possible approaches to its domain.
 
