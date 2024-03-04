@@ -1,7 +1,7 @@
 name = "Chairmarks"
 uuid = "0ca39b1e-fe0b-4e98-acfc-b1656634c4de"
 authors = ["Lilith Orion Hafner <lilithhafner@gmail.com> and contributors"]
-version = "1.0.0"
+version = "1.0.1"
 
 [deps]
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
