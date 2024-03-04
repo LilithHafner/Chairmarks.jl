@@ -138,10 +138,10 @@ julia> @eval @b rand($x) # use eval and interpolation (most familiar, but leaks 
 ```
 
 [^1]: Note that `eval` and friends leak a wee bit of memory in Julia
-([issue](https://github.com/JuliaLang/julia/issues/14495)) so the later approach is not
-recommended in loops or functions because, like all benchmarking with BenchmarkTools.jl
-([issue](https://github.com/JuliaCI/BenchmarkTools.jl/issues/339)), it leaks memory on each
-invocation. Don't use `f(x) = @eval @b rand($x)` when `f(x) = @b rand(x)` reports equally
-fast results and doesn't leak memory. If you are only invoking a benchmark once per time
-you type it (e.g. typing `@b` at the REPL) then this sort of memory leak is not typically an
-issue.
+    ([issue](https://github.com/JuliaLang/julia/issues/14495)) so the later approach is not
+    recommended in loops or functions because, like all benchmarking with BenchmarkTools.jl
+    ([issue](https://github.com/JuliaCI/BenchmarkTools.jl/issues/339)), it leaks memory on each
+    invocation. Don't use `f(x) = @eval @b rand($x)` when `f(x) = @b rand(x)` reports equally
+    fast results and doesn't leak memory. If you are only invoking a benchmark once per time
+    you type it (e.g. typing `@b` at the REPL) then this sort of memory leak is not typically an
+    issue.
