@@ -137,7 +137,7 @@ julia> @eval @b rand($x) # use eval and interpolation (most familiar, but leaks 
 15.620 ns (2 allocs: 112 bytes)
 ```
 
-[^1]Note that `eval` and friends leak a wee bit of memory in Julia
+[^1]: Note that `eval` and friends leak a wee bit of memory in Julia
 ([issue](https://github.com/JuliaLang/julia/issues/14495)) so the later approach is not
 recommended in loops or functions because, like all benchmarking with BenchmarkTools.jl
 ([issue](https://github.com/JuliaCI/BenchmarkTools.jl/issues/339)), it leaks memory on each
