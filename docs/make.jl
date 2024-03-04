@@ -18,9 +18,9 @@ makedocs(;
         "Why use Chairmarks?" => "why.md",
         "Tutorial" => "tutorial.md",
         "How To" => [
-            "...migrate from BenchmarkTools" => "migration.md",
-            "...install Chairmarks ergonomically" => "autoload.md",
-            "...perform automated regression testing on a package" => "regressions.md",
+            "migrate from BenchmarkTools" => "migration.md",
+            "install Chairmarks ergonomically" => "autoload.md",
+            "perform automated regression testing on a package" => "regressions.md",
         ],
         "Reference" => "reference.md",
         "Explanations" => "explanations.md",
