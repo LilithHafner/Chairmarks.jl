@@ -75,7 +75,7 @@ using Chairmarks: Sample, Benchmark
         @testset "no warmup" begin
             runtime = @elapsed res = @be sleep(.1) seconds=.05
             @test runtime < .2 # hopefully this is not going to get too many false positives
-            sample = only(res.samples)
+            sample = Chairmarks.only(res.samples) # qualify for compat
             @test .1 < sample.time
             @test sample.warmup == 0
             @test occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
