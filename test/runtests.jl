@@ -400,6 +400,23 @@ using Chairmarks: Sample, Benchmark
             @test res.compile_fraction < 1e-4 # A bit of compile time is necessary because of the @eval
         end
 
+        @testset "bignums don't explode in the reduction" begin
+            x = 721345234112341234123512341234123412351235
+            Returns = Chairmarks.Returns
+            t = @elapsed @b rand Returns(x)
+            @test .1 < t < .6
+            t = @elapsed @b rand Returns(x)
+            @test .1 < t < .2
+            t = @elapsed @b rand Returns(float(x))
+            @test .1 < t < .6
+            t = @elapsed @b rand Returns(float(x))
+            @test .1 < t < .2
+            t = @elapsed @b rand Returns(float(x)) _map=identity
+            @test .1 < t < .6
+            t = @elapsed @b rand Returns(float(x)) _map=identity
+            @test .1 < t < .2
+        end
+
         @testset "very fast runtimes" begin
             f(t) = @b rand seconds=t
             @test (@b f(1e-10)).time < 3e-5
