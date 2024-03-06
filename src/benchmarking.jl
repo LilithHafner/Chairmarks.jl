@@ -1,7 +1,12 @@
 # Validation
-default_map(x) = x
-default_map(x::BigInt) = hash(x)
-default_map(x::Bool) = x+520705676
+@static if v"1.8" <= VERSION
+    const default_map = Base.donotdelete
+else
+    default_map(x) = x
+    default_map(x::BigInt) = hash(x)
+    default_map(x::Bool) = x+520705676
+end
+
 default_reduction(x,y) = y
 default_reduction(x::T,y::T) where T <: Real = x*y
 
