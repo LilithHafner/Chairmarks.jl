@@ -93,9 +93,34 @@ See [`@b`](@ref) for more info
 
 ## Truthful
 
-Chairmarks calls `Base.donotdelete` on the results of the provided computations, which makes
+Chairmarks automatically computes a checksum based on the results of the provided
+computations, and returns that checksum to the user along with benchmark results. This makes
 it impossible for the compiler to elide any part of the computation that has an impact on
 its return value.
+
+While the checksums are fast, one negative side effect of this is that they add a bit of
+overhead to the measured runtime, and that overhead can vary depending on the function being
+benchmarked. These checksums are performed by computing a map over the returned values and a
+reduction over those mapped values. You can disable this by passing the `checksum=false`
+keyword argument, possibly in combination with a custom teardown function that verifies
+computation results. Be aware that as the compiler improves, it may become better at eliding
+benchmarks whose results are not saved.
+
+```jldoctest; filter=r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|0 ns|<0.001 ns"
+julia> @b 1
+0.713 ns
+
+julia> @b 1.0
+1.135 ns
+
+julia> @b 1.0 checksum=false
+0 ns
+```
+
+You may experiment with custom reductions using the internal `_map` and `_reduction` keyword
+arguments. The default maps and reductions (`Chairmarks.default_map` and
+`Chairmarks.default_reduction`) are internal and subject to change and/or removal in
+the future.
 
 ## Innate qualities
 

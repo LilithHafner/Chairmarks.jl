@@ -8,6 +8,7 @@
         compile_fraction   ::Float64 # The fraction of time spent compiling (0.0 to 1.0)
         recompile_fraction ::Float64 # The fraction of compile time which was, itself, recompilation (0.0 to 1.0)
         warmup             ::Float64 # Whether this sample had a warmup run before it (1.0 = yes. 0.0 = no).
+        checksum           ::Float64 # A checksum based on the values returned by the benchmarked function
         ...more fields may be added...
     end
 
@@ -34,9 +35,11 @@ struct Sample
     recompile_fraction ::Float64
     "Whether this sample had a warmup run before it (1.0 = yes. 0.0 = no)."
     warmup             ::Float64
+    "A checksum based on the values returned by the benchmarked function"
+    checksum           ::Float64
 end
-Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0, warmup=true) =
-    Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup)
+Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0, warmup=true, checksum=0) =
+    Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup, checksum)
 
 """
     struct Benchmark
