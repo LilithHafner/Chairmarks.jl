@@ -5,7 +5,7 @@ Benchmark `f` and return the fastest [`Sample`](@ref).
 
 Use [`@be`](@ref) for full results.
 
-`@b args...` is equivalent to `minimum(@b args...)`. See the docstring for [`@be`](@ref)
+`@b args...` is equivalent to `minimum(@be args...)`. See the docstring for [`@be`](@ref)
 for more information.
 
 # Examples
