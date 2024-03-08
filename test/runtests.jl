@@ -307,6 +307,19 @@ using Chairmarks: Sample, Benchmark
             @test any(sort_perf_test() for _ in 1:3)
         end
 
+        @testset "Issue 74" begin
+            f74(x, n) = x << n
+            g74(x, n) = x << (n & 63)
+
+            function check()
+                x = UInt128(1); n = 1;
+                fres = @b f74(x, n)
+                gres = @b g74(x, n)
+                fres.time > gres.time
+            end
+
+            @test sum(check() for _ in 1:10) >= 8
+        end
     end
 
     @testset "Performance" begin
