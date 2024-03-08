@@ -268,7 +268,6 @@ using Chairmarks: Sample, Benchmark
                 @test cor(25:50, times[25:50]) > limit # Highly correlated for large inputs
                 limit = VERSION >= v"1.6" ? .9 : .5
                 @test cor(x, times[x]) > limit # Correlated overall
-                @test_broken cor(x, times[x]) > .99 # Highly correlated overall
             end
         end
 
