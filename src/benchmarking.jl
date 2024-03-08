@@ -109,10 +109,10 @@ function _benchmark(f::F, map::M, reduction::R, args::A, evals::Int, warmup::Boo
     ctime, time0, time1, res, acc = try
         ctime = cumulative_compile_time_ns()
         time0 = time_ns()
-        res = @noinline f(args...)
+        res = @static VERSION >= v"1.8" ? @noinline(f(args...)) : f(args...)
         acc = map(res)
         for _ in 2:evals
-            x = @noinline f(args...)
+            x = @static VERSION >= v"1.8" ? @noinline(f(args...)) : f(args...)
             acc = reduction(acc, map(x))
         end
         time1 = time_ns()
