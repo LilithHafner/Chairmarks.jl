@@ -318,7 +318,7 @@ using Chairmarks: Sample, Benchmark
                 fres.time > gres.time
             end
 
-            @test sum(check() for _ in 1:10) >= 8
+            VERSION >= v"1.8" && @test sum(check() for _ in 1:10) >= 8 # Needs Base.donotdelete
         end
     end
 
