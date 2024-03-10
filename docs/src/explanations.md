@@ -82,3 +82,20 @@ we start by running the function just once, use that to decide the order of the 
 and how much additional calibration is needed. See
 [https://github.com/LilithHafner/Chairmarks.jl/blob/main/src/benchmarking.jl](https://github.com/LilithHafner/Chairmarks.jl/blob/main/src/benchmarking.jl)
 for details.
+
+## Why Chairmarks uses soft semantic versioning
+
+We prioritize human experience (both user and developer) over formal guarantees. Where
+formal guarantees improve the experience of folks using this package, we will try to make
+and adhere to them. Under both soft and traditional semantic versioning, the
+version number is primarily used to communicate to users whether a release is breaking. If
+Chairmarks had an infinite number of users, all of whom respected the formal API by only
+depending on formally documented behavior, then soft semantic versioning would be equivalent
+to traditional semantic versioning. However, as the user base differs from that theoretical
+ideal, so too does the most effective way of communicating which releases are breaking. For
+example, if version 1.1.0 documents that "the default runtime is 0.1 seconds" and a new
+version allows users to control this with a global variable, then that change does break the
+guarantee that the default runtime is 0.1 seconds. However, it still makes sense to release
+as 1.2.0 rather than 2.0.0 because it is less disruptive to users to have that technical
+breakage than to have to review the changelog for breakage and decide whether to update
+their compatibility statements or not.
