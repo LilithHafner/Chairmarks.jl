@@ -1,5 +1,10 @@
 using Chairmarks
 using Documenter
+
+import Pkg
+Pkg.rm("DocumenterVitepress")
+Pkg.add(url="https://github.com/LilithHafner/DocumenterVitepress.jl", rev="lh/redirect-slash")
+
 using DocumenterVitepress
 
 DocMeta.setdocmeta!(Chairmarks, :DocTestSetup, :(using Chairmarks); recursive=true)
@@ -13,6 +18,7 @@ makedocs(;
         devbranch = "main",
         devurl = "dev",
         deploy_url = "chairmarks.lilithhafner.com"),
+        redirect_trailing_slash = true,
     pages=[
         "Home" => "index.md",
         "Why use Chairmarks?" => "why.md",
