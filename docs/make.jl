@@ -19,7 +19,7 @@ makedocs(;
         devurl = "dev",
         deploy_url = "chairmarks.lilithhafner.com",
         redirect_trailing_slash = true,
-    )
+    ),
     pages=[
         "Home" => "index.md",
         "Why use Chairmarks?" => "why.md",
