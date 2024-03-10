@@ -17,8 +17,9 @@ makedocs(;
         repo = "https://github.com/LilithHafner/Chairmarks.jl",
         devbranch = "main",
         devurl = "dev",
-        deploy_url = "chairmarks.lilithhafner.com"),
+        deploy_url = "chairmarks.lilithhafner.com",
         redirect_trailing_slash = true,
+    )
     pages=[
         "Home" => "index.md",
         "Why use Chairmarks?" => "why.md",
