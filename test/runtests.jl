@@ -249,63 +249,6 @@ using Chairmarks: Sample, Benchmark
             @test_broken (@b 123908).time == 0
         end
 
-        @testset "Near monotonicity for evalpoly" begin
-            _rand(::Type{NTuple{N, Float64}}) where N = ntuple(i -> rand(), Val(N)) # Compat
-            t(n) = @b (rand(), _rand(NTuple{n, Float64})) evalpoly(_...)
-            x = 1:50
-            for collection_time_limit in (20, 6)
-                collection_time = @elapsed data = t.(x)
-                @test 5 < collection_time < collection_time_limit
-                times = [x.time for x in data]
-                @test all(x -> x>0, times)
-                # @test issorted(times[25:50]) # This is almost too much to ask for
-                @test_broken issorted(times) # This is too much to ask for
-                diffs = diff(times)
-                limit = VERSION >= v"1.9" ? 3e-9 : 10e-9
-                @test -limit < partialsort(diffs, 3) # Rarely more than a 3 nanoseconds of non-monotonicity
-                @test count(x -> x<=0, diffs[25:49]) <= 10 # Mostly monotonic
-                limit = VERSION >= v"1.9" ? .95 : VERSION >= v"1.6" ? .9 : .5
-                @test cor(25:50, times[25:50]) > limit # Highly correlated for large inputs
-                limit = VERSION >= v"1.6" ? .9 : .5
-                @test cor(x, times[x]) > limit # Correlated overall
-            end
-        end
-
-        function sort_perf!(x, n)
-            hsh = reinterpret(UInt64, first(x))
-            for _ in 1:n
-                sort!(x)
-                for i in eachindex(x)
-                    hsh += reinterpret(UInt64, x[i])
-                    x[i] = hsh/typemax(UInt64)
-                end
-            end
-            sum(x)
-        end
-        sort_perf!(rand(10), 10)
-        function sort_perf_test()
-            for len in round.(Int, exp.(LinRange(log(10), log(1_000_000), 10)))
-                x = rand(len)
-                n = 10_000_000 ÷ len
-                runtime = @elapsed sort_perf!(x, n)
-                truth = runtime / n
-                @test 1e-9length(x) < truth < 1e-6length(x)
-                t = let C = Ref(UInt(0))
-                    Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
-                end
-                if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
-                        !isapprox(t, truth, rtol=1, atol=1e-7) ||
-                        !isapprox(t, truth, rtol=5, atol=0)
-                    printstyled("Ground truth test failed\nlen=$len truth=$truth measured=$t\n", color=:red)
-                    return false
-                end
-            end
-            return true
-        end
-        @testset "Ground truth between 40ns and 200ms" begin
-            @test any(sort_perf_test() for _ in 1:3)
-        end
-
         @testset "Issue 74" begin
             f74(x, n) = x << n
             g74(x, n) = x << (n & 63)

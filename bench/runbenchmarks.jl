@@ -21,27 +21,6 @@ rand_hash_slow = @be rand hash seconds=.1
 
 evalpoly = Chairmarks.evalpoly # compat
 
-@group begin "Nonzero results"
-    nonzero(x) = x.time > 1e-11
-    @track nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
-    X = Ref(1.0)
-    @track nonzero(@b rand() X[]=evalpoly(_, (1.0, 2.0, 3.0)))
-    @track nonzero(@b rand() X[]+=evalpoly(_, (1.0, 2.0, 3.0)))
-
-    @track nonzero(@b rand)
-    @track nonzero(@b rand hash)
-    @track nonzero(@b 1+1)
-    @track nonzero(@b rand _^1)
-    @track nonzero(@b rand _^2)
-    @track nonzero(@b rand _^3)
-    @track nonzero(@b rand _^4)
-    @track nonzero(@b rand _^5)
-    @track nonzero(@b 0)
-    @track nonzero(@b 1)
-    @track nonzero(@b -10923740)
-    @track nonzero(@b 123908)
-end
-
 @group begin "Near monotonicity for evalpoly"
     _rand(::Type{NTuple{N, Float64}}) where N = ntuple(i -> rand(), Val(N)) # Compat
     t(n) = @b (rand(), _rand(NTuple{n, Float64})) evalpoly(_...)
@@ -75,7 +54,7 @@ end
     end
     sort_perf!(rand(10), 10)
     function sort_perf_test()
-        res = true
+        perfect = true
         for len in round.(Int, exp.(LinRange(log(10), log(1_000_000), 10)))
             x = rand(len)
             n = 10_000_000 ÷ len
@@ -85,14 +64,15 @@ end
             t = let C = Ref(UInt(0))
                 Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
             end
+            @track t - truth
+            @track t / truth - 1
             if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
                     !isapprox(t, truth, rtol=1, atol=1e-7) ||
                     !isapprox(t, truth, rtol=5, atol=0)
-                printstyled("Ground truth test failed\nlen=$len truth=$truth measured=$t\n", color=:red)
-                res = false
+                perfect = false
             end
         end
-        return res
+        return perfect
     end
 
     @track count(sort_perf_test() for _ in 1:10)
