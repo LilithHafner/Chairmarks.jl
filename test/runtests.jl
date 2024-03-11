@@ -322,6 +322,8 @@ using Chairmarks: Sample, Benchmark
     end
 
     @testset "Performance" begin
+        ### Begin stuff that doesn't run
+
         function verbose_check(baseline, test, tolerance)
             println("@test $baseline < $test < $(baseline + tolerance)")
             res = baseline < test < baseline + tolerance
@@ -393,58 +395,17 @@ using Chairmarks: Sample, Benchmark
         end
         end
 
-
-        @testset "@b @b x" begin
-            @test .01 < (@b (@b sort(rand(100)) seconds=.01)).time < .0103
-            @test .01 < (@b (@be sort(rand(100)) seconds=.01)).time < .0101
-            @test .01 < (@b (@be 1+1 seconds=.01)).time < .01003
-        end
-
-        @testset "efficiency" begin
-            runtime = .02
-            f() = @be sleep(runtime)
-            f()
-            t = @timed f()
-            time_in_function = sum(s -> s.time * s.evals, t[1].samples)
-            @test t[2]-2runtime < time_in_function < t[2]-runtime # loose the warmup, but keep the calibration.
-        end
-
-        @testset "no compilation" begin
-            res = @b @eval (@b 100 rand seconds=.001)
-            @test .001 < res.time < .005
-            @test res.compile_fraction < 1e-4 # A bit of compile time is necessary because of the @eval
-        end
-
-        @testset "bignums don't explode in the reduction" begin
-            x = 721345234112341234123512341234123412351235
-            Returns = Chairmarks.Returns
-            t = @elapsed @b rand Returns(x)
-            @test .1 < t < .6
-            t = @elapsed @b rand Returns(x)
-            @test .1 < t < .2
-            t = @elapsed @b rand Returns(float(x))
-            @test .1 < t < .6
-            t = @elapsed @b rand Returns(float(x))
-            @test .1 < t < .2
-            t = @elapsed @b rand Returns(float(x)) _map=identity
-            @test .1 < t < .6
-            t = @elapsed @b rand Returns(float(x)) _map=identity
-            @test .1 < t < .2
-        end
-
-        @testset "very fast runtimes" begin
-            f(t) = @b rand seconds=t
-            @test (@b f(1e-10)).time < 3e-5
-            @test (@b f(1e-8)).time < 3e-5
-            @test (@b f(1e-6)).time < 1e-4
-            @test (@b f(1e-5)).time < 5e-4
-            @test f(1e-5).time != 0
-        end
+        ### End stuff that doesn't run
     end
 
     @testset "Aqua" begin
-        using Aqua
+        import Aqua
         Aqua.test_all(Chairmarks, deps_compat=false)
         Aqua.test_deps_compat(Chairmarks, check_extras=false)
+    end
+
+    @testset "Regression Tests" begin
+        import RegressionTests
+        RegressionTests.test(workers=8)
     end
 end

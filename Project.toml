@@ -10,7 +10,7 @@ Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [extensions]
-"StatisticsChairmarksExt" = ["Statistics"]
+StatisticsChairmarksExt = ["Statistics"]
 
 [compat]
 Printf = "<0.0.1, 1"
@@ -19,8 +19,9 @@ julia = "1"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+RegressionTests = "2cca1867-674a-4323-b559-fc77c0bbdb31"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "Statistics", "Test"]
+test = ["Aqua", "RegressionTests", "Statistics", "Test"]
