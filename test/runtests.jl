@@ -349,6 +349,6 @@ using Chairmarks: Sample, Benchmark
 
     @testset "Regression Tests" begin
         import RegressionTests
-        RegressionTests.test(workers=8)
+        RegressionTests.test(workers=8, skip_unsupported_platforms=true)
     end
 end
