@@ -249,63 +249,6 @@ using Chairmarks: Sample, Benchmark
             @test_broken (@b 123908).time == 0
         end
 
-        @testset "Near monotonicity for evalpoly" begin
-            _rand(::Type{NTuple{N, Float64}}) where N = ntuple(i -> rand(), Val(N)) # Compat
-            t(n) = @b (rand(), _rand(NTuple{n, Float64})) evalpoly(_...)
-            x = 1:50
-            for collection_time_limit in (20, 6)
-                collection_time = @elapsed data = t.(x)
-                @test 5 < collection_time < collection_time_limit
-                times = [x.time for x in data]
-                @test all(x -> x>0, times)
-                # @test issorted(times[25:50]) # This is almost too much to ask for
-                @test_broken issorted(times) # This is too much to ask for
-                diffs = diff(times)
-                limit = VERSION >= v"1.9" ? 3e-9 : 10e-9
-                @test -limit < partialsort(diffs, 3) # Rarely more than a 3 nanoseconds of non-monotonicity
-                @test count(x -> x<=0, diffs[25:49]) <= 10 # Mostly monotonic
-                limit = VERSION >= v"1.9" ? .95 : VERSION >= v"1.6" ? .9 : .5
-                @test cor(25:50, times[25:50]) > limit # Highly correlated for large inputs
-                limit = VERSION >= v"1.6" ? .9 : .5
-                @test cor(x, times[x]) > limit # Correlated overall
-            end
-        end
-
-        function sort_perf!(x, n)
-            hsh = reinterpret(UInt64, first(x))
-            for _ in 1:n
-                sort!(x)
-                for i in eachindex(x)
-                    hsh += reinterpret(UInt64, x[i])
-                    x[i] = hsh/typemax(UInt64)
-                end
-            end
-            sum(x)
-        end
-        sort_perf!(rand(10), 10)
-        function sort_perf_test()
-            for len in round.(Int, exp.(LinRange(log(10), log(1_000_000), 10)))
-                x = rand(len)
-                n = 10_000_000 ÷ len
-                runtime = @elapsed sort_perf!(x, n)
-                truth = runtime / n
-                @test 1e-9length(x) < truth < 1e-6length(x)
-                t = let C = Ref(UInt(0))
-                    Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
-                end
-                if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
-                        !isapprox(t, truth, rtol=1, atol=1e-7) ||
-                        !isapprox(t, truth, rtol=5, atol=0)
-                    printstyled("Ground truth test failed\nlen=$len truth=$truth measured=$t\n", color=:red)
-                    return false
-                end
-            end
-            return true
-        end
-        @testset "Ground truth between 40ns and 200ms" begin
-            @test any(sort_perf_test() for _ in 1:3)
-        end
-
         @testset "Issue 74" begin
             f74(x, n) = x << n
             g74(x, n) = x << (n & 63)
@@ -322,6 +265,8 @@ using Chairmarks: Sample, Benchmark
     end
 
     @testset "Performance" begin
+        ### Begin stuff that doesn't run
+
         function verbose_check(baseline, test, tolerance)
             println("@test $baseline < $test < $(baseline + tolerance)")
             res = baseline < test < baseline + tolerance
@@ -393,58 +338,17 @@ using Chairmarks: Sample, Benchmark
         end
         end
 
-
-        @testset "@b @b x" begin
-            @test .01 < (@b (@b sort(rand(100)) seconds=.01)).time < .0103
-            @test .01 < (@b (@be sort(rand(100)) seconds=.01)).time < .0101
-            @test .01 < (@b (@be 1+1 seconds=.01)).time < .01003
-        end
-
-        @testset "efficiency" begin
-            runtime = .02
-            f() = @be sleep(runtime)
-            f()
-            t = @timed f()
-            time_in_function = sum(s -> s.time * s.evals, t[1].samples)
-            @test t[2]-2runtime < time_in_function < t[2]-runtime # loose the warmup, but keep the calibration.
-        end
-
-        @testset "no compilation" begin
-            res = @b @eval (@b 100 rand seconds=.001)
-            @test .001 < res.time < .005
-            @test res.compile_fraction < 1e-4 # A bit of compile time is necessary because of the @eval
-        end
-
-        @testset "bignums don't explode in the reduction" begin
-            x = 721345234112341234123512341234123412351235
-            Returns = Chairmarks.Returns
-            t = @elapsed @b rand Returns(x)
-            @test .1 < t < .6
-            t = @elapsed @b rand Returns(x)
-            @test .1 < t < .2
-            t = @elapsed @b rand Returns(float(x))
-            @test .1 < t < .6
-            t = @elapsed @b rand Returns(float(x))
-            @test .1 < t < .2
-            t = @elapsed @b rand Returns(float(x)) _map=identity
-            @test .1 < t < .6
-            t = @elapsed @b rand Returns(float(x)) _map=identity
-            @test .1 < t < .2
-        end
-
-        @testset "very fast runtimes" begin
-            f(t) = @b rand seconds=t
-            @test (@b f(1e-10)).time < 3e-5
-            @test (@b f(1e-8)).time < 3e-5
-            @test (@b f(1e-6)).time < 1e-4
-            @test (@b f(1e-5)).time < 5e-4
-            @test f(1e-5).time != 0
-        end
+        ### End stuff that doesn't run
     end
 
     @testset "Aqua" begin
-        using Aqua
+        import Aqua
         Aqua.test_all(Chairmarks, deps_compat=false)
         Aqua.test_deps_compat(Chairmarks, check_extras=false)
+    end
+
+    @testset "Regression Tests" begin
+        import RegressionTests
+        RegressionTests.test(workers=8, skip_unsupported_platforms=true)
     end
 end
