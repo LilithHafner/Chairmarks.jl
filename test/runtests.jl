@@ -79,6 +79,7 @@ using Chairmarks: Sample, Benchmark
             @test a.gc_fraction != 0
             @test b.gc_fraction != 0
             @test c.gc_fraction == 0
+            @test a.allocs == b.allocs == c.allocs != 0
             @test GC.enable(true)
         end
 
