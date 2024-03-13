@@ -29,12 +29,12 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
 
     function bench(evals, warmup=true)
         args2 = maybecall(setup, args1)
-            old_gc = gc || GC.enable(false)
-            sample, t, args3 = try
-                _benchmark(f, _map, _reduction, args2, evals, warmup)
-            finally
-                gc || GC.enable(old_gc)
-            end
+        old_gc = gc || GC.enable(false)
+        sample, t, args3 = try
+            _benchmark(f, _map, _reduction, args2, evals, warmup)
+        finally
+            gc || GC.enable(old_gc)
+        end
         maybecall(teardown, (args3,))
         sample, t
     end
