@@ -13,7 +13,8 @@ rand_hash_slow = @be rand hash seconds=.1
 @track ttfx_show
 @track abs(rand_hash_fast.time - minimum(rand_hash_slow).time)
 
-@track @elapsed using Statistics
+t = @elapsed using Statistics
+@track t
 @track @elapsed median(rand_hash_slow)
 
 #### Precision ####
