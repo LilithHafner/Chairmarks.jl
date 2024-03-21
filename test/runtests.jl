@@ -72,6 +72,17 @@ using Chairmarks: Sample, Benchmark
             @test a.checksum == b.checksum
         end
 
+        @testset "gc=false" begin
+            a = @b rand(100, 10000, 100)
+            b = @b rand(100, 10000, 100) gc=true
+            c = @b rand(100, 10000, 100) gc=false
+            @test a.gc_fraction != 0
+            @test b.gc_fraction != 0
+            @test c.gc_fraction == 0
+            @test a.allocs == b.allocs == c.allocs != 0
+            @test GC.enable(true)
+        end
+
         @testset "no warmup" begin
             runtime = @elapsed res = @be sleep(.1) seconds=.05
             @test runtime < .2 # hopefully this is not going to get too many false positives

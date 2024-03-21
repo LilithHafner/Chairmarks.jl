@@ -17,7 +17,7 @@ maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, checksum::Bool=true, _map=(checksum ? default_map : Returns(nothing)), _reduction=default_reduction)
+function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, gc::Bool=true, checksum::Bool=true, _map=(checksum ? default_map : Returns(nothing)), _reduction=default_reduction)
     @nospecialize
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
@@ -29,7 +29,12 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
 
     function bench(evals, warmup=true)
         args2 = maybecall(setup, args1)
-        sample, t, args3 = _benchmark(f, _map, _reduction, args2, evals, warmup)
+        old_gc = gc || GC.enable(false)
+        sample, t, args3 = try
+            _benchmark(f, _map, _reduction, args2, evals, warmup)
+        finally
+            gc || GC.enable(old_gc)
+        end
         maybecall(teardown, (args3,))
         sample, t
     end
