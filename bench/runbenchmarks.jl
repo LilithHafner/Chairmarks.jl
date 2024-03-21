@@ -76,7 +76,8 @@ end
         return perfect
     end
 
-    @track count(sort_perf_test() for _ in 1:10)
+    cnt = count(sort_perf_test() for _ in 1:10)
+    @track cnt
 end
 
 
