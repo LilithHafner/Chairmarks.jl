@@ -99,6 +99,13 @@ arguments to ordinary functions. Keyword arguments to control executions are
     A reasonable effort is made to respect the time limit, but it is always exceeded by a
     small about (less than 1%) and can be significantly exceeded when benchmarking long
     running functions.
+  - `gc::Bool` An experimental option to disable garbage collection during benchmarking.
+    Defaults to `true`. Set to `false` to garbage collection during benchmarking. Disabling
+    garbage collection may cause out of memory errors during a benchmark that requires
+    garbage collection, but should not result in memory leaks that survive past the end of
+    the benchmark. As an experimental option, this may be removed in the future or its
+    semantics may change. This option also depends on Julia internals and so it may break in
+    future versions of Julia.
 
 # Interpolation
 
