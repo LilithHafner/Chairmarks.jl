@@ -23,8 +23,7 @@ t = @elapsed using Statistics
 evalpoly = Chairmarks.evalpoly # compat
 
 @group begin "Near monotonicity for evalpoly"
-    _rand(::Type{NTuple{N, Float64}}) where N = ntuple(i -> rand(), Val(N)) # Compat
-    t(n) = @b (rand(), _rand(NTuple{n, Float64})) evalpoly(_...)
+    t(n) = @b (rand(), ntuple(i -> rand(), n)) evalpoly(_...) seconds=.01
     x = 1:50
     for _ in 1:2
         collection_time = @elapsed data = t.(x)
@@ -53,31 +52,27 @@ end
         end
         sum(x)
     end
+    wrong = 0
     sort_perf!(rand(10), 10)
-    function sort_perf_test()
-        perfect = true
-        for len in round.(Int, exp.(LinRange(log(10), log(1_000_000), 10)))
-            x = rand(len)
-            n = 10_000_000 ÷ len
-            runtime = @elapsed sort_perf!(x, n)
-            truth = runtime / n
-            @track 1e-9length(x) < truth < 1e-6length(x)
-            t = let C = Ref(UInt(0))
-                Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
-            end
-            @track t - truth
-            @track t / truth - 1
-            if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
-                    !isapprox(t, truth, rtol=1, atol=1e-7) ||
-                    !isapprox(t, truth, rtol=5, atol=0)
-                perfect = false
-            end
+    for len in round.(Int, exp.(LinRange(log(10), log(1_000_000), 10)))
+        x = rand(len)
+        n = 10_000_000 ÷ len
+        runtime = @elapsed sort_perf!(x, n)
+        truth = runtime / n
+        @track 1e-9length(x) < truth < 1e-6length(x)
+        t = let C = Ref(UInt(0))
+            Chairmarks.mean(@be len rand sort! C[] += hash(_) evals=1).time
         end
-        return perfect
+        @track t - truth
+        @track t / truth - 1
+        if !isapprox(t, truth, rtol=.5, atol=3e-5) ||
+                !isapprox(t, truth, rtol=1, atol=1e-7) ||
+                !isapprox(t, truth, rtol=5, atol=0)
+            wrong += 1
+        end
     end
 
-    cnt = count(sort_perf_test() for _ in 1:10)
-    @track cnt
+    @track wrong
 end
 
 
