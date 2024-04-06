@@ -47,6 +47,20 @@ using Chairmarks: Sample, Benchmark
             @test length(res.samples) < 100
         end
 
+        @testset "low sample count (#91)" begin
+            b = @be sleep(.001) evals=4 samples=0
+            @test only(b.samples).warmup == 0
+            @test_broken only(b.samples).evals == 4
+
+            b = @be sleep(.001) evals=4 samples=1
+            @test only(b.samples).warmup == 1
+            @test only(b.samples).evals == 4
+
+            b = @be sleep(.001) evals=4 samples=2
+            @test length(b.samples) == 2
+            @test all(s -> s.warmup == 1 && s.evals == 4, b.samples)
+        end
+
         @testset "errors" begin
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
         end
