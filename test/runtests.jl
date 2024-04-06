@@ -48,9 +48,7 @@ using Chairmarks: Sample, Benchmark
         end
 
         @testset "low sample count (#91)" begin
-            b = @be sleep(.001) evals=4 samples=0
-            @test Chairmarks.only(b.samples).warmup == 0 # Qualify only for compat
-            @test_broken Chairmarks.only(b.samples).evals == 4
+            @test_throws ArgumentError("samples must be positive") b = @be sleep(.001) evals=4 samples=0
 
             b = @be sleep(.001) evals=4 samples=1
             @test Chairmarks.only(b.samples).warmup == 1
