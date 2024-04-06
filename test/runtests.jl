@@ -374,6 +374,6 @@ using Chairmarks: Sample, Benchmark
 
     @testset "Regression Tests" begin
         import RegressionTests
-        ("CI" => true) ∈ ENV && RegressionTests.test(workers=8, skip_unsupported_platforms=true)
+        ("CI" => "true") ∈ ENV && RegressionTests.test(workers=8, skip_unsupported_platforms=true)
     end
 end
