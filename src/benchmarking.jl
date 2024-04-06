@@ -39,9 +39,11 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
         sample, t
     end
 
+    samples == 0 && return Benchmark([bench(evals, false)[1]])
+
     warmup, start_time = bench(1, false)
 
-    (samples == 0 || seconds == 0) && return Benchmark([warmup])
+    seconds == 0 && return Benchmark([warmup])
 
     new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
