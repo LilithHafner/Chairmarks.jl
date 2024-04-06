@@ -22,7 +22,7 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
     evals === nothing || evals > 0 || throw(ArgumentError("evals must be positive"))
-    samples === nothing || samples > 0 || throw(ArgumentError("samples must be positive"))
+    samples === nothing || samples >= 0 || throw(ArgumentError("samples must be non-negative"))
     seconds === nothing || seconds >= 0 || throw(ArgumentError("seconds must be non-negative"))
 
     args1 = maybecall(init, ())
@@ -39,9 +39,11 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
         sample, t
     end
 
+    samples == 0 && return Benchmark([bench(evals, false)[1]])
+
     warmup, start_time = bench(1, false)
 
-    (samples == 0 || seconds == 0) && return Benchmark([warmup])
+    seconds == 0 && return Benchmark([warmup])
 
     new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
