@@ -22,9 +22,9 @@ to install first to most streamlined user experience last.
    launching a new Julia session by a few milliseconds (for comparison, this is about 20x
    faster than loading `Revise` in your startup.jl file).
 
-3. [**Recommended**] Add Chairmarks and BasicAutoloads to your default environment and put
-   the following script in your startup.jl file to automatically load it when you type `@b`
-   or `@be` in the REPL:
+3. [**Recommended**] Add Chairmarks and [BasicAutoloads](https://github.com/LilithHafner/BasicAutoloads.jl)
+   to your default environment and put the following script in your startup.jl file to
+   automatically load it when you type `@b` or `@be` in the REPL:
 
 ```julia
 if isinteractive()
