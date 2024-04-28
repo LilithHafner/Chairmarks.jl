@@ -30,7 +30,7 @@ but that is pretty pretentious and also would become misleading if "BenchmarkToo
 becomes more efficient in the future.
 
 Ultimately, I decided to follow Julia's
-[package naming conventions](https://docs.julialang.org/en/v1.12-dev/tutorials/creating-packages/#Package-naming-guidelines)
+[package naming conventions](https://pkgdocs.julialang.org/v1/creating-packages/#Package-naming-guidelines)
 and heed the advice that
 
 > A less systematic name may suit a package that implements one of several possible approaches to its domain.
