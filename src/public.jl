@@ -149,56 +149,56 @@ So `init` will be called once, `setup` and `teardown` will be called once per sa
 ```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES", r"\\d+ (sample|evaluation)s?"=>s"### \\1"], setup=(using Random)
 julia> @be rand(10000) # Benchmark a function
 Benchmark: 267 samples with 2 evaluations
-min    8.500 μs (2 allocs: 78.172 KiB)
-median 10.354 μs (2 allocs: 78.172 KiB)
-mean   159.639 μs (2 allocs: 78.172 KiB, 0.37% gc time)
-max    39.579 ms (2 allocs: 78.172 KiB, 99.93% gc time)
+ min    8.500 μs (2 allocs: 78.172 KiB)
+ median 10.354 μs (2 allocs: 78.172 KiB)
+ mean   159.639 μs (2 allocs: 78.172 KiB, 0.37% gc time)
+ max    39.579 ms (2 allocs: 78.172 KiB, 99.93% gc time)
 
 julia> @be rand hash # How long does it take to hash a random Float64?
 Benchmark: 4967 samples with 10805 evaluations
-min    1.758 ns
-median 1.774 ns
-mean   1.820 ns
-max    5.279 ns
+ min    1.758 ns
+ median 1.774 ns
+ mean   1.820 ns
+ max    5.279 ns
 
 julia> @be rand(1000) sort issorted(_) || error() # Simultaneously benchmark and test
 Benchmark: 2689 samples with 2 evaluations
-min    9.771 μs (3 allocs: 18.062 KiB)
-median 11.562 μs (3 allocs: 18.062 KiB)
-mean   14.933 μs (3 allocs: 18.097 KiB, 0.04% gc time)
-max    4.916 ms (3 allocs: 20.062 KiB, 99.52% gc time)
+ min    9.771 μs (3 allocs: 18.062 KiB)
+ median 11.562 μs (3 allocs: 18.062 KiB)
+ mean   14.933 μs (3 allocs: 18.097 KiB, 0.04% gc time)
+ max    4.916 ms (3 allocs: 20.062 KiB, 99.52% gc time)
 
 julia> @be rand(1000) sort! issorted(_) || error() # BAD! This repeatedly resorts the same array!
 Benchmark: 2850 samples with 13 evaluations
-min    1.647 μs (0.15 allocs: 797.538 bytes)
-median 1.971 μs (0.15 allocs: 797.538 bytes)
-mean   2.212 μs (0.15 allocs: 800.745 bytes, 0.03% gc time)
-max    262.163 μs (0.15 allocs: 955.077 bytes, 98.95% gc time)
+ min    1.647 μs (0.15 allocs: 797.538 bytes)
+ median 1.971 μs (0.15 allocs: 797.538 bytes)
+ mean   2.212 μs (0.15 allocs: 800.745 bytes, 0.03% gc time)
+ max    262.163 μs (0.15 allocs: 955.077 bytes, 98.95% gc time)
 
 julia> @be rand(1000) sort! issorted(_) || error() evals=1 # Specify evals=1 to ensure the function is only run once between setup and teardown
 Benchmark: 6015 samples with 1 evaluation
-min    9.666 μs (2 allocs: 10.125 KiB)
-median 10.916 μs (2 allocs: 10.125 KiB)
-mean   12.330 μs (2 allocs: 10.159 KiB, 0.02% gc time)
-max    6.883 ms (2 allocs: 12.125 KiB, 99.56% gc time)
+ min    9.666 μs (2 allocs: 10.125 KiB)
+ median 10.916 μs (2 allocs: 10.125 KiB)
+ mean   12.330 μs (2 allocs: 10.159 KiB, 0.02% gc time)
+ max    6.883 ms (2 allocs: 12.125 KiB, 99.56% gc time)
 
 julia> @be rand(10) _ sort!∘rand! issorted(_) || error() # Or, include randomization in the benchmarked function and only allocate once
 Benchmark: 3093 samples with 237 evaluations
-min    121.308 ns
-median 126.055 ns
-mean   128.108 ns
-max    303.447 ns
+ min    121.308 ns
+ median 126.055 ns
+ mean   128.108 ns
+ max    303.447 ns
 
 julia> @be (x = 0; for _ in 1:50; x = hash(x); end; x) # We can use arbitrary expressions in any position in the pipeline, not just simple functions.
 Benchmark: 3387 samples with 144 evaluations
-min    183.160 ns
-median 184.611 ns
-mean   188.869 ns
-max    541.667 ns
+ min    183.160 ns
+ median 184.611 ns
+ mean   188.869 ns
+ max    541.667 ns
 
 julia> @be (x = 0; for _ in 1:5e8; x = hash(x); end; x) # This runs for a long time, so it is only run once (with no warmup)
 Benchmark: 1 sample with 1 evaluation
-       2.488 s (without a warmup)
+        2.488 s (without a warmup)
 ```
 """
 macro be(args...)

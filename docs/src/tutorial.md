@@ -61,10 +61,10 @@ output)
 ```jldoctest
 julia> @be rand(100)
 Benchmark: 19442 samples with 25 evaluations
-min    95.000 ns (2 allocs: 928 bytes)
-median 103.320 ns (2 allocs: 928 bytes)
-mean   140.096 ns (2 allocs: 928 bytes, 0.36% gc time)
-max    19.748 μs (2 allocs: 928 bytes, 96.95% gc time)
+ min    95.000 ns (2 allocs: 928 bytes)
+ median 103.320 ns (2 allocs: 928 bytes)
+ mean   140.096 ns (2 allocs: 928 bytes, 0.36% gc time)
+ max    19.748 μs (2 allocs: 928 bytes, 96.95% gc time)
 ```
 
 This invocation runs the same experiment as `@b`, but reports more results. It ran 19442

@@ -120,21 +120,21 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
     if samples ≤ 4
         sd = sort(b.samples, by = s->s.time)
         for (i, s) in enumerate(sd)
-            print(io, "       ")
+            print(io, "        ")
             show(io, m, s)
             i == length(sd) || println(io)
         end
     else
-        print(io, "min    ")
+        print(io, " min    ")
         show(io, m, minimum(b))
         println(io)
-        print(io, "median ")
+        print(io, " median ")
         show(io, m, median(b))
         println(io)
-        print(io, "mean   ")
+        print(io, " mean   ")
         show(io, m, mean(b))
         println(io)
-        print(io, "max    ")
+        print(io, " max    ")
         show(io, m, maximum(b))
     end
 end
