@@ -147,19 +147,19 @@ using Chairmarks: Sample, Benchmark
             @test eval(Meta.parse(repr(x))).samples == x.samples
             VERSION >= v"1.6" && @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 5 samples with 1 evaluation
-            min    101.540 ms (166 allocs: 16.195 KiB)
-            median 101.623 ms (166 allocs: 16.195 KiB)
-            mean   101.728 ms (166 allocs: 16.195 KiB)
-            max    102.239 ms (166 allocs: 16.195 KiB)"""
+             min    101.540 ms (166 allocs: 16.195 KiB)
+             median 101.623 ms (166 allocs: 16.195 KiB)
+             mean   101.728 ms (166 allocs: 16.195 KiB)
+             max    102.239 ms (166 allocs: 16.195 KiB)"""
 
             x = Benchmark(x.samples[1:3])
 
             @test eval(Meta.parse(repr(x))).samples == x.samples
             VERSION >= v"1.6" && @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 3 samples with 1 evaluation
-                   101.540 ms (166 allocs: 16.195 KiB)
-                   101.591 ms (166 allocs: 16.195 KiB)
-                   102.239 ms (166 allocs: 16.195 KiB)"""
+                    101.540 ms (166 allocs: 16.195 KiB)
+                    101.591 ms (166 allocs: 16.195 KiB)
+                    102.239 ms (166 allocs: 16.195 KiB)"""
 
             x = Benchmark(x.samples[1:0])
             @test eval(Meta.parse(repr(x))).samples == x.samples
@@ -213,8 +213,8 @@ using Chairmarks: Sample, Benchmark
             @test eval(Meta.parse(repr(x))).samples == x.samples
             @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 2 samples with variable evaluations
-                   100.000 ms
-                   100.000 ms"""
+                    100.000 ms
+                    100.000 ms"""
         end
     end
 
