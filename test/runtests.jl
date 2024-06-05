@@ -65,9 +65,12 @@ using Chairmarks: Sample, Benchmark
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
 
             # 104
-            @test_throws ArgumentError("samples must be specified if seconds is Inf") @b 1+1 seconds=Inf
+            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Inf
+            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=1e30
+            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=293*365*24*60*60
             @test_throws ArgumentError("Must specify either samples or seconds") @b 1+1 seconds=nothing
             @test only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
+            @test only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
             @test only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
         end
 
