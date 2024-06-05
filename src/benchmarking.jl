@@ -19,6 +19,12 @@ maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
 function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, gc::Bool=true, checksum::Bool=true, _map=(checksum ? default_map : Returns(nothing)), _reduction=default_reduction)
     @nospecialize
+
+    if seconds !== nothing && isinf(seconds)
+        samples === nothing && throw(ArgumentError("samples must be specified if seconds is Inf"))
+        return benchmark(init, setup, f, teardown; evals=evals, samples=samples, seconds=nothing, gc=gc, checksum=checksum, _map=_map, _reduction=_reduction)
+    end
+
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
     evals === nothing || evals > 0 || throw(ArgumentError("evals must be positive"))
