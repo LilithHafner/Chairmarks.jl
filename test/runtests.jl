@@ -74,6 +74,16 @@ using Chairmarks: Sample, Benchmark
             @test only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
         end
 
+        @testset "time_ns() close to typemax(UInt64)" begin
+            t0 = ccall(:jl_hrtime, UInt64, ())
+            @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ()) - $t0 - 10^9
+            # check that this does not throw or hang
+            # really high threshold because it's hard to avoid false positives with runtime
+            # @eval to ensure we get the latest version of time_ns()
+            @test 600 > @elapsed @eval @b 1+1 seconds=1.1
+            @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ())
+        end
+
         @testset "interpolation" begin
             slow = @b length(rand(100)) evals=50
             fast = @b length($(rand(100))) evals=50
