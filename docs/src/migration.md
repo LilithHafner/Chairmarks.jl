@@ -81,8 +81,8 @@ Benchmark results have the following fields:
 
 | Chairmarks             | BenchmarkTools      | Description            |
 |------------------------|---------------------|------------------------|
-| `x.time`               | `x.time*1e9`        | Runtime in seconds     |
-| `x.time/1e9`           | `x.time`            | Runtime in nanoseconds |
+| `x.time`               | `x.time/1e9`        | Runtime in seconds     |
+| `x.time*1e9`           | `x.time`            | Runtime in nanoseconds |
 | `x.allocs`             | `x.allocs`          | Number of allocations  |
 | `x.bytes`              | `x.memory`          | Number of bytes allocated across all allocations |
 | `x.gc_fraction`        | `x.gctime / x.time` | Fraction of time spent in garbage collection |
