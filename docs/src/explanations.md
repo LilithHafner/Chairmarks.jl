@@ -99,3 +99,116 @@ guarantee that the default runtime is 0.1 seconds. However, it still makes sense
 as 1.2.0 rather than 2.0.0 because it is less disruptive to users to have that technical
 breakage than to have to review the changelog for breakage and decide whether to update
 their compatibility statements or not.
+
+# Departures from BenchmarkTools
+
+When there are conflicts between compatibility/alignment with `BenchmarkTools` and
+producing the best experience I can for folks who are not coming for BenchmarkTools or using
+BenchmarkTools simultaneously, I put much more weight on the latter. One reason for this is
+folks who want something like BenchmarkTools should use BenchmarkTools. It's a great package
+that is reliable, mature, and has been stable for a long time. A diversity of design choices
+lets users pick packages based on their own preferences. Another reason for this is that I
+aim to work toward the best long term benchmarking solution possible (perhaps in some years
+there will come a time where another package makes both BenchmarkTools.jl and Chairmarks.jl
+obsolete). To this end, carrying forward design choices I disagree with is not beneficial.
+All that said, I do _not_ want to break compatibility or change style just to stand out.
+Almost all of BenchmarkTools' design decisions are solid and worth copying. Things like
+automatic tuning, the ability to bypass that automatic tuning, a split evals/samples
+structure, the ability to run untimed setup code before each sample, and many more mundane
+details we take for granted were once clever design decisions made in BenchmarkTools or its
+predecessors.
+
+Below, I'll list some specific design departures and why I made them
+
+## Macro names
+
+Chairmarks uses the abbreviated macros `@b` and `@be`. Descriptive names are almost always
+better than terse one-letter names. However I maintain that macros defined in packages and
+designed to be typed repeatedly at the REPL are one of the few exceptions to this "almost
+always". At the REPL, these macros are often typed once and never read. In this case,
+concision does matter and readability does not. When naming these macros I anticipated that
+REPL usage would be much more common than usage in packages or reused scripts. However, if
+and as this changes it may be worth adding longer names for them and possibly restricting
+the shorter names to interactive use only.
+
+## Return style
+
+`@be`, like `BenchmarkTools.@benchmark`, returns a `Benchmark` object. `@b`, unlike
+`BenchmarkTools.@btime` returns a composite sample formed by computing the minimum statistic
+over the benchmark, rather than returning the expression result and printing runtime
+statistics. The reason I originally considered making this decision is that typed
+`@btime sort!(x) setup=(x=rand(1000)) evals=1` into the REPL and seen the whole screen fill
+with random numbers too many times. Let's also consider the etymology of `@time` to justify
+this decision further. `@time` is a lovely macro that can be placed around an arbitrary
+long-running chunk of code or expression to report its runtime to stdout. `@time` is the
+print statement of profiling. `@btime` and `@b` can very much _not_ fill that role for three
+major reasons: first, most long-running code has side effects, and those macros run the code
+repeatedly, which could break things that rely on their side effects; second, `@btime`, and
+to a lesser extent `@b`, take ages to run; and third, only applying to `@btime`, `@btime`
+runs its body in global scope, not the scope of the caller. `@btime` and `@b` are not
+noninvasive tools to measure runtime of a portion of an algorithm, they are top-level macros
+to measure the runtime of an expression or function call. Their primary result is the
+runtime statistics of expression under benchmarking and the conventional way to report the
+primary result of a macro of function call to the calling context is with a return value.
+Consequently `@b` returns an aggregated benchmark result rather than following the pattern
+of `@btime`.
+
+If you are writing a script that computes some values and want to display those values to
+the user, you generally have to call display. Chairmarks in not an exception. If it were
+possible, I would consider special-casing `@show @b blah`.
+
+## Display format
+
+Chairmarks's display format is differs slightly from BenchmarkTools' display format. The
+indentation differences are to make sure Chairmarks is internally consistent and the choice
+of information displayed differs because Chairmarks has more types of information to display
+than BenchmarkTools.
+
+`@btime` displays with a leading space while `@b` does not. No Julia objects that I know of
+`display`s with a leading space on the first line. `Sample` (returned by `@b`) is no
+different. See [above](#return-style) for why `@b` returns a `Sample` instead of displaying
+in the style of `@time`.
+
+BenchmarkTools.jl's short display mode (`@btime`) displays runtime and allocations.
+Chairmark's short display mode (displaying a sample, or simply `@b` at the REPL) follows
+`Base.@time` instead and captures a wide variety of information, displaying only nonzero
+values. Here's a selection of the diversity of information Charimarks makes available to
+users, paired with how BenchmarkTools treats the same expressions:
+
+```julia
+julia> @b 1+1
+1.132 ns
+
+julia> @btime 1+1;
+  1.125 ns (0 allocations: 0 bytes)
+
+julia> @b rand(10)
+48.890 ns (1 allocs: 144 bytes)
+
+julia> @btime rand(10);
+  46.812 ns (1 allocation: 144 bytes)
+
+julia> @b rand(10_000_000)
+11.321 ms (2 allocs: 76.294 MiB, 17.34% gc time)
+
+julia> @btime rand(10_000_000);
+  9.028 ms (2 allocations: 76.29 MiB)
+
+julia> @b @eval begin f(x) = x+1; f(1) end
+1.237 ms (632 allocs: 41.438 KiB, 70.73% compile time)
+
+julia> @btime @eval begin f(x) = x+1; f(1) end;
+  1.421 ms (625 allocations: 41.27 KiB)
+
+julia> @b sleep(1)
+1.002 s (4 allocs: 112 bytes, without a warmup)
+
+julia> @btime sleep(1)
+  1.002 s (4 allocations: 112 bytes)
+```
+
+It would be a loss restrict ourselves to only runtime and allocations, it would be
+distracting to include "0% compilation time" in outputs which have zero compile time, and it
+would be inconsistent to make some fields (e.g. allocation count and amount) always display
+while others are only displayed when non-zero. Sparse display is the compromise I've chosen
+to get the best of both worlds.
