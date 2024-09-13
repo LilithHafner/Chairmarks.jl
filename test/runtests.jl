@@ -144,6 +144,16 @@ using Chairmarks: Sample, Benchmark
                 Sample(time=0.10162322700000001, allocs=166, bytes=16584)
             ])
 
+            # 1 space indent, like Vector, even though there's two levels of nesting here.
+            @test sprint(show, x) == """
+            Benchmark([
+             Sample(time=0.10223923, allocs=166, bytes=16584)
+             Sample(time=0.101591227, allocs=166, bytes=16584)
+             Sample(time=0.10154031000000001, allocs=166, bytes=16584)
+             Sample(time=0.101644144, allocs=166, bytes=16584)
+             Sample(time=0.10162322700000001, allocs=166, bytes=16584)
+            ])"""
+
             @test eval(Meta.parse(repr(x))).samples == x.samples
             VERSION >= v"1.6" && @test sprint(show, MIME"text/plain"(), x) == """
             Benchmark: 5 samples with 1 evaluation

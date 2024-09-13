@@ -99,7 +99,7 @@ end
 function Base.show(io::IO, b::Benchmark)
     println(io, "Benchmark([")
     for s in b.samples
-        println(io, "  ", s)
+        println(io, " ", s)
     end
     print(io, "])")
 end
