@@ -19,6 +19,12 @@ maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
 function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, gc::Bool=true, checksum::Bool=true, _map=(checksum ? default_map : Returns(nothing)), _reduction=default_reduction)
     @nospecialize
+
+    if seconds !== nothing && seconds >= 2.0^63*1e-9
+        samples === nothing && throw(ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)"))
+        return benchmark(init, setup, f, teardown; evals=evals, samples=samples, seconds=nothing, gc=gc, checksum=checksum, _map=_map, _reduction=_reduction)
+    end
+
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))
     samples === seconds === nothing && throw(ArgumentError("Must specify either samples or seconds"))
     evals === nothing || evals > 0 || throw(ArgumentError("evals must be positive"))
@@ -44,7 +50,6 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
     warmup, start_time = bench(1, false)
 
     seconds == 0 && return Benchmark([warmup])
-
     new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
 
@@ -99,8 +104,8 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
     end
 
     i = 1
-    stop_time = seconds === nothing ? nothing : round(UInt64, start_time + 1e9seconds)
-    while (seconds === nothing || time < stop_time) && (samples === nothing || i < samples)
+    stop_time = seconds === nothing ? nothing : start_time + round(UInt64, 1e9seconds)
+    while (seconds === nothing || signed(stop_time - time) >= 0) && (samples === nothing || i < samples)
         sample, time = bench(new_evals)
         samples === nothing ? push!(data, sample) : (data[i += 1] = sample)
     end

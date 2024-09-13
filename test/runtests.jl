@@ -63,6 +63,25 @@ using Chairmarks: Sample, Benchmark
 
         @testset "errors" begin
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
+
+            # 104
+            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Inf
+            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=1e30
+            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=293*365*24*60*60
+            @test_throws ArgumentError("Must specify either samples or seconds") @b 1+1 seconds=nothing
+            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
+            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
+            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
+        end
+
+        @testset "time_ns() close to typemax(UInt64)" begin
+            t0 = ccall(:jl_hrtime, UInt64, ())
+            @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ()) - $t0 - 10^9
+            # check that this does not throw or hang
+            # really high threshold because it's hard to avoid false positives with runtime
+            # @eval to ensure we get the latest version of time_ns()
+            @test 600 > @elapsed @eval @b 1+1 seconds=1.1
+            @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ())
         end
 
         @testset "interpolation" begin
