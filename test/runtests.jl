@@ -246,6 +246,10 @@ using Chairmarks: Sample, Benchmark
                     100.000 ms
                     100.000 ms"""
         end
+
+        @testset "Issue 99" begin
+            @b :my_func isdefined(Main, _) seconds=.001
+        end
     end
 
     @testset "Statistics Extension" begin
@@ -306,6 +310,14 @@ using Chairmarks: Sample, Benchmark
     end
 
     @testset "Performance" begin
+        @testset "no compilation" begin
+            res = @b @eval @b 100 rand seconds=.001
+            @test res.compile_fraction < .1
+            @eval _Chairmarks_test_isdefined_in_Main(x) = isdefined(Main, x)
+            res = @b @eval @b :my_func _Chairmarks_test_isdefined_in_Main seconds=.001
+            @test res.compile_fraction < .1
+        end
+
         ### Begin stuff that doesn't run
 
         function verbose_check(baseline, test, tolerance)
