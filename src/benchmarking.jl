@@ -17,7 +17,14 @@ maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing, samples::Union{Int, Nothing}=nothing, seconds::Union{Real, Nothing}=samples===nothing ? .1 : 1, gc::Bool=true, checksum::Bool=true, _map=(checksum ? default_map : Returns(nothing)), _reduction=default_reduction)
+function benchmark(init, setup, f, teardown;
+        evals::Union{Int, Nothing}=nothing,
+        samples::Union{Int, Nothing}=nothing,
+        seconds::Union{Real, Nothing}=samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds,
+        gc::Bool=DEFAULTS.gc,
+        checksum::Bool=true,
+        _map=(checksum ? default_map : Returns(nothing)),
+        _reduction=default_reduction)
     @nospecialize
 
     if seconds !== nothing && seconds >= 2.0^63*1e-9

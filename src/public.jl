@@ -93,14 +93,18 @@ arguments to ordinary functions. Keyword arguments to control executions are
   - `samples::Integer` Maximum number of samples to take. Defaults to unlimited and cannot
     be specified without also specifying `evals`. Specifying `samples = 0` will cause `@be`
     to run the warmup sample only and return that sample.
-  - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to `0.1` seconds
-    unless `samples` is specified in which case it defaults to `1` second. Set to `Inf`
-    to disable the time limit. Compile time is typically not counted against this limit.
-    A reasonable effort is made to respect the time limit, but it is always exceeded by a
-    small about (less than 1%) and can be significantly exceeded when benchmarking long
-    running functions.
+  - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to
+    [`Charimarks.DEFAULTS.seconds`](@ref Chairmarks.DEFAULTS) (which is `0.1` by default)
+    unless `samples` is specified, in which case it defaults to 10 times as long (1 second,
+    by default). Users are free to modify Charimarks.DEFAULTS.seconds for their own
+    interactive usage and its default value may change in the future. Set to `Inf` to
+    disable the time limit. Compile time is typically not counted against this limit. A
+    reasonable effort is made to respect the time limit but if samples is unspecified it is
+    always exceeded by a small about (less than 1%) and can be significantly exceeded when
+    benchmarking long running functions.
   - `gc::Bool` An experimental option to disable garbage collection during benchmarking.
-    Defaults to `true`. Set to `false` to garbage collection during benchmarking. Disabling
+    Defaults to [`Charimarks.DEFAULTS.gc`](@ref Chairmarks.DEFAULTS) which is `true` by
+    default. Set to `false` to disable garbage collection during benchmarking. Disabling
     garbage collection may cause out of memory errors during a benchmark that requires
     garbage collection, but should not result in memory leaks that survive past the end of
     the benchmark. As an experimental option, this may be removed in the future or its
@@ -204,3 +208,19 @@ Benchmark: 1 sample with 1 evaluation
 macro be(args...)
     process_args(args)
 end
+
+"""
+    Chairmarks.DEFAULTS
+
+A global constant that holds default benchmarking parameters.
+
+When a parameter is unspecified it defaults to the value stored in `Chairmarks.DEFAULTS`.
+
+Currently there is one stable default: `Chairmarks.DEFAULTS.seconds::Float64` which defaults
+to 0.1; and one expiremental default: `Chairmarks.DEFAULTS.gc::Bool` which defaults to
+`true`.
+
+All default values may be changed in the future and the `gc` default may be removed
+entirely.
+"""
+const DEFAULTS = Defaults(0.1, true)
