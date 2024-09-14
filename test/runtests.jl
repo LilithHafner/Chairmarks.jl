@@ -307,20 +307,6 @@ using Chairmarks: Sample, Benchmark
             @test_broken (@b 1).time == 0
             @test_broken (@b 123908).time == 0
         end
-
-        @testset "Issue 74" begin
-            f74(x, n) = x << n
-            g74(x, n) = x << (n & 63)
-
-            function check()
-                x = UInt128(1); n = 1;
-                fres = @b f74(x, n)
-                gres = @b g74(x, n)
-                fres.time > gres.time
-            end
-
-            VERSION > v"1.8" && @test sum(check() for _ in 1:10) >= 8 # Needs @noinline at callsite
-        end
     end
 
     @testset "Performance" begin

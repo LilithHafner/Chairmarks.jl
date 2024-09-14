@@ -22,7 +22,7 @@ function benchmark(init, setup, f, teardown; evals::Union{Int, Nothing}=nothing,
 
     if seconds !== nothing && seconds >= 2.0^63*1e-9
         samples === nothing && throw(ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)"))
-        return benchmark(init, setup, f, teardown; evals=evals, samples=samples, seconds=nothing, gc=gc, checksum=checksum, _map=_map, _reduction=_reduction)
+        seconds = nothing
     end
 
     samples !== nothing && evals === nothing && throw(ArgumentError("Sorry, we don't support specifying samples but not evals"))

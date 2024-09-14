@@ -75,6 +75,19 @@ end
     @track wrong
 end
 
+VERSION > v"1.8" && @group begin "Issue 74"
+    f74(x, n) = x << n
+    g74(x, n) = x << (n & 63)
+
+    function fail74()
+        x = UInt128(1); n = 1;
+        fres = @b f74(x, n)
+        gres = @b g74(x, n)
+        fres.time <= gres.time
+    end
+
+    @track count(fail74() for _ in 1:10) # Needs @noinline at callsite
+end
 
 #### Performance ####
 
