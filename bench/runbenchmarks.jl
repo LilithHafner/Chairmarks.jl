@@ -79,8 +79,8 @@ VERSION > v"1.8" && @group begin "Issue 74"
     f74(x, n) = x << n
     g74(x, n) = x << (n & 63)
 
-    function check()
-        x = fail74(1); n = 1;
+    function fail74()
+        x = UInt128(1); n = 1;
         fres = @b f74(x, n)
         gres = @b g74(x, n)
         fres.time <= gres.time
