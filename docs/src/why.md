@@ -89,7 +89,7 @@ julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_, rev=true) || error()
 5.358 μs (2 allocs: 1.750 KiB)
 ```
 
-See [`@b`](@ref) for more info
+See [`@be`](@ref) for more info
 
 ## Truthful
 
