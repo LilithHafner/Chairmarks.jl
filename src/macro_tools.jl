@@ -48,7 +48,8 @@ create_first_function(f::Symbol) = f
 # itself, using `Returns` is semantically equivalent to the documented behavior. Assuming
 # that we prevent constant propagation elsewhere it should produce equivalent measurements.
 create_first_function(x) = Returns(x)
-create_first_function(body::Union{QuoteNode, Expr}) = :(() -> $body)
+create_first_function(x::QuoteNode) = Returns(x.value)
+create_first_function(body::Expr) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
