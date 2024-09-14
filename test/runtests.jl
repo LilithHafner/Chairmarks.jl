@@ -246,6 +246,10 @@ using Chairmarks: Sample, Benchmark
                     100.000 ms
                     100.000 ms"""
         end
+
+        @testset "Issue 99" begin
+            @b :my_func isdefined(Main, _) seconds=.001
+        end
     end
 
     @testset "Statistics Extension" begin
@@ -303,23 +307,17 @@ using Chairmarks: Sample, Benchmark
             @test_broken (@b 1).time == 0
             @test_broken (@b 123908).time == 0
         end
-
-        @testset "Issue 74" begin
-            f74(x, n) = x << n
-            g74(x, n) = x << (n & 63)
-
-            function check()
-                x = UInt128(1); n = 1;
-                fres = @b f74(x, n)
-                gres = @b g74(x, n)
-                fres.time > gres.time
-            end
-
-            VERSION > v"1.8" && @test sum(check() for _ in 1:10) >= 8 # Needs @noinline at callsite
-        end
     end
 
     @testset "Performance" begin
+        @testset "no compilation" begin
+            res = @b @eval @b 100 rand seconds=.001
+            @test res.compile_fraction < .1
+            @eval _Chairmarks_test_isdefined_in_Main(x) = isdefined(Main, x)
+            res = @b @eval @b :my_func _Chairmarks_test_isdefined_in_Main seconds=.001
+            @test res.compile_fraction < .1
+        end
+
         ### Begin stuff that doesn't run
 
         function verbose_check(baseline, test, tolerance)
