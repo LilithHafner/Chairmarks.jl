@@ -43,7 +43,12 @@ function extract_interpolations!(interpolations, expr::Expr)
 end
 
 create_first_function(f::Symbol) = f
-create_first_function(body) = :(() -> $body)
+# We use `Returns` to reduce compile time by using fewer anonomous functions.
+# Assumeing that any value in an expression tree other than Expr or QuoteNode `eval`s to
+# itself, using `Returns` is semantically equivalent ot the documented behavior. Assuming
+# that we prevent constant propigation elsewhere it should produce equivalent measurements.
+create_first_function(x) = Returns(x)
+create_first_function(body::Union{QuoteNode, Expr}) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
