@@ -86,7 +86,7 @@ VERSION > v"1.8" && @group begin "Issue 74"
         fres.time <= gres.time
     end
 
-    @track sum(fail74() for _ in 1:10) # Needs @noinline at callsite
+    @track count(fail74() for _ in 1:10) # Needs @noinline at callsite
 end
 
 #### Performance ####
