@@ -246,6 +246,10 @@ using Chairmarks: Sample, Benchmark
                     100.000 ms
                     100.000 ms"""
         end
+
+        @testset "Issue 99" begin
+            @b :my_func isdefined(Main, _) seconds=.001
+        end
     end
 
     @testset "Statistics Extension" begin

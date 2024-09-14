@@ -43,8 +43,7 @@ function extract_interpolations!(interpolations, expr::Expr)
 end
 
 create_first_function(f::Symbol) = f
-create_first_function(x) = Returns(x)
-create_first_function(body::Expr) = :(() -> $body)
+create_first_function(body) = :(() -> $body)
 function create_function(f)
     f === :_ && return identity
     var = gensym()
