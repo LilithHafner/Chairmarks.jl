@@ -89,31 +89,30 @@ julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_, rev=true) || error()
 5.358 μs (2 allocs: 1.750 KiB)
 ```
 
-See [`@b`](@ref) for more info
+See [`@be`](@ref) for more info
 
 ## Truthful
 
-Chairmarks automatically computes a checksum based on the results of the provided
-computations, and returns that checksum to the user along with benchmark results. This makes
-it impossible for the compiler to elide any part of the computation that has an impact on
-its return value.
+On versions of Julia prior to 1.8, Chairmarks automatically computes a checksum based on the
+results of the provided computations and returns that checksum to the user along with
+benchmark results. This makes it impossible for the compiler to elide any part of the
+computation that has an impact on its return value.
 
 While the checksums are fast, one negative side effect of this is that they add a bit of
 overhead to the measured runtime, and that overhead can vary depending on the function being
-benchmarked. These checksums are performed by computing a map over the returned values and a
-reduction over those mapped values. You can disable this by passing the `checksum=false`
-keyword argument, possibly in combination with a custom teardown function that verifies
-computation results. Be aware that as the compiler improves, it may become better at eliding
-benchmarks whose results are not saved.
+benchmarked. In versions of Julia 1.8 and later, these checksums are emulated using the
+function `Base.donotdelete` which is designed and documented to ensure that necessary
+computation is not elided without adding extra overhead. You can disable all of this on all
+versions of Julia by passing the `checksum=false` keyword argument, possibly in combination
+with a custom teardown function that verifies computation results. Be aware that as the
+compiler improves, it may become better at eliding benchmarks whose results are not saved.
+
 
 ```jldoctest; filter=r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|0 ns|<0.001 ns"
-julia> @b 1
-0.713 ns
+julia> @b rand hash
+2.276 ns
 
-julia> @b 1.0
-1.135 ns
-
-julia> @b 1.0 checksum=false
+julia> @b rand hash checksum=false
 0 ns
 ```
 

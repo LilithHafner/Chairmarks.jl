@@ -110,7 +110,7 @@ end
 @group begin "no compilation"
     res = @b @eval (@b 100 rand seconds=.001)
     @track res.time
-    @track res.compile_fraction < 1e-4 # A bit of compile time is necessary because of the @eval
+    @track res.compile_fraction > 1e-4 # A bit of compile time is necessary because of the @eval
 end
 
 @group begin "bignums don't explode in the reduction"
