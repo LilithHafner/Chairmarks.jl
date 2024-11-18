@@ -96,7 +96,7 @@ using Chairmarks: Sample, Benchmark
             slow = @b interpolation_test_global + 1 evals=300 # evals must be specified for checksums to match
             fast = @b $interpolation_test_global + 1 evals=300
             @test slow.checksum == fast.checksum
-            @test slow.allocs > 0
+            @test slow.allocs > 0 || VERSION > v"1.12.0-DEV" # This doesn't allocate in 1.12.
             @test fast.allocs == 0
             @test 2fast.time < slow.time # should be about 100x
 
