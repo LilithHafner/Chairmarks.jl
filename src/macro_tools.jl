@@ -73,15 +73,24 @@ function process_args(exprs)
             push!(args, extract_interpolations!(interpolations, ex))
         end
     end
+    primary_index = length(args) ÷ 2 + 2
     i = 3
     while args[i] === :_ && i <= lastindex(args)
         args[i] = nothing
         i += 1
     end
-    args[i] = create_first_function(args[i])
+    if i == primary_index && args[i] isa Expr && args[i].head === :tuple
+        map!(create_first_function, args[i].args, args[i].args)
+    else
+        args[i] = create_first_function(args[i])
+    end
     i += 1
     while i <= lastindex(args)
-        args[i] = create_function(args[i])
+        if i == primary_index && args[i] isa Expr && args[i].head === :tuple
+            map!(create_function, args[i].args, args[i].args)
+        else
+            args[i] = create_function(args[i])
+        end
         i += 1
     end
     call = exprarray(:call, args)
