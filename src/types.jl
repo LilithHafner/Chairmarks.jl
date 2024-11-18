@@ -71,3 +71,13 @@ julia> minimum(ans)
 struct Benchmark
     samples::Vector{Sample}
 end
+
+"""
+    mutable struct Defaults
+
+The type of [`Chairmarks.DEFAULTS`](@ref)
+"""
+mutable struct Defaults
+    seconds::Float64
+    gc::Bool
+end

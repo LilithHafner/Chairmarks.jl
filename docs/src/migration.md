@@ -52,6 +52,7 @@ Here are some examples of corresponding invocations in BenchmarkTools and Chairm
 | `@btime sort!(x, rev=true) setup=(x=rand(100)) evals=1;` | `@b rand(100) sort!(_, rev=true) evals=1` |
 | `@btime issorted(sort!(x)) \|\| error() setup=(x=rand(100)) evals=1` | `@b rand(100) sort! issorted(_) \|\| error() evals=1` |
 | `let X = rand(100); @btime issorted(sort!($X)) \|\| error() setup=(rand!($X)) evals=1 end` | `@b rand(100) rand! sort! issorted(_) \|\| error() evals=1` |
+| `BenchmarkTools.DEFAULT_PARAMETERS.seconds = 1` | `Chairmarks.DEFAULTS.seconds = 1` |
 
 For automated regression tests, [RegressionTests.jl](https://github.com/LilithHafner/RegressionTests.jl)
 is a work in progress replacement for the `BenchmarkGroup` and `@benchmarkable` system.

@@ -252,9 +252,9 @@ sure it's reasonably stable.
 ## Advanced usage
 
 It is possible to manually specify the number of evaluations, samples, and/or seconds to run
-benchmarking for. It is also possible to pass a teardown function or an initialization
-function that runs only once. See the docstring of [`@be`](@ref) for more information on
-these additional arguments.
+benchmarking for and configure the default benchmarking runtime. It is also possible to pass
+a teardown function or an initialization function that runs only once. See the docstring of
+[`@be`](@ref) for more information on these additional arguments.
 
 [^1]: note that the samples are aggregated element wise, so the max field reports the maximum
     runtime and the maximum proportion of runtime spent in garbage collection (gc). Thus it

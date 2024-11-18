@@ -144,6 +144,15 @@ using Chairmarks: Sample, Benchmark
             @test Chairmarks.writefixed(-0.005, 4) == "-0.0050"
         end
 
+        @testset "DEFAULTS" begin
+            @test Chairmarks.DEFAULTS.seconds === 0.1
+            @test Chairmarks.DEFAULTS.gc === true
+            Chairmarks.DEFAULTS.seconds = 1
+            @test Chairmarks.DEFAULTS.seconds === 1.0
+            @test 1 <= @elapsed @b 1+1
+            Chairmarks.DEFAULTS.seconds = 0.1
+            @test Chairmarks.DEFAULTS.seconds === 0.1
+        end
         @testset "display" begin
 
             # Basic
