@@ -91,7 +91,6 @@ Benchmark results have the following fields:
 | `x.compile_fraction`   | N/A                 | Fraction of time spent compiling |
 | `x.recompile_fraction` | N/A                 | Fraction of time spent compiling which was on recompilation |
 | `x.warmup`             | `true`              | whether or not the sample had a warmup run before it |
-| `x.checksum`           | N/A                 | a checksum computed from the return values of the benchmarked code |
 | `x.evals`              | `x.params.evals`    | the number of evaluations in the sample |
 
 Note that more fields may be added as more information becomes available.

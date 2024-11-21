@@ -4,8 +4,8 @@ using Random: randperm
 @static if v"1.8" <= VERSION
     const donotdelete = Base.donotdelete
 else
-    const STATE = Ref{UInt}()
-    donotdelete(x) = (STATE[] = hash(x, STATE[]); nothing)
+    const CHECKSUM = Ref{UInt}()
+    donotdelete(x) = (CHECKSUM[] = hash(x, CHECKSUM[]); nothing)
 end
 
 benchmark(f; kw...) = benchmark(nothing, f; kw...)
