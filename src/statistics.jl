@@ -21,3 +21,6 @@ Base.minimum(b::Benchmark) = elementwise(minimum, b)
 median(b::Benchmark) = elementwise(median, b)
 mean(b::Benchmark) = elementwise(mean, b)
 Base.maximum(b::Benchmark) = elementwise(maximum, b)
+
+summarize(b::Tuple{<:Any, Benchmark}) = summarize.(b)
+summarize(b::Benchmark) = minimum(b)
