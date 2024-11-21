@@ -162,6 +162,11 @@ using Chairmarks: Sample, Benchmark
             x,y = @be .001 sleep,sleep(10*_)
             @test length(x.samples) == length(y.samples)
 
+            # Low sample count
+            @b rand,hash(rand()) samples=0 evals=1
+            @b rand,hash(rand()) seconds=0
+            @b rand,sleep(.2)
+
             # Full pipeline and order of evals
             log = []
             _push!(x, v) = (push!(x, v); v)

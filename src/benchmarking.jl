@@ -74,18 +74,18 @@ function benchmark(init, setup, f, teardown;
         end
     end
 
-    samples == 0 && return Benchmark([bench(evals, false)[1]])
+    samples == 0 && return f isa Tuple ? ntuple(i -> Benchmark([bench(evals, false)[1][i]]), length(f)) : Benchmark([bench(evals, false)[1]])
 
     warmup, start_time = bench(1, false)
 
-    seconds == 0 && return Benchmark([warmup])
+    seconds == 0 && return f isa Tuple ? ntuple(i -> Benchmark([warmup[i]]), length(f)) : Benchmark([warmup])
     new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
 
         if f isa Tuple ? sum(w.time for w in warmup) > 2seconds && all(w.compile_fraction < .5 for w in warmup) : warmup.time > 2seconds && warmup.compile_fraction < .5
             # The estimated runtime in the warmup already exceeds the time budget.
             # Return the warmup result (which is marked as not having a warmup).
-            return Benchmark([warmup])
+            return f isa Tuple ? ntuple(i -> Benchmark([warmup[i]]), length(f)) : Benchmark([warmup])
         end
 
         calibration1, time = bench(1)
