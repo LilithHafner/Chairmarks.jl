@@ -46,20 +46,21 @@ function benchmark(init, setup, f, teardown;
 
     function bench(evals, warmup=true)
         if f isa Tuple
-            fp = f[randperm(length(f))]
+            p = randperm(length(f))
             t = Ref(zero(UInt64))
-            ntuple(length(fp)) do i
+            rp = ntuple(length(f)) do i
                 args2 = maybecall(setup, args1)
                 old_gc = gc || GC.enable(false)
                 sample, ti, args3 = try
-                    _benchmark(fp[i], _map, _reduction, args2, evals, warmup)
+                    _benchmark(f[p[i]], _map, _reduction, args2, evals, warmup)
                 finally
                     gc || GC.enable(old_gc)
                 end
                 maybecall(teardown, (args3,))
                 t[] = ti
                 sample
-            end, t[]
+            end
+            ntuple(i -> rp[p[i]], length(f)), t[]
         else
             args2 = maybecall(setup, args1)
             old_gc = gc || GC.enable(false)

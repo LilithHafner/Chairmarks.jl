@@ -146,7 +146,7 @@ function Base.show(io::IO, m::MIME"text/plain", bs::NTuple{<:Any, Benchmark})
         show(io, m, bs[i])
         println(io)
     end
-    show(io, m, bs[1])
+    show(io, m, bs[end])
 end
 function Base.show(io::IO, m::MIME"text/plain", ss::NTuple{<:Any, Sample})
     print(io, '(')
@@ -154,6 +154,6 @@ function Base.show(io::IO, m::MIME"text/plain", ss::NTuple{<:Any, Sample})
         show(io, m, ss[i])
         print(io, ", ")
     end
-    show(io, m, ss[1])
+    show(io, m, ss[end])
     print(io, ')')
 end

@@ -153,6 +153,81 @@ using Chairmarks: Sample, Benchmark
             Chairmarks.DEFAULTS.seconds = 0.1
             @test Chairmarks.DEFAULTS.seconds === 0.1
         end
+
+        @testset "Comparative benchmarking" begin
+            # Basic
+            x,y = @b .001 sleep,sleep(10*_)
+            @test x.evals == y.evals
+            @test x.warmup == y.warmup
+            x,y = @be .001 sleep,sleep(10*_)
+            @test length(x.samples) == length(y.samples)
+
+            # Full pipeline and order of evals
+            log = []
+            _push!(x, v) = (push!(x, v); v)
+            x,y = @be _push!(log, (0,)) _push!(log, (_...,1)) _push!(log, (_...,2)), _push!(log, (_...,3)) _push!(log, (_...,4))
+
+            # Sanity
+            all(∈(((0,), (0,1), (0,1,2), (0,1,3), (0,1,2,4), (0,1,3,4))), log)
+            evals = only(unique(x.evals for x in x.samples))
+            @test only(unique(y.evals for y in y.samples)) == evals
+
+            # Equal number of evals
+            @test sum(==((0,1,2)), log) == sum(==((0,1,3)), log) >= # >= because of calibration
+                evals*length(x.samples) == evals*length(y.samples)
+
+            # Equal number of samples
+            @test sum(==((0,1,2,4)), log) == sum(==((0,1,3,4)), log) >= # >= because of calibration
+                length(x.samples) == length(y.samples)
+
+            # Interleaved
+            @test log[1] == (0,)
+            @test log[2] == (0,1)
+            @test log[end] ∈ ((0,1,2,4), (0,1,3,4))
+            @test all(log[i+1] == (0,1) for i in eachindex(log)[begin:end-1] if length(log[i]) == 4) # Setup follows teardown
+
+            # Samples are interleaved
+            count = 0
+            @test all((if l == (0,1,2,4)
+                    count += 1
+                elseif l == (0,1,3,4)
+                    count -= 1
+                end;
+                -1 <= count <= 1) for l in log)
+            @test count == 0
+
+            # Evals are contiguous within a sample
+            current = nothing
+            for l in log
+                if l == (0,) || l == (0,1)
+                    current = 0
+                elseif l == (0,1,2)
+                    if current == 3
+                        @test false
+                    else
+                        current = 2
+                    end
+                elseif l == (0,1,3)
+                    if current == 2
+                        @test false
+                    else
+                        current = 3
+                    end
+                elseif l == (0,1,2,4)
+                    if current != 2
+                        @test false
+                    end
+                elseif l == (0,1,3,4)
+                    if current != 3
+                        @test false
+                    end
+                else
+                    error()
+                end
+            end
+            @test current ∈ 2:3
+        end
+
         @testset "display" begin
 
             # Basic
@@ -315,6 +390,11 @@ using Chairmarks: Sample, Benchmark
 
             @test_broken (@b 1).time == 0
             @test_broken (@b 123908).time == 0
+        end
+
+        @testset "Comparative" begin
+            x,y = @b .001 sleep,sleep(10*_)
+            @test x.time < y.time
         end
     end
 
