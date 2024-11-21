@@ -184,7 +184,7 @@ using Chairmarks: Sample, Benchmark
             @test log[1] == (0,)
             @test log[2] == (0,1)
             @test log[end] ∈ ((0,1,2,4), (0,1,3,4))
-            @test all(log[i+1] == (0,1) for i in eachindex(log)[begin:end-1] if length(log[i]) == 4) # Setup follows teardown
+            @test all(log[i+1] == (0,1) for i in eachindex(log)[1:end-1] if length(log[i]) == 4) # Setup follows teardown
 
             # Samples are interleaved
             count = 0
