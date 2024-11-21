@@ -94,6 +94,7 @@ function benchmark(init, setup, f, teardown;
         calibration2 = nothing
         calibration1time = f isa Tuple ? sum(s.time for s in calibration1) : calibration1.time
         calibration2 = nothing
+        calibration2time = nothing
         if calibration1time < .00015seconds # This branch protects us against cases where runtime is dominated by the reduction.
             calibration2, time = bench(10)
             calibration2time = f isa Tuple ? sum(s.time for s in calibration2) : calibration2.time
