@@ -5,7 +5,7 @@ Benchmark `f` and return the fastest [`Sample`](@ref).
 
 Use [`@be`](@ref) for full results.
 
-`@b args...` is equivalent to `minimum(@be args...)`. See the docstring for [`@be`](@ref)
+`@b args...` is equivalent to `summarize(@be args...)`. See the docstring for [`@be`](@ref)
 for more information.
 
 # Examples
@@ -38,7 +38,7 @@ julia> @b (x = 0; for _ in 1:5e8; x = hash(x); end; x) # This runs for a long ti
 """
 macro b(args...)
     call = process_args(args)
-    :(minimum($(call)))
+    :(summarize($(call)))
 end
 
 """
@@ -208,6 +208,13 @@ Benchmark: 1 sample with 1 evaluation
 macro be(args...)
     process_args(args)
 end
+
+"""
+    summarize(b::Benchmark) -> Any
+
+Used by `@b` to summarize the output of `@be`. Currently implemented as elementwise `minimum`.
+"""
+function summarize end
 
 """
     Chairmarks.DEFAULTS

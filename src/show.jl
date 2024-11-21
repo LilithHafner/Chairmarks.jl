@@ -138,3 +138,22 @@ function Base.show(io::IO, m::MIME"text/plain", b::Benchmark)
         show(io, m, maximum(b))
     end
 end
+
+# Piracy 🏴‍☠️
+Base.show(io::IO, ::MIME"text/plain", bs::Tuple{}) = print(io, "()")
+function Base.show(io::IO, m::MIME"text/plain", bs::NTuple{<:Any, Benchmark})
+    for i in 1:length(bs)-1
+        show(io, m, bs[i])
+        println(io)
+    end
+    show(io, m, bs[end])
+end
+function Base.show(io::IO, m::MIME"text/plain", ss::NTuple{<:Any, Sample})
+    print(io, '(')
+    for i in 1:length(ss)-1
+        show(io, m, ss[i])
+        print(io, ", ")
+    end
+    show(io, m, ss[end])
+    print(io, ')')
+end

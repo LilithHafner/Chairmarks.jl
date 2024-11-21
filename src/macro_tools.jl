@@ -51,14 +51,13 @@ create_first_function(x) = Returns(x)
 create_first_function(x::QuoteNode) = Returns(x.value)
 create_first_function(body::Expr) = :(() -> $body)
 function create_function(f)
-    f === :_ && return identity
+    f === :_ && return nothing
     var = gensym()
     new, changed = substitute_underscores(f, var)
     changed ? :($var -> $new) : f
 end
 function process_args(exprs)
     @nospecialize
-    first = true
     in_kw = false
     parameters = Any[]
     args = Any[benchmark, exprarray(:parameters, parameters)]
@@ -70,17 +69,29 @@ function process_args(exprs)
             push!(parameters, Expr(:kw, ex.args...))
         elseif in_kw
             error("Positional argument after keyword argument")
-        elseif ex === :_
-            push!(args, nothing)
         else
-            ex2 = extract_interpolations!(interpolations, ex)
-            if first
-                push!(args, create_first_function(ex2))
-                first = false
-            else
-                push!(args, create_function(ex2))
-            end
+            push!(args, extract_interpolations!(interpolations, ex))
         end
+    end
+    primary_index = length(args) ÷ 2 + 2
+    i = 3
+    while args[i] === :_ && i <= lastindex(args)
+        args[i] = nothing
+        i += 1
+    end
+    if i == primary_index && args[i] isa Expr && args[i].head === :tuple
+        map!(create_first_function, args[i].args, args[i].args)
+    else
+        args[i] = create_first_function(args[i])
+    end
+    i += 1
+    while i <= lastindex(args)
+        if i == primary_index && args[i] isa Expr && args[i].head === :tuple
+            map!(create_function, args[i].args, args[i].args)
+        else
+            args[i] = create_function(args[i])
+        end
+        i += 1
     end
     call = exprarray(:call, args)
     esc(isempty(interpolations) ? call : Expr(:let, exprarray(:block, interpolations), Expr(:block, call)))
