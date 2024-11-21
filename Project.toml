@@ -15,7 +15,7 @@ StatisticsChairmarksExt = ["Statistics"]
 
 [compat]
 Printf = "<0.0.1, 1"
-Random = "1.11.0"
+Random = "<0.0.1, 1"
 Statistics = "<0.0.1, 1"
 julia = "1"
 
