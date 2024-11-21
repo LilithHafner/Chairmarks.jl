@@ -169,8 +169,8 @@ using Chairmarks: Sample, Benchmark
 
             # Sanity
             all(∈(((0,), (0,1), (0,1,2), (0,1,3), (0,1,2,4), (0,1,3,4))), log)
-            evals = only(unique(x.evals for x in x.samples))
-            @test only(unique(y.evals for y in y.samples)) == evals
+            evals = Chairmarks.only(unique(x.evals for x in x.samples))
+            @test Chairmarks.only(unique(y.evals for y in y.samples)) == evals
 
             # Equal number of evals
             @test sum(==((0,1,2)), log) == sum(==((0,1,3)), log) >= # >= because of calibration
