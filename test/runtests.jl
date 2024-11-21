@@ -393,7 +393,7 @@ using Chairmarks: Sample, Benchmark
         end
 
         @testset "Comparative" begin
-            x,y = @b .001 sleep,sleep(10*_)
+            x,y = @b .01 sleep,sleep(10*_)
             @test x.time < y.time
         end
     end
