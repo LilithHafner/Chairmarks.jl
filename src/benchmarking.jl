@@ -2,15 +2,11 @@ using Random: randperm
 
 # Validation
 @static if v"1.8" <= VERSION
-    const default_map = Base.donotdelete
+    const donotdelete = Base.donotdelete
 else
-    default_map(x) = x
-    default_map(x::BigInt) = hash(x)
-    default_map(x::Bool) = x+520705676
+    const STATE = Ref{UInt}()
+    donotdelete(x) = (STATE[] = hash(x, STATE[]); nothing)
 end
-
-default_reduction(x,y) = y
-default_reduction(x::T,y::T) where T <: Real = x*y
 
 benchmark(f; kw...) = benchmark(nothing, f; kw...)
 benchmark(setup, f, teardown=nothing; kw...) = benchmark(nothing, setup, f, teardown; kw...)
@@ -23,10 +19,7 @@ function benchmark(init, setup, f, teardown;
         evals::Union{Int, Nothing}=nothing,
         samples::Union{Int, Nothing}=nothing,
         seconds::Union{Real, Nothing}=samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds,
-        gc::Bool=DEFAULTS.gc,
-        checksum::Bool=true,
-        _map=(checksum ? default_map : Returns(nothing)),
-        _reduction=default_reduction)
+        gc::Bool=DEFAULTS.gc)
     @nospecialize
 
     f isa Tuple && (seconds *= length(f))
@@ -52,7 +45,7 @@ function benchmark(init, setup, f, teardown;
                 args2 = maybecall(setup, args1)
                 old_gc = gc || GC.enable(false)
                 sample, ti, args3 = try
-                    _benchmark(f[p[i]], _map, _reduction, args2, evals, warmup)
+                    _benchmark(f[p[i]], args2, evals, warmup)
                 finally
                     gc || GC.enable(old_gc)
                 end
@@ -65,7 +58,7 @@ function benchmark(init, setup, f, teardown;
             args2 = maybecall(setup, args1)
             old_gc = gc || GC.enable(false)
             sample, t, args3 = try
-                _benchmark(f, _map, _reduction, args2, evals, warmup)
+                _benchmark(f, args2, evals, warmup)
             finally
                 gc || GC.enable(old_gc)
             end
@@ -151,26 +144,26 @@ function benchmark(init, setup, f, teardown;
     f isa Tuple ? ntuple(i -> Benchmark([s[i] for s in data]), length(f)) : Benchmark(data)
 end
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
-function _benchmark(f::F, map::M, reduction::R, args::A, evals::Int, warmup::Bool) where {F, M, R, A}
+function _benchmark(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
     gcstats = Base.gc_num()
     cumulative_compile_timing(true)
-    ctime, time0, time1, res, acc = try
+    ctime, time0, time1, res = try
         ctime = cumulative_compile_time_ns()
         time0 = time_ns()
         res = @static VERSION >= v"1.8" ? @noinline(f(args...)) : f(args...)
-        acc = map(res)
+        donotdelete(res)
         for _ in 2:evals
             x = @static VERSION >= v"1.8" ? @noinline(f(args...)) : f(args...)
-            acc = reduction(acc, map(x))
+            donotdelete(x)
         end
         time1 = time_ns()
         ctime = cumulative_compile_time_ns() .- ctime
 
-        ctime, time0, time1, res, acc
+        ctime, time0, time1, res
     finally
         cumulative_compile_timing(false)
     end
     rtime = time1 - time0
     gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
-    Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup, hash(acc)/typemax(UInt)), time1, res
+    Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
 end
