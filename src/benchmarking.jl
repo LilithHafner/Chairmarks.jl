@@ -39,8 +39,8 @@ function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
     function bench(evals, warmup=true)
         p = N == 1 ? (1,) : N == 2 ? rand() < .5 ? (1,2) : (2,1) : randperm(N)
         t = Ref(zero(UInt64))
+        args2 = maybecall(setup, args1)
         rp = ntuple(N) do i
-            args2 = maybecall(setup, args1)
             old_gc = gc || GC.enable(false)
             sample, ti, args3 = try
                 _benchmark(fs[p[i]], args2, evals, warmup)
