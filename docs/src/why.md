@@ -94,32 +94,15 @@ See [`@be`](@ref) for more info
 ## Truthful
 
 On versions of Julia prior to 1.8, Chairmarks automatically computes a checksum based on the
-results of the provided computations and returns that checksum to the user along with
-benchmark results. This makes it impossible for the compiler to elide any part of the
-computation that has an impact on its return value.
+results of the provided computations and stores the checksum in Chiarmaks.CHECKSUM. This
+makes it impossible for the compiler to elide any part of the computation that has an impact
+on its return value.
 
-While the checksums are fast, one negative side effect of this is that they add a bit of
-overhead to the measured runtime, and that overhead can vary depending on the function being
-benchmarked. In versions of Julia 1.8 and later, these checksums are emulated using the
-function `Base.donotdelete` which is designed and documented to ensure that necessary
-computation is not elided without adding extra overhead. You can disable all of this on all
-versions of Julia by passing the `checksum=false` keyword argument, possibly in combination
-with a custom teardown function that verifies computation results. Be aware that as the
-compiler improves, it may become better at eliding benchmarks whose results are not saved.
-
-
-```jldoctest; filter=r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|0 ns|<0.001 ns"
-julia> @b rand hash
-2.276 ns
-
-julia> @b rand hash checksum=false
-0 ns
-```
-
-You may experiment with custom reductions using the internal `_map` and `_reduction` keyword
-arguments. The default maps and reductions (`Chairmarks.default_map` and
-`Chairmarks.default_reduction`) are internal and subject to change and/or removal in
-the future.
+While the checksums are reasonably fast, one negative side effect of this is that they add a
+bit of overhead to the measured runtime, and that overhead can vary depending on the
+return value of the function being benchmarked. In versions of Julia 1.8 and later, these
+checksums are emulated using the function `Base.donotdelete` which is designed and
+documented to ensure that necessary computation is not elided without adding extra overhead.
 
 ## Innate qualities
 
