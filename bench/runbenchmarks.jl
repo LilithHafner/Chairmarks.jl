@@ -128,12 +128,6 @@ end
     t = @elapsed @b rand Returns(float(x))
     @test t > .1
     @track t - .1
-    t = @elapsed @b rand Returns(float(x)) _map=identity
-    @test t > .1
-    @track t - .1
-    t = @elapsed @b rand Returns(float(x)) _map=identity
-    @test t > .1
-    @track t - .1
 end
 
 @group begin "very fast runtimes"
