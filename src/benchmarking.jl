@@ -10,19 +10,18 @@ end
 
 benchmark(f; kw...) = benchmark(nothing, f; kw...)
 benchmark(setup, f, teardown=nothing; kw...) = benchmark(nothing, setup, f, teardown; kw...)
+benchmark(init, setup, f, teardown; kw...) = only(benchmark(init, setup, (f,), teardown; kw...))
 maybecall(::Nothing, x::Tuple{Any}) = x
 maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-function benchmark(init, setup, f, teardown;
+function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
         evals::Union{Int, Nothing}=nothing,
         samples::Union{Int, Nothing}=nothing,
-        seconds::Union{Real, Nothing}=samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds,
-        gc::Bool=DEFAULTS.gc)
+        seconds::Union{Real, Nothing}=(samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds)*N,
+        gc::Bool=DEFAULTS.gc) where N
     @nospecialize
-
-    f isa Tuple && (seconds *= length(f))
 
     if seconds !== nothing && seconds >= 2.0^63*1e-9
         samples === nothing && throw(ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)"))
@@ -38,47 +37,35 @@ function benchmark(init, setup, f, teardown;
     args1 = maybecall(init, ())
 
     function bench(evals, warmup=true)
-        if f isa Tuple
-            p = randperm(length(f))
-            t = Ref(zero(UInt64))
-            args2 = maybecall(setup, args1)
-            rp = ntuple(length(f)) do i
-                old_gc = gc || GC.enable(false)
-                sample, ti, args3 = try
-                    _benchmark(f[p[i]], args2, evals, warmup)
-                finally
-                    gc || GC.enable(old_gc)
-                end
-                maybecall(teardown, (args3,))
-                t[] = ti
-                sample
-            end
-            ntuple(i -> rp[p[i]], length(f)), t[]
-        else
-            args2 = maybecall(setup, args1)
+        p = N == 1 ? (1,) : N == 2 ? rand() < .5 ? (1,2) : (2,1) : randperm(N)
+        t = Ref(zero(UInt64))
+        args2 = maybecall(setup, args1)
+        rp = ntuple(N) do i
             old_gc = gc || GC.enable(false)
-            sample, t, args3 = try
-                _benchmark(f, args2, evals, warmup)
+            sample, ti, args3 = try
+                _benchmark(fs[p[i]], args2, evals, warmup)
             finally
                 gc || GC.enable(old_gc)
             end
             maybecall(teardown, (args3,))
-            sample, t
+            t[] = ti
+            sample
         end
+        ntuple(i -> rp[p[i]], N), t[]
     end
 
-    samples == 0 && return f isa Tuple ? ntuple(i -> Benchmark([bench(evals, false)[1][i]]), length(f)) : Benchmark([bench(evals, false)[1]])
+    samples == 0 && return ntuple(i -> Benchmark([bench(evals, false)[1][i]]), N)
 
     warmup, start_time = bench(1, false)
 
-    seconds == 0 && return f isa Tuple ? ntuple(i -> Benchmark([warmup[i]]), length(f)) : Benchmark([warmup])
+    seconds == 0 && return ntuple(i -> Benchmark([warmup[i]]), N)
     new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
 
-        if f isa Tuple ? sum(w.time for w in warmup) > 2seconds && all(w.compile_fraction < .5 for w in warmup) : warmup.time > 2seconds && warmup.compile_fraction < .5
+        if sum(w.time for w in warmup) > 2seconds && all(w.compile_fraction < .5 for w in warmup)
             # The estimated runtime in the warmup already exceeds the time budget.
             # Return the warmup result (which is marked as not having a warmup).
-            return f isa Tuple ? ntuple(i -> Benchmark([warmup[i]]), length(f)) : Benchmark([warmup])
+            return ntuple(i -> Benchmark([warmup[i]]), N)
         end
 
         calibration1, time = bench(1)
@@ -86,12 +73,12 @@ function benchmark(init, setup, f, teardown;
         # We should be spending about 5% of runtime on calibration.
         # If we spent less than 1% then recalibrate with more evals.
         calibration2 = nothing
-        calibration1time = f isa Tuple ? sum(s.time for s in calibration1) : calibration1.time
+        calibration1time = sum(s.time for s in calibration1)
         calibration2 = nothing
         calibration2time = nothing
         if calibration1time < .00015seconds # This branch protects us against cases where runtime is dominated by the reduction.
             calibration2, time = bench(10)
-            calibration2time = f isa Tuple ? sum(s.time for s in calibration2) : calibration2.time
+            calibration2time = sum(s.time for s in calibration2)
             trials = floor(Int, .05seconds/(calibration2time+1e-9))
             if trials > 20
                 calibration2, time = bench(trials)
@@ -100,7 +87,7 @@ function benchmark(init, setup, f, teardown;
             calibration2, time = bench(floor(Int, .05seconds/(calibration1time+1e-9)))
         end
         if calibration2 !== nothing
-            calibration2time = f isa Tuple ? sum(s.time for s in calibration2) : calibration2.time
+            calibration2time = sum(s.time for s in calibration2)
         end
 
         # We need samples that take at least 30 nanoseconds for any reasonable measurements
@@ -120,13 +107,13 @@ function benchmark(init, setup, f, teardown;
         evals
     end
 
-    data = Vector{f isa Tuple ? NTuple{length(f), Sample} : Sample}(undef, samples === nothing ? 64 : samples)
+    data = Vector{NTuple{N, Sample}}(undef, samples === nothing ? 64 : samples)
     samples === nothing && resize!(data, 1)
 
     # Save calibration runs as data if they match the calibrate evals
-    if evals === nothing && (f isa Tuple ? first(calibration1).evals : calibration1.evals) == new_evals
+    if evals === nothing && (first(calibration1).evals) == new_evals
         data[1] = calibration1
-    elseif evals === nothing && calibration2 !== nothing && (f isa Tuple ? first(calibration2).evals : calibration2.evals) == new_evals # Can't match both
+    elseif evals === nothing && calibration2 !== nothing && first(calibration2).evals == new_evals # Can't match both
         data[1] = calibration2
     else
         data[1], time = bench(new_evals)
@@ -141,7 +128,7 @@ function benchmark(init, setup, f, teardown;
 
     samples === nothing || resize!(data, i)
 
-    f isa Tuple ? ntuple(i -> Benchmark([s[i] for s in data]), length(f)) : Benchmark(data)
+    ntuple(i -> Benchmark([s[i] for s in data]), N)
 end
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
 function _benchmark(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
