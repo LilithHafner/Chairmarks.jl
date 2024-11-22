@@ -82,7 +82,7 @@ ensure that the benchmarked code is behaving correctly
 julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_) || error()
 ERROR:
 Stacktrace:
- [1] error()
+  [1] error()
 [...]
 
 julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_, rev=true) || error()
