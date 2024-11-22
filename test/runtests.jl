@@ -231,6 +231,16 @@ using Chairmarks: Sample, Benchmark
                 end
             end
             @test current ∈ 2:3
+
+            # Shared setup
+            a = Vector{Int}(undef, 300)
+            b = Vector{Int}(undef, 300)
+            flog = UInt[]
+            glog = UInt[]
+            f(x) = (@assert !issorted(x); push!(flog, hash(x)); sort!(x; alg=QuickSort))
+            g(x) = (@assert !issorted(x); push!(glog, hash(x)); sort!(x; alg=InsertionSort))
+            @b rand!(a),copyto!(b,a) f(_[1]),g(_[2]) (@assert issorted(_::Vector{Int})) evals=1
+            @test flog == glog
         end
 
         @testset "display" begin
