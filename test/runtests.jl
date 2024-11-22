@@ -1,6 +1,7 @@
 using Chairmarks
 using Test
 using Chairmarks: Sample, Benchmark
+using Random: rand!
 
 @testset "Chairmarks" begin
     @testset "Standard tests" begin
@@ -189,7 +190,8 @@ using Chairmarks: Sample, Benchmark
             @test log[1] == (0,)
             @test log[2] == (0,1)
             @test log[end] ∈ ((0,1,2,4), (0,1,3,4))
-            @test all(log[i+1] == (0,1) for i in eachindex(log)[1:end-1] if length(log[i]) == 4) # Setup follows teardown
+            setup_follows_teardown = [log[i+1] == (0,1) for i in eachindex(log)[1:end-1] if length(log[i]) ∈ (1,4)]
+            @test sum(setup_follows_teardown) == length(setup_follows_teardown)/2 # Setup follows teardown
 
             # Samples are interleaved
             count = 0
@@ -201,36 +203,34 @@ using Chairmarks: Sample, Benchmark
                 -1 <= count <= 1) for l in log)
             @test count == 0
 
-            # Evals are contiguous within a sample
-            current = nothing
+            # Evals are contiguous within a sample and samples alternate with shared setup but separate teardown
+            state = 0
             for l in log
-                if l == (0,) || l == (0,1)
-                    current = 0
-                elseif l == (0,1,2)
-                    if current == 3
-                        @test false
-                    else
-                        current = 2
-                    end
-                elseif l == (0,1,3)
-                    if current == 2
-                        @test false
-                    else
-                        current = 3
-                    end
-                elseif l == (0,1,2,4)
-                    if current != 2
-                        @test false
-                    end
-                elseif l == (0,1,3,4)
-                    if current != 3
-                        @test false
-                    end
+                if l == (0,) && state == 0
+                    state = 1
+                elseif l == (0,1) && state == 1
+                    state = 2
+                elseif l == (0,1,2) && state ∈ 2:3
+                    state = 3
+                elseif l == (0,1,2,4) && state == 3
+                    state = 4
+                elseif l == (0,1,3) && state ∈ 4:5
+                    state = 5
+                elseif l == (0,1,3,4) && state == 5
+                    state = 1
+                elseif l == (0,1,3) && state ∈ (2,6)
+                    state = 6
+                elseif l == (0,1,3,4) && state == 6
+                    state = 7
+                elseif l == (0,1,2) && state ∈ 7:8
+                    state = 8
+                elseif l == (0,1,2,4) && state == 8
+                    state = 1
                 else
-                    error()
+                    error("The order of execution is incorrect")
                 end
             end
-            @test current ∈ 2:3
+            @test state == 1
 
             # Shared setup
             a = Vector{Int}(undef, 300)
