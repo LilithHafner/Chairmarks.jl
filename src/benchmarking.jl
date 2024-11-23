@@ -21,7 +21,6 @@ function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
         samples::Union{Int, Nothing}=nothing,
         seconds::Union{Real, Nothing}=(samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds)*N,
         gc::Bool=DEFAULTS.gc) where N
-    @nospecialize
 
     if seconds !== nothing && seconds >= 2.0^63*1e-9
         samples === nothing && throw(ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)"))
