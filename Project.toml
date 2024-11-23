@@ -4,6 +4,7 @@ authors = ["Lilith Orion Hafner <lilithhafner@gmail.com> and contributors"]
 version = "1.2.2"
 
 [deps]
+PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
@@ -14,6 +15,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatisticsChairmarksExt = ["Statistics"]
 
 [compat]
+PrecompileTools = "1.2.1"
 Printf = "<0.0.1, 1"
 Random = "<0.0.1, 1"
 Statistics = "<0.0.1, 1"
