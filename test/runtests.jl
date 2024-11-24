@@ -69,7 +69,7 @@ if ("RegressionTests" => "true") ∉ ENV
                 # 104
                 @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Inf
                 @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=1e30
-                @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=293*365*24*60*60
+                @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Int64(293)*365*24*60*60
                 @test_throws ArgumentError("Must specify either samples or seconds") @b 1+1 seconds=nothing
                 @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
                 @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
