@@ -11,22 +11,21 @@ end
 benchmark(f; kw...) = benchmark(nothing, f; kw...)
 benchmark(setup, f, teardown=nothing; kw...) = benchmark(nothing, setup, f, teardown; kw...)
 benchmark(init, setup, f, teardown; kw...) = only(benchmark(init, setup, (f,), teardown; kw...))
-function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
-        evals::Union{Int, Nothing}=nothing,
-        samples::Union{Int, Nothing}=nothing,
-        seconds::Union{Real, Nothing}=(samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds)*N,
-        gc::Bool=DEFAULTS.gc) where N
-    benchmark(init, setup, teardown, evals, samples, seconds, gc, fs...)
-end
 maybecall(::Nothing, x::Tuple{Any}) = x
 maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-
-benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Real, gc::Bool, fs...) =
-    benchmark(init, setup, fs, teardown, evals, samples, Float64(seconds), gc, fs...)
-function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Union{Float64, Nothing}, gc::Bool, fs...)
+function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
+        evals::Union{Int, Nothing}=nothing,
+        samples::Union{Int, Nothing}=nothing,
+        seconds::Union{Real, Nothing}=(samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds)*N,
+        gc::Bool=DEFAULTS.gc) where N
+    _benchmark_1(init, setup, teardown, evals, samples, seconds, gc, fs...)
+end
+_benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Real, gc::Bool, fs...) =
+    _benchmark_1(init, setup, fs, teardown, evals, samples, Float64(seconds), gc, fs...)
+function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Union{Float64, Nothing}, gc::Bool, fs...)
     @nospecialize
     N = length(fs)
 
@@ -43,9 +42,9 @@ function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::U
 
     args1 = maybecall(init, ())
 
-    samples == 0 && return ntuple(i -> Benchmark([bench(args1, setup, teardown, gc, evals, false, fs...)[1][i]]), N)
+    samples == 0 && return ntuple(i -> Benchmark([_benchmark_2(args1, setup, teardown, gc, evals, false, fs...)[1][i]]), N)
 
-    warmup, start_time = bench(args1, setup, teardown, gc, 1, false, fs...)
+    warmup, start_time = _benchmark_2(args1, setup, teardown, gc, 1, false, fs...)
 
     seconds == 0 && return ntuple(i -> Benchmark([warmup[i]]), N)
     new_evals = if evals === nothing
@@ -57,7 +56,7 @@ function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::U
             return ntuple(i -> Benchmark([warmup[i]]), N)
         end
 
-        calibration1, time = bench(args1, setup, teardown, gc, 1, true, fs...)
+        calibration1, time = _benchmark_2(args1, setup, teardown, gc, 1, true, fs...)
 
         # We should be spending about 5% of runtime on calibration.
         # If we spent less than 1% then recalibrate with more evals.
@@ -66,14 +65,14 @@ function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::U
         calibration2 = nothing
         calibration2time = nothing
         if calibration1time < .00015seconds # This branch protects us against cases where runtime is dominated by the reduction.
-            calibration2, time = bench(args1, setup, teardown, gc, 10, true, fs...)
+            calibration2, time = _benchmark_2(args1, setup, teardown, gc, 10, true, fs...)
             calibration2time = sum(s.time for s in calibration2)
             trials = floor(Int, .05seconds/(calibration2time+1e-9))
             if trials > 20
-                calibration2, time = bench(args1, setup, teardown, gc, trials, true, fs...)
+                calibration2, time = _benchmark_2(args1, setup, teardown, gc, trials, true, fs...)
             end
         elseif calibration1time < .01seconds
-            calibration2, time = bench(args1, setup, teardown, gc, floor(Int, .05seconds/(calibration1time+1e-9)), true, fs...)
+            calibration2, time = _benchmark_2(args1, setup, teardown, gc, floor(Int, .05seconds/(calibration1time+1e-9)), true, fs...)
         end
         if calibration2 !== nothing
             calibration2time = sum(s.time for s in calibration2)
@@ -105,13 +104,13 @@ function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::U
     elseif evals === nothing && calibration2 !== nothing && first(calibration2).evals == new_evals # Can't match both
         data[1] = calibration2
     else
-        data[1], time = bench(args1, setup, teardown, gc, new_evals, true, fs...)
+        data[1], time = _benchmark_2(args1, setup, teardown, gc, new_evals, true, fs...)
     end
 
     i = 1
     stop_time = seconds === nothing ? nothing : start_time + round(UInt64, 1e9seconds)
     while (seconds === nothing || signed(stop_time - time) >= 0) && (samples === nothing || i < samples)
-        sample, time = bench(args1, setup, teardown, gc, new_evals, true, fs...)
+        sample, time = _benchmark_2(args1, setup, teardown, gc, new_evals, true, fs...)
         samples === nothing ? push!(data, sample) : (data[i += 1] = sample)
     end
 
@@ -120,7 +119,7 @@ function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::U
     ntuple(i -> Benchmark([s[i] for s in data]), N)
 end
 
-function bench(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool, fs...)
+function _benchmark_2(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool, fs...)
     @nospecialize
     N = length(fs)
     p = N == 1 ? (1,) : N == 2 ? rand() < .5 ? (1,2) : (2,1) : randperm(N)
@@ -129,7 +128,7 @@ function bench(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool, fs...
     rp = ntuple(N) do i
         old_gc = gc || GC.enable(false)
         sample, ti, args3 = try
-            @inline _benchmark(fs[p[i]], args2, evals, warmup)
+            @inline _benchmark_3(fs[p[i]], args2, evals, warmup)
         finally
             gc || GC.enable(old_gc)
         end
@@ -141,7 +140,7 @@ function bench(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool, fs...
 end
 
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
-function _benchmark(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
+function _benchmark_3(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
     gcstats = Base.gc_num()
     cumulative_compile_timing(true)
     ctime, time0, time1, res = try
