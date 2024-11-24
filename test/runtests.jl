@@ -410,6 +410,14 @@ using Random: rand!
         @testset "Comparative" begin
             x,y = @b .01 sleep,sleep(10*_)
             @test x.time < y.time
+
+            x,y,z = @b sleep(.001),1+1,1+1
+            @test x.time > y.time
+            @test x.time > z.time
+
+            x,y,z = @b 1+1,sleep(.001),1+1
+            @test y.time > x.time
+            @test y.time > z.time
         end
     end
 

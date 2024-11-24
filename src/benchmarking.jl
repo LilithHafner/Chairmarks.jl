@@ -136,7 +136,8 @@ function _benchmark_2(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool
         t[] = ti
         sample
     end
-    ntuple(i -> rp[p[i]], N), t[]
+    ip = N > 2 ? invperm(p) : p
+    ntuple(i -> rp[ip[i]], N), t[]
 end
 
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
