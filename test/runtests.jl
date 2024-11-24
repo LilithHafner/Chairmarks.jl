@@ -156,14 +156,15 @@ if ("RegressionTests" => "true") ∉ ENV
 
             @testset "Long runtime budget doesn't throw right away" begin
                 # This test failed on 32 bit systems before the introduction of the floor_to_Int function
-                const COUNTER = Ref{Int64}(0)
-                function f()
-                    if COUNTER[] == 1_000_000
-                        error("Out of fuel")
+                let counter = Ref{Int64}(0)
+                    function f()
+                        if counter[] == 1_000_000
+                            error("Out of fuel")
+                        end
+                        counter[] += 1
                     end
-                    COUNTER[] += 1
+                    @test_throws ErrorException("Out of fuel") @b f seconds=10_000
                 end
-                @test_throws ErrorException("Out of fuel") @b f seconds=10_000
             end
 
             @testset "DEFAULTS" begin
