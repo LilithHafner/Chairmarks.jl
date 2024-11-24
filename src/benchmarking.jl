@@ -24,7 +24,7 @@ function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
     _benchmark_1(init, setup, teardown, evals, samples, seconds, gc, fs...)
 end
 _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Real, gc::Bool, fs...) =
-    _benchmark_1(init, setup, fs, teardown, evals, samples, Float64(seconds), gc, fs...)
+    _benchmark_1(init, setup, teardown, evals, samples, Float64(seconds), gc, fs...)
 function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Union{Float64, Nothing}, gc::Bool, fs...)
     @nospecialize
     N = length(fs)
