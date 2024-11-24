@@ -51,6 +51,9 @@ function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
             t[] = ti
             sample
         end
+        if N > 2
+            p = invperm(p)
+        end
         ntuple(i -> rp[p[i]], N), t[]
     end
 
