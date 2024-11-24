@@ -17,11 +17,11 @@ jobs:
         os: [ubuntu-latest, macOS-latest, windows-latest]
         exclude:
           - os: ubuntu-latest
-            arch: aarch64
+            julia-arch: aarch64
           - os: windows-latest
-            arch: aarch64
+            julia-arch: aarch64
           - os: macOS-latest
-            arch: x86
+            julia-arch: x86
             # macOS-latest x64 uses rosetta
     steps:
       - uses: actions/checkout@v2
