@@ -238,6 +238,9 @@ using Random: rand!
             g(x) = (@assert !issorted(x); push!(glog, hash(x)); sort!(x; alg=InsertionSort))
             @b rand!(a),copyto!(b,a) f(_[1]),g(_[2]) (@assert issorted(_::Vector{Int})) evals=1
             @test flog == glog
+
+            # More than two test functions
+            @b 1,2,3
         end
 
         @testset "display" begin
