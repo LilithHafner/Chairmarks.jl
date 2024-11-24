@@ -7,38 +7,28 @@ on:
   pull_request:
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    name: Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - ${{ matrix.julia-arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - min
-          - lts
-          - 1
-          - pre
-          - nightly
-        os:
-          - ubuntu-latest
-          - macOS-latest
-          - windows-latest
-        arch:
-          - x64
-          - i686
-          - aarch64
+        julia-version: [min, lts, 1, pre, nightly]
+        julia-arch: [x64, x86, aarch64]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
         exclude:
           - os: ubuntu-latest
             arch: aarch64
           - os: windows-latest
             arch: aarch64
           - os: macOS-latest
-            arch: i686
+            arch: x86
+            # macOS-latest x64 uses rosetta
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v2
         with:
-          version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
+          version: ${{ matrix.julia-version }}
+          arch: ${{ matrix.julia-arch }}
       - uses: julia-actions/cache@v1
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
