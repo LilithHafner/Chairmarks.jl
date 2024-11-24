@@ -21,15 +21,15 @@ using Random: rand!
 
         @testset "passing value into setup" begin
             x = rand(100)
-            @b sort(x)
-            @b x sort # This was previously broken
-            @b rand hash
+            @b sort(x) seconds=.01
+            @b x sort seconds=.01# This was previously broken
+            @b rand hash seconds=.01
             x = rand
-            @b x hash
+            @b x hash seconds=.01
         end
 
         @testset "blank space" begin
-            @test (@b sleep(.01) identity).time < .01 < (@b _ sleep(.01) identity).time
+            @test (@b sleep(.005) identity seconds=.01).time < .005 < (@b _ sleep(.005) identity seconds=.01).time
         end
 
         @testset "Median" begin
@@ -158,31 +158,32 @@ using Random: rand!
             @test Chairmarks.DEFAULTS.gc === true
             Chairmarks.DEFAULTS.seconds = 1
             @test Chairmarks.DEFAULTS.seconds === 1.0
-            @test 1 <= @elapsed @b 1+1
+            Chairmarks.DEFAULTS.seconds = 0.3
+            @test 0.3 <= @elapsed @b 1+1
             Chairmarks.DEFAULTS.seconds = 0.1
             @test Chairmarks.DEFAULTS.seconds === 0.1
         end
 
         @testset "Comparative benchmarking" begin
             # Basic
-            x,y = @b .001 sleep,sleep(10*_)
+            x,y = @b .0001 sleep,sleep(10*_) seconds=.01
             @test x.evals == y.evals
             @test x.warmup == y.warmup
-            x,y = @be .001 sleep,sleep(10*_)
+            x,y = @be .0001 sleep,sleep(10*_) seconds=.01
             @test length(x.samples) == length(y.samples)
 
             # Low sample count
             @b rand,hash(rand()) samples=0 evals=1
             @b rand,hash(rand()) seconds=0
-            @b rand,sleep(.2)
+            @b rand,sleep(.02) seconds=.01
 
             # Full pipeline and order of evals
             log = []
             _push!(x, v) = (push!(x, v); v)
-            x,y = @be _push!(log, (0,)) _push!(log, (_...,1)) _push!(log, (_...,2)), _push!(log, (_...,3)) _push!(log, (_...,4))
+            x,y = @be _push!(log, (0,)) _push!(log, (_...,1)) _push!(log, (_...,2)), _push!(log, (_...,3)) _push!(log, (_...,4)) seconds=.001
 
             # Sanity
-            all(∈(((0,), (0,1), (0,1,2), (0,1,3), (0,1,2,4), (0,1,3,4))), log)
+            all(∈([(0,), (0,1), (0,1,2), (0,1,3), (0,1,2,4), (0,1,3,4)]), log)
             evals = Chairmarks.only(unique(x.evals for x in x.samples))
             @test Chairmarks.only(unique(y.evals for y in y.samples)) == evals
 
@@ -247,7 +248,7 @@ using Random: rand!
             glog = UInt[]
             f(x) = (@assert !issorted(x); push!(flog, hash(x)); sort!(x; alg=QuickSort))
             g(x) = (@assert !issorted(x); push!(glog, hash(x)); sort!(x; alg=InsertionSort))
-            @b rand!(a),copyto!(b,a) f(_[1]),g(_[2]) (@assert issorted(_::Vector{Int})) evals=1
+            @b rand!(a),copyto!(b,a) f(_[1]),g(_[2]) (@assert issorted(_::Vector{Int})) evals=1 seconds=.01
             @test flog == glog
 
             # More than two test functions
@@ -519,7 +520,8 @@ using Random: rand!
 
     @testset "Aqua" begin
         import Aqua
-        Aqua.test_all(Chairmarks, deps_compat=false)
+        # persistent_tasks=false because that test is slow and we don't use persistent tasks
+        Aqua.test_all(Chairmarks, deps_compat=false, persistent_tasks=false)
         Aqua.test_deps_compat(Chairmarks, check_extras=false)
     end
 
