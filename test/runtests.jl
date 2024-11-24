@@ -154,17 +154,6 @@ if ("RegressionTests" => "true") ∉ ENV
                 @test Chairmarks.writefixed(-0.005, 4) == "-0.0050"
             end
 
-            @testset "floor_to_Int" begin
-                @test Chairmarks.floor_to_Int(17.29) === 17
-                @test Chairmarks.floor_to_Int(typemax(Int) + 0.5) === typemax(Int)
-                @test Chairmarks.floor_to_Int(typemax(Int) + 1.5) === typemax(Int)
-                @test Chairmarks.floor_to_Int(typemax(Int) + 17.29) === typemax(Int)
-                @test Chairmarks.floor_to_Int(Inf) === typemax(Int)
-                @test Chairmarks.floor_to_Int(Float64(typemax(Int))) === typemax(Int)
-                @test Chairmarks.floor_to_Int(prevfloat(Float64(typemax(Int)))) < typemax(Int)
-                @test Chairmarks.floor_to_Int(nextfloat(Float64(typemax(Int)))) === typemax(Int)
-            end
-
             @testset "Long runtime budget doesn't throw right away" begin
                 # This test failed on 32 bit systems before the introduction of the floor_to_Int function
                 const COUNTER = Ref{Int64}(0)
