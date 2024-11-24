@@ -26,7 +26,7 @@ maybecall(x, ::Tuple{}) = (x,)
 
 benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Real, gc::Bool, fs...) =
     benchmark(init, setup, fs, teardown, evals, samples, Float64(seconds), gc, fs...)
-@noinline function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Union{Float64, Nothing}, gc::Bool, fs...)
+function benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Union{Float64, Nothing}, gc::Bool, fs...)
     @nospecialize
     N = length(fs)
 
@@ -120,7 +120,7 @@ benchmark(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int,
     ntuple(i -> Benchmark([s[i] for s in data]), N)
 end
 
-@noinline function bench(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool, fs...)
+function bench(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool, fs...)
     @nospecialize
     N = length(fs)
     p = N == 1 ? (1,) : N == 2 ? rand() < .5 ? (1,2) : (2,1) : randperm(N)
