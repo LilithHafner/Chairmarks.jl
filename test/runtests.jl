@@ -77,12 +77,23 @@ using Random: rand!
 
         @testset "time_ns() close to typemax(UInt64)" begin
             t0 = ccall(:jl_hrtime, UInt64, ())
-            @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ()) - $t0 - 10^9
-            # check that this does not throw or hang
-            # really high threshold because it's hard to avoid false positives with runtime
-            # @eval to ensure we get the latest version of time_ns()
-            @test 600 > @elapsed @eval @b 1+1 seconds=1.1
-            @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ())
+
+            # Workaround from https://github.com/JuliaLang/julia/issues/56667 to avoid printing a warning about overwriting time_ns
+            warn_overwrite = Base.JLOptions().warn_overwrite
+            unsafe_store!(reinterpret(Ptr{UInt8}, cglobal(:jl_options, Base.JLOptions)), 0x00, fieldoffset(Base.JLOptions, findfirst(==(:warn_overwrite), fieldnames(Base.JLOptions)))+1)
+            try
+                @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ()) - $t0 - 10^9
+                try
+                    # check that this does not throw or hang
+                    # really high threshold because it's hard to avoid false positives with runtime
+                    # @eval to ensure we get the latest version of time_ns()
+                    @test 600 > @elapsed @eval @b 1+1 seconds=1.1
+                finally
+                    @eval Base time_ns() = ccall(:jl_hrtime, UInt64, ())
+                end
+            finally
+                unsafe_store!(reinterpret(Ptr{UInt8}, cglobal(:jl_options, Base.JLOptions)), warn_overwrite, fieldoffset(Base.JLOptions, findfirst(==(:warn_overwrite), fieldnames(Base.JLOptions)))+1)
+            end
         end
 
         @testset "interpolation" begin
