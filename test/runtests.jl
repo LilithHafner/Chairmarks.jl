@@ -179,7 +179,7 @@ using Random: rand!
             # Full pipeline and order of evals
             log = []
             _push!(x, v) = (push!(x, v); v)
-            x,y = @be _push!(log, (0,)) _push!(log, (_...,1)) _push!(log, (_...,2)), _push!(log, (_...,3)) _push!(log, (_...,4))
+            x,y = @be _push!(log, (0,)) _push!(log, (_...,1)) _push!(log, (_...,2)), _push!(log, (_...,3)) _push!(log, (_...,4)) seconds=.001
 
             # Sanity
             all(∈(((0,), (0,1), (0,1,2), (0,1,3), (0,1,2,4), (0,1,3,4))), log)
