@@ -28,23 +28,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        julia-version: [min, lts, 1, pre, nightly]
-        julia-arch: [x64, x86, aarch64]
         os: [ubuntu-latest, macOS-latest, windows-latest]
+        julia-arch: [x64, x86, aarch64]
+        julia-version: [min, lts, 1, pre, nightly]
         exclude:
-          - os: ubuntu-latest
-            julia-arch: aarch64
-          - os: windows-latest
-            julia-arch: aarch64
-          - os: macOS-latest
-            julia-arch: x86
-            # macOS-latest x64 uses rosetta
-          - os: macOS-latest
-            julia-arch: aarch64
-            julia-version: min # old versions of Julia do not have aarch64 binaries
-          - os: ubuntu-latest # already tested
-            julia-version: 1
+          - os: ubuntu-latest # Already tested
             julia-arch: x64
+            julia-version: 1
+          - os: [ubuntu-latest, windows-latest] # Does not exist
+            julia-arch: aarch64
+          - os: macOS-latest # Does not exist
+            julia-arch: x86
+          - os: [windows-latest, macOS-latest] # Cut down on matrix size
+            julia-version: [min, nightly]
+          - os: [windows-latest, ubuntu-latest] # Cut down on matrix size
+            julia-arch: x86
+            julia-version: [lts, pre]
+          - os: macOS-latest # Cut down on matrix size
+            julia-arch: x64
+            julia-version: [lts, pre]
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v2
