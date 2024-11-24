@@ -16,7 +16,6 @@ maybecall(::Nothing, x::Tuple{}) = x
 maybecall(f, x::Tuple{Any}) = (f(only(x)),)
 maybecall(f::Function, ::Tuple{}) = (f(),)
 maybecall(x, ::Tuple{}) = (x,)
-floor_to_Int(x::Float64) = x >= Float64(typemax(Int)) ? typemax(Int) : floor(Int, x)
 function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
         evals::Union{Int, Nothing}=nothing,
         samples::Union{Int, Nothing}=nothing,
@@ -68,12 +67,12 @@ function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples
         if calibration1time < .00015seconds # This branch protects us against cases where runtime is dominated by the reduction.
             calibration2, time = _benchmark_2(args1, setup, teardown, gc, 10, true, fs...)
             calibration2time = sum(s.time for s in calibration2)
-            trials = floor_to_Int(.05seconds/(calibration2time+1e-9))
+            trials = floor(Int, .05seconds/(calibration2time+1e-9))
             if trials > 20
                 calibration2, time = _benchmark_2(args1, setup, teardown, gc, trials, true, fs...)
             end
         elseif calibration1time < .01seconds
-            calibration2, time = _benchmark_2(args1, setup, teardown, gc, floor_to_Int(.05seconds/(calibration1time+1e-9)), true, fs...)
+            calibration2, time = _benchmark_2(args1, setup, teardown, gc, floor(Int, .05seconds/(calibration1time+1e-9)), true, fs...)
         end
         if calibration2 !== nothing
             calibration2time = sum(s.time for s in calibration2)
@@ -91,7 +90,7 @@ function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples
             # exp(evalpoly(log(seconds), (-log(30e-9)^2/4log(1000),1+(2log(30e-9)/4log(1000)),-1/4log(1000))))
         end
 
-        max(1, floor_to_Int(target_sample_time/(something(calibration2time, calibration1time)+1e-9)))
+        max(1, floor(Int, target_sample_time/(something(calibration2time, calibration1time)+1e-9)))
     else
         evals
     end
