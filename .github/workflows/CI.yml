@@ -23,6 +23,9 @@ jobs:
           - os: macOS-latest
             julia-arch: x86
             # macOS-latest x64 uses rosetta
+          - os: macOS-latest
+            julia-arch: aarch64
+            julia-version: min # old versions of Julia do not have aarch64 binaries
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v2
