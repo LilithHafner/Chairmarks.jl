@@ -128,7 +128,7 @@ function _benchmark_2(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool
     rp = ntuple(N) do i
         old_gc = gc || GC.enable(false)
         sample, ti, args3 = try
-            @inline _benchmark_3(fs[p[i]], args2, evals, warmup)
+            _benchmark_3(fs[p[i]], args2, evals, warmup)
         finally
             gc || GC.enable(old_gc)
         end
