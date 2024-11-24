@@ -66,6 +66,8 @@ if ("RegressionTests" => "true") ∉ ENV
             @testset "errors" begin
                 @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
 
+                @test_throws ArgumentError @b 1+1 evals=1 samples=typemax(Int) # too many samples to fit in an array
+
                 # 104
                 @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Inf
                 @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=1e30
