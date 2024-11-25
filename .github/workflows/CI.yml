@@ -109,7 +109,7 @@ jobs:
     - uses: julia-actions/setup-julia@v2
       with:
         version: ${{ matrix.julia-version }}
-        arch: ${{ matrix.julia-arch }
+        arch: ${{ matrix.julia-arch }}
     - uses: julia-actions/julia-runtest@v1
   docs:
     name: Documentation
