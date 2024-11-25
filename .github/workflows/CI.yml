@@ -90,6 +90,35 @@ jobs:
       - uses: codecov/codecov-action@v2
         with:
           files: lcov.info
+  regression-tests:
+    needs: quick-test
+    name: RegressionTests.jl Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - ${{ matrix.julia-arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            julia-arch: x64
+            julia-version: 1
+          - os: ubuntu-latest
+            julia-arch: x64
+            julia-version: nightly
+          - os: macOS-latest
+            julia-arch: aarch64
+            julia-version: pre
+    steps:
+    - uses: actions/checkout@v2
+    - uses: julia-actions/setup-julia@v2
+      with:
+        version: ${{ matrix.julia-version }}
+        arch: ${{ matrix.julia-arch }}
+    - uses: julia-actions/cache@v1
+    - uses: julia-actions/julia-buildpkg@v1
+    - uses: julia-actions/julia-runtest@v1
+      with:
+        env:
+          RegressionTests: true
   docs:
     name: Documentation
     runs-on: ubuntu-latest
