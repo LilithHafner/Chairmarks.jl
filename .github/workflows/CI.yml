@@ -15,7 +15,6 @@ jobs:
         with:
           version: 1
           arch: x64
-      - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v2
@@ -83,7 +82,6 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.julia-arch }}
-      - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v2
@@ -113,8 +111,7 @@ jobs:
     - uses: julia-actions/setup-julia@v2
       with:
         version: ${{ matrix.julia-version }}
-        arch: ${{ matrix.julia-arch }}
-    - uses: julia-actions/cache@v2
+        arch: ${{ matrix.julia-arch }
     - uses: julia-actions/julia-runtest@v1
   docs:
     name: Documentation
