@@ -10,7 +10,7 @@ jobs:
     name: Julia 1 - ubuntu-latest - x64 - ${{ github.event_name }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
           version: 1
@@ -77,7 +77,7 @@ jobs:
             julia-arch: x86
             julia-version: pre
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia-version }}
@@ -108,7 +108,7 @@ jobs:
             julia-arch: aarch64
             julia-version: pre
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: julia-actions/setup-julia@v2
       with:
         version: ${{ matrix.julia-version }}
@@ -121,7 +121,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1'
