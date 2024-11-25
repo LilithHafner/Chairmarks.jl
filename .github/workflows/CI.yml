@@ -28,25 +28,55 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-        julia-arch: [x64, x86, aarch64]
-        julia-version: [min, lts, 1, pre, nightly]
-        exclude:
-          - os: ubuntu-latest # Already tested
+        include:
+          - os: ubuntu-latest
+            julia-arch: x64
+            julia-version: nightly
+          - os: ubuntu-latest
+            julia-arch: x64
+            julia-version: pre
+          - os: ubuntu-latest
+            julia-arch: x64
+            julia-version: lts
+          - os: ubuntu-latest
+            julia-arch: x64
+            julia-version: min
+
+          - os: ubuntu-latest
+            julia-arch: x86
+            julia-version: 1
+          - os: macOS-latest
+            julia-arch: aarch64
+            julia-version: 1
+          - os: macOS-latest
             julia-arch: x64
             julia-version: 1
-          - os: [ubuntu-latest, windows-latest] # Does not exist
-            julia-arch: aarch64
-          - os: macOS-latest # Does not exist
-            julia-arch: x86
-          - os: [windows-latest, macOS-latest] # Cut down on matrix size
-            julia-version: [min, nightly]
-          - os: [windows-latest, ubuntu-latest] # Cut down on matrix size
-            julia-arch: x86
-            julia-version: [lts, pre]
-          - os: macOS-latest # Cut down on matrix size
+          - os: windows-latest
             julia-arch: x64
-            julia-version: [lts, pre]
+            julia-version: 1
+          - os: windows-latest
+            julia-arch: x86
+            julia-version: 1
+
+          - os: ubuntu-latest
+            julia-arch: x86
+            julia-version: nightly
+          - os: ubuntu-latest
+            julia-arch: x86
+            julia-version: min
+
+          - os: macOS-latest
+            julia-arch: aarch64
+            julia-version: lts
+          - os: macOS-latest
+            julia-arch: aarch64
+            julia-version: pre
+          - os: windows-latest
+            julia-arch: x86
+            julia-version: lts
+          - os: windows-latest
+            julia-arch: x86
+            julia-version: pre
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v2
