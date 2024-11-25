@@ -2,7 +2,7 @@ using Chairmarks
 using Test
 using Chairmarks: Sample, Benchmark
 using Random: rand!
-
+#NFC
 if ("RegressionTests" => "true") ∉ ENV
     @testset "Chairmarks" begin
         @testset "Standard tests" begin
