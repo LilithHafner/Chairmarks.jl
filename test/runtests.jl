@@ -65,10 +65,12 @@ using Random: rand!
         @testset "errors" begin
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
 
+            @test_throws Union{ArgumentError, ErrorException} @b 1+1 evals=1 samples=typemax(Int) # too many samples to fit in an array
+
             # 104
             @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Inf
             @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=1e30
-            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=293*365*24*60*60
+            @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Int64(293)*365*24*60*60
             @test_throws ArgumentError("Must specify either samples or seconds") @b 1+1 seconds=nothing
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
@@ -151,6 +153,30 @@ using Random: rand!
             @test Chairmarks.writefixed(-0.005, 2) == "-0.01"
             @test Chairmarks.writefixed(-0.005, 3) == "-0.005"
             @test Chairmarks.writefixed(-0.005, 4) == "-0.0050"
+        end
+
+        @testset "floor_to_Int" begin
+            @test Chairmarks.floor_to_Int(17.29) === 17
+            @test Chairmarks.floor_to_Int(typemax(Int) + 0.5) === typemax(Int)
+            @test Chairmarks.floor_to_Int(typemax(Int) + 1.5) === typemax(Int)
+            @test Chairmarks.floor_to_Int(typemax(Int) + 17.29) === typemax(Int)
+            @test Chairmarks.floor_to_Int(Inf) === typemax(Int)
+            @test Chairmarks.floor_to_Int(Float64(typemax(Int))) === typemax(Int)
+            @test Chairmarks.floor_to_Int(prevfloat(Float64(typemax(Int)))) < typemax(Int)
+            @test Chairmarks.floor_to_Int(nextfloat(Float64(typemax(Int)))) === typemax(Int)
+        end
+
+        @testset "Long runtime budget doesn't throw right away" begin
+            # This test failed on 32 bit systems before the introduction of the floor_to_Int function
+            let counter = Ref{Int64}(0)
+                function f()
+                    if counter[] == 1_000_000
+                        error("Out of fuel")
+                    end
+                    counter[] += 1
+                end
+                @test_throws ErrorException("Out of fuel") @b f seconds=10_000
+            end
         end
 
         @testset "DEFAULTS" begin
