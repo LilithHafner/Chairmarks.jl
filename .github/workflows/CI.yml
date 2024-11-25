@@ -94,6 +94,8 @@ jobs:
     needs: quick-test
     name: RegressionTests.jl Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - ${{ matrix.julia-arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
+    env:
+      RegressionTests: true
     strategy:
       fail-fast: false
       matrix:
@@ -116,9 +118,6 @@ jobs:
     - uses: julia-actions/cache@v1
     - uses: julia-actions/julia-buildpkg@v1
     - uses: julia-actions/julia-runtest@v1
-      with:
-        env:
-          RegressionTests: true
   docs:
     name: Documentation
     runs-on: ubuntu-latest
