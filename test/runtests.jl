@@ -3,6 +3,13 @@ using Test
 using Chairmarks: Sample, Benchmark
 using Random: rand!
 
+if ("RegressionTests" => "true") ∈ ENV
+    @testset "Regression Tests" begin
+        import RegressionTests
+        RegressionTests.test(workers=8)
+    end
+else
+
 @testset "Chairmarks" begin
     @testset "Standard tests" begin
         @testset "Test within a benchmark" begin
@@ -550,9 +557,6 @@ using Random: rand!
         Aqua.test_all(Chairmarks, deps_compat=false, persistent_tasks=false)
         Aqua.test_deps_compat(Chairmarks, check_extras=false)
     end
+end
 
-    @testset "Regression Tests" begin
-        import RegressionTests
-        ("CI" => "true") ∈ ENV && RegressionTests.test(workers=8, skip_unsupported_platforms=true)
-    end
 end
