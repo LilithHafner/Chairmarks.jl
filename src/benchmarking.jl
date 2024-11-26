@@ -142,9 +142,9 @@ end
 
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
 function _benchmark_3(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
-    gcstats = Base.gc_num()
     cumulative_compile_timing(true)
-    ctime, time0, time1, res = try
+    gcstats0 = Base.gc_num()
+    ctime, time0, time1, res, gcstats1 = try
         ctime = cumulative_compile_time_ns()
         time0 = time_ns()
         res = @static VERSION >= v"1.8" ? @noinline(f(args...)) : f(args...)
@@ -155,12 +155,13 @@ function _benchmark_3(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
         end
         time1 = time_ns()
         ctime = cumulative_compile_time_ns() .- ctime
+        gcstats1 = Base.gc_num()
 
-        ctime, time0, time1, res
+        ctime, time0, time1, res, gcstats1
     finally
         cumulative_compile_timing(false)
     end
     rtime = time1 - time0
-    gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
+    gcdiff = Base.GC_Diff(gcstats1, gcstats0)
     Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
 end
