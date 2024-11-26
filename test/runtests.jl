@@ -115,7 +115,6 @@ else
             global interpolation_test_global = 1
             slow = @b interpolation_test_global + 1
             fast = @b $interpolation_test_global + 1
-            @test slow.allocs > 0 || VERSION > v"1.12.0-DEV" # This doesn't allocate in 1.12.
             @test fast.allocs == 0
             @test 2fast.time < slow.time # should be about 100x
 
@@ -391,8 +390,28 @@ else
                     100.000 ms"""
         end
 
-        @testset "Issue 99" begin
+        @testset "Issue #99" begin
             @b :my_func isdefined(Main, _) seconds=.001
+        end
+
+        @testset "Issue #128, fractional allocs" begin  # in the presence of nonconstant globals
+            x = randn(100, 2);
+
+            function foo(x)
+                y = x .+ x
+                return 2 .* y
+            end
+
+            @test isinteger((@b foo(x) seconds=.001).allocs)
+
+            function foo2(x)
+                2 .* (x .+ x)
+            end
+
+            @test isinteger((@b foo2(x) seconds=.001).allocs)
+
+            x = 1
+            @test isinteger((@b hash(x) seconds=.001).allocs)
         end
     end
 
