@@ -358,8 +358,28 @@ using Random: rand!
                     100.000 ms"""
         end
 
-        @testset "Issue 99" begin
+        @testset "Issue #99" begin
             @b :my_func isdefined(Main, _) seconds=.001
+        end
+
+        @testset "Issue #128, fractional allocations in the presence of nonconstant globals" begin
+            x = randn(100, 2);
+
+            function foo(x)
+                y = x .+ x
+                return 2 .* y
+            end
+
+            @test isinteger((@b foo(x) seconds=.001).allocs)
+
+            function foo2(x)
+                2 .* (x .+ x)
+            end
+
+            @test isinteger((@b foo2(x) seconds=.001).allocs)
+
+            x = 1
+            @test isinteger((@b hash(x) seconds=.001).allocs)
         end
     end
 
