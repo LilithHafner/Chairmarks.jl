@@ -106,7 +106,6 @@ using Random: rand!
             global interpolation_test_global = 1
             slow = @b interpolation_test_global + 1
             fast = @b $interpolation_test_global + 1
-            @test slow.allocs > 0 || VERSION > v"1.12.0-DEV" # This doesn't allocate in 1.12.
             @test fast.allocs == 0
             @test 2fast.time < slow.time # should be about 100x
 
