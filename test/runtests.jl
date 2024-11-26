@@ -362,7 +362,7 @@ using Random: rand!
             @b :my_func isdefined(Main, _) seconds=.001
         end
 
-        @testset "Issue #128, fractional allocations in the presence of nonconstant globals" begin
+        @testset "Issue #128, fractional allocs" begin  # in the presence of nonconstant globals
             x = randn(100, 2);
 
             function foo(x)
