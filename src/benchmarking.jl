@@ -134,51 +134,32 @@ function _benchmark_2(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool
 end
 
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
-function _benchmark_3(f::F, evals::Int, warmup::Bool, args...) where {F}
-    gcstats = Base.gc_num()
-    cumulative_compile_timing(true)
-    gcstats0 = Base.gc_num()
-    ctime, time0, time1, res, gcstats1 = try
-        ctime = cumulative_compile_time_ns()
-        time0 = time_ns()
-        res = @static VERSION >= v"1.8" ? @noinline(f(args...)) : f(args...)
-        donotdelete(res)
-        for _ in 2:evals
-            x = @static VERSION >= v"1.8" ? @noinline(f(args...)) : f(args...)
-            donotdelete(x)
-        end
-        time1 = time_ns()
-        ctime = cumulative_compile_time_ns() .- ctime
-        gcstats1 = Base.gc_num()
+let body(args) =
+    quote
+        gcstats = Base.gc_num()
+        cumulative_compile_timing(true)
+        gcstats0 = Base.gc_num()
+        ctime, time0, time1, res, gcstats1 = try
+            ctime = cumulative_compile_time_ns()
+            time0 = time_ns()
+            res = @static VERSION >= v"1.8" ? @noinline(f($args)) : f($args)
+            donotdelete(res)
+            for _ in 2:evals
+                x = @static VERSION >= v"1.8" ? @noinline(f($args)) : f($args)
+                donotdelete(x)
+            end
+            time1 = time_ns()
+            ctime = cumulative_compile_time_ns() .- ctime
+            gcstats1 = Base.gc_num()
 
-        ctime, time0, time1, res, gcstats1
-    finally
-        cumulative_compile_timing(false)
-    end
-    rtime = time1 - time0
-    gcdiff = Base.GC_Diff(gcstats1, gcstats0)
-    Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
-end
-function _benchmark_3(f::F, evals::Int, warmup::Bool, arg::Type{T}) where {F, T}
-    gcstats = Base.gc_num()
-    cumulative_compile_timing(true)
-    ctime, time0, time1, res = try
-        ctime = cumulative_compile_time_ns()
-        time0 = time_ns()
-        res = @static VERSION >= v"1.8" ? @noinline(f(arg)) : f(arg)
-        donotdelete(res)
-        for _ in 2:evals
-            x = @static VERSION >= v"1.8" ? @noinline(f(arg)) : f(arg)
-            donotdelete(x)
+            ctime, time0, time1, res, gcstats1
+        finally
+            cumulative_compile_timing(false)
         end
-        time1 = time_ns()
-        ctime = cumulative_compile_time_ns() .- ctime
-
-        ctime, time0, time1, res
-    finally
-        cumulative_compile_timing(false)
+        rtime = time1 - time0
+        gcdiff = Base.GC_Diff(gcstats1, gcstats0)
+        Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
     end
-    rtime = time1 - time0
-    gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
-    Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
+    @eval _benchmark_3(f::F, evals::Int, warmup::Bool, args...) where F = $(body(:(args...)))
+    @eval _benchmark_3(f::F, evals::Int, warmup::Bool, arg::Type{T}) where {F, T} = $(body(:arg))
 end
