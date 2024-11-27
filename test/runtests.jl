@@ -67,6 +67,10 @@ else
             b = @be sleep(.001) evals=4 samples=2
             @test length(b.samples) == 2
             @test all(s -> s.warmup == 1 && s.evals == 4, b.samples)
+
+            b = @be @eval((f(x) = x^2+x^3+x)(7)) seconds=nextfloat(0.0)
+            @test Chairmarks.only(b.samples).warmup == 1
+            @test Chairmarks.only(b.samples).evals == 1
         end
 
         @testset "errors" begin
@@ -409,6 +413,8 @@ else
             x = x[1].samples[1], x[1].samples[2], x[2].samples[1], x[2].samples[2], Sample(time=0.006083914078095797, warmup=0.5)
             @test typeof(x) === typeof(@b 1,2,3,4,5 seconds=.001)
             @test sprint(show, MIME"text/plain"(), x) === "(100.000 ms, 200.000 ms, 300.000 ms, 200.000 ms, 6.084 ms (50.0% warmed up))"
+
+            @test sprint(show, MIME"text/plain"(), ()) === "()" # We pirate this method
         end
 
         @testset "Issue #99" begin
