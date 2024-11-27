@@ -121,7 +121,7 @@ function _benchmark_2(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool
     rp = ntuple(N) do i
         old_gc = gc || GC.enable(false)
         sample, ti, args3 = try
-            _benchmark_3(fs[p[i]], args2, evals, warmup)
+            _benchmark_3(fs[p[i]], evals, warmup, args2...)
         finally
             gc || GC.enable(old_gc)
         end
@@ -134,7 +134,8 @@ function _benchmark_2(args1, setup, teardown, gc::Bool, evals::Int, warmup::Bool
 end
 
 _div(a, b) = a == b == 0 ? zero(a/b) : a/b
-function _benchmark_3(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
+function _benchmark_3(f::F, evals::Int, warmup::Bool, args...) where {F}
+    gcstats = Base.gc_num()
     cumulative_compile_timing(true)
     gcstats0 = Base.gc_num()
     ctime, time0, time1, res, gcstats1 = try
@@ -156,5 +157,28 @@ function _benchmark_3(f::F, args::A, evals::Int, warmup::Bool) where {F, A}
     end
     rtime = time1 - time0
     gcdiff = Base.GC_Diff(gcstats1, gcstats0)
+    Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
+end
+function _benchmark_3(f::F, evals::Int, warmup::Bool, arg::Type{T}) where {F, T}
+    gcstats = Base.gc_num()
+    cumulative_compile_timing(true)
+    ctime, time0, time1, res = try
+        ctime = cumulative_compile_time_ns()
+        time0 = time_ns()
+        res = @static VERSION >= v"1.8" ? @noinline(f(arg)) : f(arg)
+        donotdelete(res)
+        for _ in 2:evals
+            x = @static VERSION >= v"1.8" ? @noinline(f(arg)) : f(arg)
+            donotdelete(x)
+        end
+        time1 = time_ns()
+        ctime = cumulative_compile_time_ns() .- ctime
+
+        ctime, time0, time1, res
+    finally
+        cumulative_compile_timing(false)
+    end
+    rtime = time1 - time0
+    gcdiff = Base.GC_Diff(Base.gc_num(), gcstats)
     Sample(evals, 1e-9rtime/evals, Base.gc_alloc_count(gcdiff)/evals, gcdiff.allocd/evals, _div(gcdiff.total_time,rtime), _div(ctime[1],rtime), _div(ctime[2],ctime[1]), warmup), time1, res
 end
