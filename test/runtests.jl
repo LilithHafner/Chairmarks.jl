@@ -67,6 +67,10 @@ else
             b = @be sleep(.001) evals=4 samples=2
             @test length(b.samples) == 2
             @test all(s -> s.warmup == 1 && s.evals == 4, b.samples)
+
+            b = @be @eval((f(x) = x^2+x^3+x)(7)) seconds=nextfloat(0.0)
+            @test Chairmarks.only(b.samples).warmup == 1 || VERSION < v"1.8" # in versions below 1.8 we don't track compile time so we'd skip warmup here.
+            @test Chairmarks.only(b.samples).evals == 1
         end
 
         @testset "errors" begin
@@ -82,6 +86,9 @@ else
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
+
+            t = @test_throws LoadError @eval(@b seconds=1 1+1)
+            @test t.value.error == ErrorException("Positional argument after keyword argument")
         end
 
         @testset "time_ns() close to typemax(UInt64)" begin
@@ -388,6 +395,29 @@ else
             Benchmark: 2 samples with variable evaluations
                     100.000 ms
                     100.000 ms"""
+
+            # Comparative
+            x = Benchmark([
+                Sample(time=0.1)
+                Sample(time=0.2)
+            ]), Benchmark([
+                Sample(time=0.3)
+                Sample(time=0.2)
+            ])
+            @test typeof(x) === typeof(@be 1+1,2+2 seconds=.001)
+            @test sprint(show, MIME"text/plain"(), x) === """
+            Benchmark: 2 samples with 1 evaluation
+                    100.000 ms
+                    200.000 ms
+            Benchmark: 2 samples with 1 evaluation
+                    200.000 ms
+                    300.000 ms"""
+
+            x = x[1].samples[1], x[1].samples[2], x[2].samples[1], x[2].samples[2], Sample(time=0.006083914078095797, warmup=0.5)
+            @test typeof(x) === typeof(@b 1,2,3,4,5 seconds=.001)
+            @test sprint(show, MIME"text/plain"(), x) === "(100.000 ms, 200.000 ms, 300.000 ms, 200.000 ms, 6.084 ms (50.0% warmed up))"
+
+            @test sprint(show, MIME"text/plain"(), ()) === "()" # We pirate this method
         end
 
         @testset "Issue #99" begin
