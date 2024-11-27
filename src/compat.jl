@@ -2,9 +2,12 @@
 if VERSION < v"1.8"
     cumulative_compile_timing(x) = nothing
     cumulative_compile_time_ns() = (UInt64(0), UInt64(0))
+    const CHECKSUM = Ref{UInt}()
+    donotdelete(x) = (CHECKSUM[] = hash(x, CHECKSUM[]); nothing)
 else
     cumulative_compile_timing(x) = Base.cumulative_compile_timing(x)
     cumulative_compile_time_ns() = Base.cumulative_compile_time_ns()
+    const donotdelete = Base.donotdelete
 end
 if VERSION < v"1.7"
     struct Returns{T} <: Function

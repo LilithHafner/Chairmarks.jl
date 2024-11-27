@@ -1,13 +1,5 @@
 using Random: randperm
 
-# Validation
-@static if v"1.8" <= VERSION
-    const donotdelete = Base.donotdelete
-else
-    const CHECKSUM = Ref{UInt}()
-    donotdelete(x) = (CHECKSUM[] = hash(x, CHECKSUM[]); nothing)
-end
-
 benchmark(f; kw...) = benchmark(nothing, f; kw...)
 benchmark(setup, f, teardown=nothing; kw...) = benchmark(nothing, setup, f, teardown; kw...)
 benchmark(init, setup, f, teardown; kw...) = only(benchmark(init, setup, (f,), teardown; kw...))
