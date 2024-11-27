@@ -388,6 +388,27 @@ else
             Benchmark: 2 samples with variable evaluations
                     100.000 ms
                     100.000 ms"""
+
+            # Comparative
+            x = Benchmark([
+                Sample(time=0.1)
+                Sample(time=0.2)
+            ]), Benchmark([
+                Sample(time=0.3)
+                Sample(time=0.2)
+            ])
+            @test typeof(x) === typeof(@be 1+1,2+2 seconds=.001)
+            @test sprint(show, MIME"text/plain"(), x) === """
+            Benchmark: 2 samples with 1 evaluation
+                    100.000 ms
+                    200.000 ms
+            Benchmark: 2 samples with 1 evaluation
+                    200.000 ms
+                    300.000 ms"""
+
+            x = x[1].samples[1], x[1].samples[2], x[2].samples[1], x[2].samples[2], Sample(time=0.006083914078095797, warmup=0.5)
+            @test typeof(x) === typeof(@b 1,2,3,4,5 seconds=.001)
+            @test sprint(show, MIME"text/plain"(), x) === "(100.000 ms, 200.000 ms, 300.000 ms, 200.000 ms, 6.084 ms (50.0% warmed up))"
         end
 
         @testset "Issue #99" begin
