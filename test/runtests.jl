@@ -86,6 +86,9 @@ else
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
             @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
+
+            t = @test_throws LoadError @eval(@b seconds=1 1+1)
+            @test t.value.error == ErrorException("Positional argument after keyword argument")
         end
 
         @testset "time_ns() close to typemax(UInt64)" begin
