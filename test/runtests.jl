@@ -443,6 +443,10 @@ else
             x = 1
             @test isinteger((@b hash(x) seconds=.001).allocs)
         end
+
+        @testset "Issue #107, specialization" begin
+            @test (@b Int rand).allocs == 0
+        end
     end
 
     @testset "Statistics Extension" begin
