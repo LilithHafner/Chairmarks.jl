@@ -3,7 +3,7 @@ CurrentModule = Chairmarks
 DocTestSetup = quote
     using Chairmarks
 end
-DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|  (time:  |memory:) .*% => (improvement|regression|invariant) \((5|1).00% tolerance)"]
+DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|  (time:  |memory:) .*% => (improvement|regression|invariant) \((5|1).00% tolerance\)"]
 ```
 
 # [How to migrate from BenchmarkTools to Chairmarks](@id migration)
