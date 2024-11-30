@@ -105,7 +105,14 @@ comma separated list of functions to `@b` or `@be`.
 !!! warning
     Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
 
-```jldoctest setup=:(using BenchmarkTools)
+<!-- Workaround for https://github.com/JuliaDocs/Documenter.jl/issues/2613 -->
+```@meta
+DocTestSetup = quote
+    using Chairmarks, BenchmarkTools
+end
+```
+
+```jldoctest
 julia> f() = sum(rand() for _ in 1:1000)
 f (generic function with 1 method)
 
@@ -127,6 +134,12 @@ julia> judge(minimum(@benchmark(f())), minimum(@benchmark(g())))
 BenchmarkTools.TrialJudgement:
   time:   -0.78% => invariant (5.00% tolerance)
   memory: +0.00% => invariant (1.00% tolerance)
+```
+
+```@meta
+DocTestSetup = quote
+    using Chairmarks
+end
 ```
 
 ### Nonconstant globals and interpolation
