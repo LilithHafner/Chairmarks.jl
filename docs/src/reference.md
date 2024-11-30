@@ -12,7 +12,7 @@ version number if the change is not expected to cause significant disruptions.
 - [`Chairmarks.Benchmark`](@ref)
 - [`@b`](@ref)
 - [`@be`](@ref)
-- [`summarize`](@ref)
+- [`Chairmarks.summarize`](@ref)
 - [`Chairmarks.DEFAULTS`](@ref)
 
 ```@docs

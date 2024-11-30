@@ -5,8 +5,8 @@ Benchmark `f` and return the fastest [`Sample`](@ref).
 
 Use [`@be`](@ref) for full results.
 
-`@b args...` is equivalent to `summarize(@be args...)`. See the docstring for [`@be`](@ref)
-for more information.
+`@b args...` is equivalent to `Chairmarks.summarize(@be args...)`. See the docstring of
+[`@be`](@ref) for more information.
 
 # Examples
 
