@@ -95,6 +95,40 @@ Benchmark results have the following fields:
 
 Note that more fields may be added as more information becomes available.
 
+### Comparisons
+
+Chairmarks does not provide a `judge` function to decide if two benchmarks are significantly
+different. However, you can get accurate data to inform that judgement by passing passing a
+comma separated list of functions to `@b` or `@be`.
+
+
+!!! warning
+    Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
+
+```jldoctest
+julia> f() = sum(rand() for _ in 1:1000)
+f (generic function with 1 method)
+
+julia> g() = sum(rand() for _ in 1:1010)
+g (generic function with 1 method)
+
+julia> @b f,g
+(1.121 μs, 1.132 μs)
+
+julia> @b f,g
+(1.063 μs, 1.073 μs)
+
+julia> judge(minimum(@benchmark(f())), minimum(@benchmark(g())))
+BenchmarkTools.TrialJudgement:
+  time:   -5.91% => improvement (5.00% tolerance)
+  memory: +0.00% => invariant (1.00% tolerance)
+
+julia> judge(minimum(@benchmark(f())), minimum(@benchmark(g())))
+BenchmarkTools.TrialJudgement:
+  time:   -0.78% => invariant (5.00% tolerance)
+  memory: +0.00% => invariant (1.00% tolerance)
+```
+
 ### Nonconstant globals and interpolation
 
 Like BenchmarkTools, benchmarks that include access to nonconstant globals will receive a
@@ -121,3 +155,52 @@ julia> @b rand($x) # interpolate (most familiar to BenchmarkTools users)
 julia> @b x rand # put the access in the setup phase (most concise in simple cases)
 15.507 ns (2 allocs: 112 bytes)
 ```
+
+### `BenchmarkGroup`s
+
+It is possible to use `BenchmarkTools.BenchmarkGroup` with Chairmarks. Replacing
+`@benchmarkable` invocations with `@be` invocations and wrapping the group in a function
+suffices. You don't have to run `tune!` and instead of calling `run`, call the function.
+Even running `Statistics.median(suite)` works—although any custom plotting might need a
+couple of tweaks.
+
+```julia
+using BenchmarkTools, Statistics
+
+function create_benchmarks()
+    functions = Function[sqrt, inv, cbrt, sin, cos]
+    group = BenchmarkGroup()
+    for (index, func) in enumerate(functions)
+        group[index] = @benchmarkable $func(x) setup=(x=rand())
+    end
+    group
+end
+
+suite = create_benchmarks()
+
+tune!(suite)
+
+median(run(suite))
+# edit code
+median(run(suite))
+```
+
+```julia
+using Chairmarks, Statistics
+
+function run_benchmarks()
+    functions = Function[sqrt, inv, cbrt, sin, cos]
+    group = BenchmarkGroup()
+    for (index, func) in enumerate(functions)
+        group[nameof(func)] = @be rand func
+    end
+    group
+end
+
+median(run_benchmarks())
+# edit code
+median(run_benchmarks())
+```
+
+This behavior emerged naturally rather than being intentionally designed so expect some
+rough edges. See https://github.com/LilithHafner/Chairmarks.jl/issues/70 for more info.
