@@ -87,7 +87,8 @@ jobs:
           files: lcov.info
   regression-tests:
     needs: quick-test
-    name: RegressionTests.jl Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - ${{ matrix.julia-arch }} - ${{ github.event_name }}
+    if: github.event_name == 'pull_request'
+    name: RegressionTests.jl Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - ${{ matrix.julia-arch }}
     runs-on: ${{ matrix.os }}
     env:
       RegressionTests: true
