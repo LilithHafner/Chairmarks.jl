@@ -3,7 +3,7 @@ CurrentModule = Chairmarks
 DocTestSetup = quote
     using Chairmarks
 end
-DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
+DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?|  (time:  |memory:) .*% => (improvement|regression|invariant) \((5|1).00% tolerance)"]
 ```
 
 # [How to migrate from BenchmarkTools to Chairmarks](@id migration)
@@ -105,7 +105,7 @@ comma separated list of functions to `@b` or `@be`.
 !!! warning
     Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
 
-```jldoctest
+```jldoctest setup=:(using BenchmarkTools)
 julia> f() = sum(rand() for _ in 1:1000)
 f (generic function with 1 method)
 
