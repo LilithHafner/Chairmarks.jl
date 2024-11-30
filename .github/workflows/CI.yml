@@ -82,7 +82,10 @@ jobs:
           arch: ${{ matrix.julia-arch }}
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
+        if: ${{ matrix.julia-version}} == 'min' }} || ${{ matrix.julia-version}} == 1 && ${{ matrix.os }} == 'ubuntu-latest'
       - uses: codecov/codecov-action@v5
+        # Only upload two runs. We should cover everything in one of these two cases.
+        if: ${{ matrix.julia-version}} == 'min' }} || ${{ matrix.julia-version}} == 1 && ${{ matrix.os }} == 'ubuntu-latest'
         with:
           files: lcov.info
   regression-tests:
