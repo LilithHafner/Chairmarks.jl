@@ -67,6 +67,15 @@ stops respecting the requested runtime budget and so it could very well perform 
 precisely than Chairmarks (it's hard to compete with a 500ms benchmark when you only have
 1ms). In practice, however, Chairmarks stays pretty reliable even for fairly low runtimes.
 
+When comparing different implementations of the same function, `@b rand f,g` can be more reliable
+than `judge(minimum(@benchmark(f(x) setup=(x=rand()))), minimum(@benchmark(g(x) setup=(x=rand())))`
+because the former randomly interleaves calls to `f` and `g` in the same context and scope
+with the same inputs while the latter runs all evaluations of `f` before all evaluations of
+`g` and—typically less importantly—uses different random inputs.
+
+!!! warning
+    Comparative benchmarking is experimental and may be removed or changed in future versions
+
 ## How does tuning work?
 
 First of all, what is "tuning" for? It's for tuning the number of evaluations per sample.

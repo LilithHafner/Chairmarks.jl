@@ -89,22 +89,31 @@ julia> @b rand(100) hash
 
 The first argument is called once per sample, and the second argument is called once per
 evaluation, each time passing the result of the first argument. We can also use the special
-`_` variable to refer to the output of the previous step. Here, we compare two different
-implementations of the norm of a vector
+`_` variable to refer to the output of the previous step. Here, we benchmark computing the
+norm of a vector:
 
 ```jldoctest
 julia> @b rand(100) sqrt(sum(_ .* _))
-37.628 ns (2 allocs: 928 bytes)
-
-julia> @b rand(100) sqrt(sum(x->x^2, _))
-11.053 ns
+38.373 ns (2 allocs: 928 bytes)
 ```
 
-The _ refers to the array whose norm is to be computed. Both implementations are quite fast.
-These measurements are on a 3.5 GHz CPU so it appears that the first implementation takes
-about one clock cycle per element, with a bit of overhead. The second, on the other hand,
-appears to be running much faster than that, likely because it is making use of SIMD
-instructions.
+The _ refers to the array whose norm is to be computed.
+
+We can perform a comparison of two different implementations of the same specification by
+providing a comma-separated list of functions to benchmark. Here, we compare two ways of
+computing the norm of a vector:
+
+!!! warning
+    Comparative benchmarking is experimental and may be removed or changed in future versions
+
+```jldoctest
+julia> @b rand(100) sqrt(sum(_ .* _)),sqrt(sum(x->x^2, _))
+(40.373 ns (2 allocs: 928 bytes), 11.440 ns)
+```
+
+This invocation pattern runs the setup function once per sample and randomly selects which
+implementation to run first for each sample. This makes comparative benchmarks robust to
+fluctuations in system load.
 
 ## Common pitfalls
 

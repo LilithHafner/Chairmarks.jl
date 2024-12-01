@@ -5,8 +5,8 @@ Benchmark `f` and return the fastest [`Sample`](@ref).
 
 Use [`@be`](@ref) for full results.
 
-`@b args...` is equivalent to `summarize(@be args...)`. See the docstring for [`@be`](@ref)
-for more information.
+`@b args...` is equivalent to `Chairmarks.summarize(@be args...)`. See the docstring of
+[`@be`](@ref) for more information.
 
 # Examples
 
@@ -34,6 +34,9 @@ julia> @b (x = 0; for _ in 1:50; x = hash(x); end; x) # We can use arbitrary exp
 
 julia> @b (x = 0; for _ in 1:5e8; x = hash(x); end; x) # This runs for a long time, so it is only run once (with no warmup)
 2.447 s (without a warmup)
+
+julia> @b rand(10) hash,objectid # Which hash algorithm is faster? [THIS USAGE IS EXPERIMENTAL]
+(17.256 ns, 4.246 ns)
 ```
 """
 macro b(args...)
@@ -148,6 +151,14 @@ At a high level, the implementation of this function looks like this
 So `init` will be called once, `setup` and `teardown` will be called once per sample, and
 `f` will be called `evals` times per sample.
 
+# Experimental Features
+
+You can pass a comma separated list of functions or expressions to `@be` and they will all
+be benchmarked at the same time with interleaved samples, returning a tuple of `Benchmark`s.
+
+!!! warning
+    Comparative benchmarking is experimental and may be removed or changed in future versions
+
 # Examples
 
 ```jldoctest; filter = [r"\\d\\d?\\d?\\.\\d{3} [μmn]?s( \\(.*\\))?"=>s"RES", r"\\d+ (sample|evaluation)s?"=>s"### \\1"], setup=(using Random)
@@ -203,6 +214,18 @@ Benchmark: 3387 samples with 144 evaluations
 julia> @be (x = 0; for _ in 1:5e8; x = hash(x); end; x) # This runs for a long time, so it is only run once (with no warmup)
 Benchmark: 1 sample with 1 evaluation
         2.488 s (without a warmup)
+
+julia> @be rand(10) hash,objectid # Which hash algorithm is faster? [THIS USAGE IS EXPERIMENTAL]
+Benchmark: 14887 samples with 436 evaluations
+ min    17.106 ns
+ median 18.922 ns
+ mean   20.974 ns
+ max    234.998 ns
+Benchmark: 14887 samples with 436 evaluations
+ min    4.110 ns
+ median 4.683 ns
+ mean   4.979 ns
+ max    42.911 ns
 ```
 """
 macro be(args...)
@@ -210,7 +233,7 @@ macro be(args...)
 end
 
 """
-    summarize(b::Benchmark) -> Any
+`summarize(@be ...)` is equivalent to `@b ...`
 
 Used by `@b` to summarize the output of `@be`. Currently implemented as elementwise `minimum`.
 """
