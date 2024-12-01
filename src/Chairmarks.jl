@@ -17,7 +17,7 @@ module Chairmarks
 
 using Printf
 
-VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public Sample, Benchmark, DEFAULTS"))
+VERSION >= v"1.11.0-DEV.469" && eval(Meta.parse("public Sample, Benchmark, DEFAULTS, summarize"))
 export @b, @be
 
 include("types.jl")
