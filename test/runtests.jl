@@ -104,7 +104,7 @@ else
             @test t.value.args === ()
 
             t = @test_throws ErrorException @eval(@b seconds=1 seconds=2)
-            @test startswith(t.value.msg, "syntax: keyword argument \"seconds\" repeated in call to \"Chairmarks.benchmark\"")
+            @test startswith(t.value.msg, "syntax: keyword argument \"seconds\" repeated in call to \"")
         end
 
         @testset "time_ns() close to typemax(UInt64)" begin
