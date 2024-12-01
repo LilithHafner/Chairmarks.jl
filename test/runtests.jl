@@ -68,7 +68,7 @@ else
             @test length(b.samples) == 2
             @test all(s -> s.warmup == 1 && s.evals == 4, b.samples)
 
-            b = @be @eval((f(x) = x^2+x^3+x)(7)) seconds=nextfloat(0.0)
+            b = @be @eval((x -> x^2+x^3+x)(7)) seconds=nextfloat(0.0)
             @test Chairmarks.only(b.samples).warmup == 1 || VERSION < v"1.8" # in versions below 1.8 we don't track compile time so we'd skip warmup here.
             @test Chairmarks.only(b.samples).evals == 1
         end
