@@ -73,6 +73,14 @@ else
             @test Chairmarks.only(b.samples).evals == 1
         end
 
+        @testset "process_args" begin
+            @test Chairmarks.process_args(()) == esc(:($(Chairmarks.benchmark)(;)))
+            @test Chairmarks.process_args((:(k=v),)) == esc(:($(Chairmarks.benchmark)(; k=v)))
+            @test Chairmarks.process_args((:(k=v), :(k=v2))) == esc(:($(Chairmarks.benchmark)(; k=v, k=v2)))
+            @test Chairmarks.process_args((:f,:(k=v))) == esc(:($(Chairmarks.benchmark)(f; k=v)))
+            @test_throws ErrorException("Positional argument after keyword argument") Chairmarks.process_args((:(k=v),:f))
+        end
+
         @testset "errors" begin
             @test_throws UndefKeywordError Sample(allocs=1.5, bytes=1729) # needs `time`
 
@@ -89,6 +97,14 @@ else
 
             t = @test_throws LoadError @eval(@b seconds=1 1+1)
             @test t.value.error == ErrorException("Positional argument after keyword argument")
+
+            #149
+            t = @test_throws MethodError @b # no arguments
+            @test t.value.f === Chairmarks.benchmark
+            @test t.value.args === ()
+
+            t = @test_throws ErrorException @eval(@b seconds=1 seconds=2)
+            @test startswith(t.value.msg, "syntax: keyword argument \"seconds\" repeated in call to \"")
         end
 
         @testset "time_ns() close to typemax(UInt64)" begin
