@@ -74,7 +74,7 @@ with the same inputs while the latter runs all evaluations of `f` before all eva
 `g` and—typically less importantly—uses different random inputs.
 
 !!! warning
-    Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
+    Comparative benchmarking is experimental and may be removed or changed in future versions
 
 ## How does tuning work?
 

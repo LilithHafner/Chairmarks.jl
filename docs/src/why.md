@@ -10,6 +10,9 @@ DocTestFilters = [r"\d\d?\d?\.\d{3} [μmn]?s( \(.*\))?"]
 
 Capable of detecting 1% difference in runtime in ideal conditions
 
+!!! warning
+    Comparative benchmarking is experimental and may be removed or changed in future versions
+
 ```jldoctest
 julia> f(n) = sum(rand() for _ in 1:n)
 f (generic function with 1 method)
@@ -84,7 +87,7 @@ The function being benchmarked can be a comma separated list of functions in whi
 of the results is returned
 
 !!! warning
-    Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
+    Comparative benchmarking is experimental and may be removed or changed in future versions
 
 ```jldoctest
 julia> @b rand(100) sort(_, alg=InsertionSort),sort(_, alg=MergeSort)

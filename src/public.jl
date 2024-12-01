@@ -157,7 +157,7 @@ You can pass a comma separated list of functions or expressions to `@be` and the
 be benchmarked at the same time with interleaved samples, returning a tuple of `Benchmark`s.
 
 !!! warning
-    Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
+    Comparative benchmarking is experimental and may be removed or changed in future versions
 
 # Examples
 

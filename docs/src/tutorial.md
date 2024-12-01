@@ -104,7 +104,7 @@ providing a comma-separated list of functions to benchmark. Here, we compare two
 computing the norm of a vector:
 
 !!! warning
-    Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
+    Comparative benchmarking is experimental and may be removed or changed in future versions
 
 ```jldoctest
 julia> @b rand(100) sqrt(sum(_ .* _)),sqrt(sum(x->x^2, _))

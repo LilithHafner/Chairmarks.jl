@@ -103,7 +103,7 @@ comma separated list of functions to `@b` or `@be`.
 
 
 !!! warning
-    Comparative benchmarking is experimental and may be removed or its syntax changed in future versions
+    Comparative benchmarking is experimental and may be removed or changed in future versions
 
 ```jldoctest; setup=(using BenchmarkTools)
 julia> f() = sum(rand() for _ in 1:1000)
