@@ -463,6 +463,10 @@ else
         @testset "Issue #107, specialization" begin
             @test (@b Int rand).allocs == 0
         end
+
+        @testset "Issue #156, compat with old constructor" begin
+            @test Chairmarks.Sample(0,fill(NaN, 8)...) isa Chairmarks.Sample
+        end
     end
 
     @testset "Statistics Extension" begin
