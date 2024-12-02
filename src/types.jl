@@ -38,6 +38,10 @@ end
 Sample(; evals=1, time, allocs=0, bytes=0, gc_fraction=0, compile_fraction=0, recompile_fraction=0, warmup=true) =
     Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup)
 
+# For compatibility; older versions of Chairmarks accepted this form.
+Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup, checksum) =
+    Sample(evals, time, allocs, bytes, gc_fraction, compile_fraction, recompile_fraction, warmup)
+
 """
     struct Benchmark
         samples::Vector{Sample}
