@@ -6,8 +6,8 @@
 [![Coverage](https://codecov.io/gh/LilithHafner/Chairmarks.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/LilithHafner/Chairmarks.jl)
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
-Chairmarks measures performance [hundreds of times faster](https://Chairmarks.lilithhafner.com/stable/why/#Efficient)
-than BenchmarkTools [without compromising on accuracy](https://Chairmarks.lilithhafner.com/stable/why/#Precise).
+Chairmarks measures performance [hundreds of times faster](https://Chairmarks.lilithhafner.com/stable/why#efficient)
+than BenchmarkTools [without compromising on accuracy](https://Chairmarks.lilithhafner.com/stable/why#precise).
 
 Installation
 
