@@ -109,6 +109,26 @@ as 1.2.0 rather than 2.0.0 because it is less disruptive to users to have that t
 breakage than to have to review the changelog for breakage and decide whether to update
 their compatibility statements or not.
 
+## Scope of the package
+
+Chairmarks provides a human-friendly interface for specifying benchmarks and a backend to
+run those benchmarks which produces results that are both human friendly and machine
+friendly.
+
+Chairmarks does not provide an interface for specifying collections of benchmarks (though it
+is possible build such an interface on top of Chairmarks or use ordinary Julia code to
+specify collections of benchmarks). Nor does Chairmarks provide an interface for comparing,
+tracking, or otherwise analyzing the results of benchmarks. In general, benchmark results
+are hard to perform statistics on because they do not satisfy the assumptions of most
+statistical tests. In theory, even the statistics performed in benchmark display and the
+summary returned by `@b` could be moved to a separate package.
+
+[`AirspeedVelocity.jl`](https://github.com/MilesCranmer/AirspeedVelocity.jl) and
+[`RegressionTests.jl`](https://github.com/LilithHafner/RegressionTests.jl) are a couple of
+packages that can help analyze benchmark results.
+[`PrettyChairmarks.jl`](https://github.com/astrozot/PrettyChairmarks.jl) provides an
+alternative display format.
+
 # Departures from BenchmarkTools
 
 When there are conflicts between compatibility/alignment with `BenchmarkTools` and
