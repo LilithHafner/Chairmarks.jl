@@ -28,5 +28,6 @@ include("benchmarking.jl")
 include("statistics.jl")
 include("show.jl")
 include("precompile.jl")
+include("benchmarkable.jl") # Experimental
 
 end
