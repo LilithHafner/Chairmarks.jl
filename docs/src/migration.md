@@ -72,6 +72,7 @@ diverse base API.
 | `@btime`                | `display(@b _); _` | `@time`        |
 | N/A                     | `(@b _).allocs`    | `@allocations` |
 | `@ballocated`           | `(@b _).bytes`     | `@allocated`   |
+| `@benchmarkable`        | `()->@be`          | N/A            |
 
 Chairmarks may provide `@belapsed`, `@btime`, `@ballocated`, and `@ballocations` in the
 future.
