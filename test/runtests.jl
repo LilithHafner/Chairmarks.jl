@@ -1,6 +1,6 @@
 using Chairmarks
 using Test
-using Chairmarks: Sample, Benchmark
+using Chairmarks: Sample, Benchmark, only # only is for compat
 using Random: rand!
 
 if ("RegressionTests" => "true") ∈ ENV
@@ -40,8 +40,8 @@ else
         end
 
         @testset "Median" begin
-            @test Chairmarks.median([1, 2, 3]) === 2.0
-            @test Chairmarks.median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
+            @test median([1, 2, 3]) === 2.0
+            @test median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
         end
 
         @testset "seconds kw" begin
@@ -57,28 +57,28 @@ else
 
         @testset "low sample count (#91)" begin
             b = @be sleep(.001) evals=4 samples=0
-            @test Chairmarks.only(b.samples).warmup == 0 # Qualify only for compat
-            @test Chairmarks.only(b.samples).evals == 4
+            @test only(b.samples).warmup == 0 # Qualify only for compat
+            @test only(b.samples).evals == 4
 
             b = @be sleep(.001) evals=4 samples=1
-            @test Chairmarks.only(b.samples).warmup == 1
-            @test Chairmarks.only(b.samples).evals == 4
+            @test only(b.samples).warmup == 1
+            @test only(b.samples).evals == 4
 
             b = @be sleep(.001) evals=4 samples=2
             @test length(b.samples) == 2
             @test all(s -> s.warmup == 1 && s.evals == 4, b.samples)
 
             b = @be @eval((x -> x^2+x^3+x)(7)) seconds=nextfloat(0.0)
-            @test Chairmarks.only(b.samples).warmup == 1 || VERSION < v"1.8" # in versions below 1.8 we don't track compile time so we'd skip warmup here.
-            @test Chairmarks.only(b.samples).evals == 1
+            @test only(b.samples).warmup == 1 || VERSION < v"1.8" # in versions below 1.8 we don't track compile time so we'd skip warmup here.
+            @test only(b.samples).evals == 1
         end
 
         @testset "process_args" begin
-            @test Chairmarks.process_args(()) == esc(:($(Chairmarks.benchmark)(;)))
-            @test Chairmarks.process_args((:(k=v),)) == esc(:($(Chairmarks.benchmark)(; k=v)))
-            @test Chairmarks.process_args((:(k=v), :(k=v2))) == esc(:($(Chairmarks.benchmark)(; k=v, k=v2)))
-            @test Chairmarks.process_args((:f,:(k=v))) == esc(:($(Chairmarks.benchmark)(f; k=v)))
-            @test_throws ErrorException("Positional argument after keyword argument") Chairmarks.process_args((:(k=v),:f))
+            @test process_args(()) == esc(:($(benchmark)(;)))
+            @test process_args((:(k=v),)) == esc(:($(benchmark)(; k=v)))
+            @test process_args((:(k=v), :(k=v2))) == esc(:($(benchmark)(; k=v, k=v2)))
+            @test process_args((:f,:(k=v))) == esc(:($(benchmark)(f; k=v)))
+            @test_throws ErrorException("Positional argument after keyword argument") process_args((:(k=v),:f))
         end
 
         @testset "errors" begin
@@ -91,16 +91,16 @@ else
             @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=1e30
             @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Int64(293)*365*24*60*60
             @test_throws ArgumentError("Must specify either samples or seconds") @b 1+1 seconds=nothing
-            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
-            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
-            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
+            @test only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
+            @test only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
+            @test only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
 
             t = @test_throws LoadError @eval(@b seconds=1 1+1)
             @test t.value.error == ErrorException("Positional argument after keyword argument")
 
             #149
             t = @test_throws MethodError @b # no arguments
-            @test t.value.f === Chairmarks.benchmark
+            @test t.value.f === benchmark
             @test t.value.args === ()
 
             t = @test_throws ErrorException @eval(@b seconds=1 seconds=2)
@@ -119,7 +119,7 @@ else
             ])
             @test x == y
             @test x !== y
-            @test Chairmarks.only(x.samples) === Chairmarks.only(y.samples)
+            @test only(x.samples) === only(y.samples)
             @test x == x
             @test x != z
             @test y != z
@@ -185,7 +185,7 @@ else
             no_warmup_counter = Ref(0)
             res = @be begin no_warmup_counter[] += 1; sleep(.1) end seconds=.05
             @test no_warmup_counter[] == 1
-            sample = Chairmarks.only(res.samples) # qualify only for compat
+            sample = only(res.samples) # qualify only for compat
             @test .1 < sample.time
             @test sample.warmup == 0
             @test occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
@@ -193,31 +193,31 @@ else
         end
 
         @testset "writefixed" begin
-            @test Chairmarks.writefixed(-1.23045, 4) == "-1.2305"
-            @test Chairmarks.writefixed(-1.23045, 3) == "-1.230"
-            @test Chairmarks.writefixed(1.23045, 6) == "1.230450"
-            @test Chairmarks.writefixed(10.0, 1) == "10.0"
-            @test Chairmarks.writefixed(11.0, 1) == "11.0"
-            @test Chairmarks.writefixed(0.5, 1) == "0.5"
-            @test Chairmarks.writefixed(0.005, 1) == "0.0"
-            @test Chairmarks.writefixed(0.005, 2) == "0.01"
-            @test Chairmarks.writefixed(0.005, 3) == "0.005"
-            @test Chairmarks.writefixed(0.005, 4) == "0.0050"
-            @test Chairmarks.writefixed(-0.005, 1) == "-0.0"
-            @test Chairmarks.writefixed(-0.005, 2) == "-0.01"
-            @test Chairmarks.writefixed(-0.005, 3) == "-0.005"
-            @test Chairmarks.writefixed(-0.005, 4) == "-0.0050"
+            @test writefixed(-1.23045, 4) == "-1.2305"
+            @test writefixed(-1.23045, 3) == "-1.230"
+            @test writefixed(1.23045, 6) == "1.230450"
+            @test writefixed(10.0, 1) == "10.0"
+            @test writefixed(11.0, 1) == "11.0"
+            @test writefixed(0.5, 1) == "0.5"
+            @test writefixed(0.005, 1) == "0.0"
+            @test writefixed(0.005, 2) == "0.01"
+            @test writefixed(0.005, 3) == "0.005"
+            @test writefixed(0.005, 4) == "0.0050"
+            @test writefixed(-0.005, 1) == "-0.0"
+            @test writefixed(-0.005, 2) == "-0.01"
+            @test writefixed(-0.005, 3) == "-0.005"
+            @test writefixed(-0.005, 4) == "-0.0050"
         end
 
         @testset "floor_to_Int" begin
-            @test Chairmarks.floor_to_Int(17.29) === 17
-            @test Chairmarks.floor_to_Int(typemax(Int) + 0.5) === typemax(Int)
-            @test Chairmarks.floor_to_Int(typemax(Int) + 1.5) === typemax(Int)
-            @test Chairmarks.floor_to_Int(typemax(Int) + 17.29) === typemax(Int)
-            @test Chairmarks.floor_to_Int(Inf) === typemax(Int)
-            @test Chairmarks.floor_to_Int(Float64(typemax(Int))) === typemax(Int)
-            @test Chairmarks.floor_to_Int(prevfloat(Float64(typemax(Int)))) < typemax(Int)
-            @test Chairmarks.floor_to_Int(nextfloat(Float64(typemax(Int)))) === typemax(Int)
+            @test floor_to_Int(17.29) === 17
+            @test floor_to_Int(typemax(Int) + 0.5) === typemax(Int)
+            @test floor_to_Int(typemax(Int) + 1.5) === typemax(Int)
+            @test floor_to_Int(typemax(Int) + 17.29) === typemax(Int)
+            @test floor_to_Int(Inf) === typemax(Int)
+            @test floor_to_Int(Float64(typemax(Int))) === typemax(Int)
+            @test floor_to_Int(prevfloat(Float64(typemax(Int)))) < typemax(Int)
+            @test floor_to_Int(nextfloat(Float64(typemax(Int)))) === typemax(Int)
         end
 
         @testset "Long runtime budget doesn't throw right away" begin
@@ -234,14 +234,14 @@ else
         end
 
         @testset "DEFAULTS" begin
-            @test Chairmarks.DEFAULTS.seconds === 0.1
-            @test Chairmarks.DEFAULTS.gc === true
-            Chairmarks.DEFAULTS.seconds = 1
-            @test Chairmarks.DEFAULTS.seconds === 1.0
-            Chairmarks.DEFAULTS.seconds = 0.3
+            @test DEFAULTS.seconds === 0.1
+            @test DEFAULTS.gc === true
+            DEFAULTS.seconds = 1
+            @test DEFAULTS.seconds === 1.0
+            DEFAULTS.seconds = 0.3
             @test 0.3 <= @elapsed @b 1+1
-            Chairmarks.DEFAULTS.seconds = 0.1
-            @test Chairmarks.DEFAULTS.seconds === 0.1
+            DEFAULTS.seconds = 0.1
+            @test DEFAULTS.seconds === 0.1
         end
 
         @testset "Comparative benchmarking" begin
@@ -264,8 +264,8 @@ else
 
             # Sanity
             all(∈([(0,), (0,1), (0,1,2), (0,1,3), (0,1,2,4), (0,1,3,4)]), log)
-            evals = Chairmarks.only(unique(x.evals for x in x.samples))
-            @test Chairmarks.only(unique(y.evals for y in y.samples)) == evals
+            evals = only(unique(x.evals for x in x.samples))
+            @test only(unique(y.evals for y in y.samples)) == evals
 
             # Equal number of evals
             @test sum(==((0,1,2)), log) == sum(==((0,1,3)), log) >= # >= because of calibration
@@ -490,7 +490,7 @@ else
         end
 
         @testset "Issue #156, compat with old constructor" begin
-            @test Chairmarks.Sample(0,fill(NaN, 8)...) isa Chairmarks.Sample
+            @test Sample(0,fill(NaN, 8)...) isa Sample
         end
     end
 
@@ -525,7 +525,7 @@ else
     end
 
     @testset "Precision" begin
-        evalpoly = Chairmarks.evalpoly # compat
+        evalpoly = evalpoly # compat
         nonzero(x) = x.time > 1e-11
         @testset "Nonzero results" begin
             @test nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
@@ -621,7 +621,7 @@ else
                 run(`$exe --startup-file=no --project -e 'using Chairmarks'`) # precompile
                 [parse(Float64, split(read(`$exe --startup-file=no --project -e $program`, String), "\n")[end-1]) for _ in 1:n]
             end
-            minimum(times), Chairmarks.median(times), Chairmarks.mean(times), maximum(times)
+            minimum(times), median(times), mean(times), maximum(times)
         end
 
         # @testset "Better load time tests" begin
