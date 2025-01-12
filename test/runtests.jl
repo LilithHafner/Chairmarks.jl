@@ -107,6 +107,31 @@ else
             @test startswith(t.value.msg, "syntax: keyword argument \"seconds\" repeated in call to \"")
         end
 
+        @testset "Equality and hashing" begin
+            x = Benchmark([
+                Sample(time=0.1, allocs=1)
+            ])
+            y = Benchmark([
+                Sample(time=0.1, allocs=1)
+            ])
+            z = Benchmark([
+                Sample(time=0.1, allocs=2)
+            ])
+            @test x == y
+            @test x !== y
+            @test Chairmarks.only(x.samples) === Chairmarks.only(y.samples)
+            @test x == x
+            @test x != z
+            @test y != z
+            for a in [x, y, z], b in [x, y, z]
+                @test (a == b) ==
+                      (hash(a) == hash(b)) ==
+                      (only(a.samples) == only(b.samples)) ==
+                      (only(a.samples) === only(b.samples)) ==
+                      (hash(a.samples) == hash(b.samples))
+            end
+        end
+
         @testset "time_ns() close to typemax(UInt64)" begin
             t0 = ccall(:jl_hrtime, UInt64, ())
 

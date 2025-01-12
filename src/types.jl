@@ -73,6 +73,9 @@ struct Benchmark
     samples::Vector{Sample}
 end
 
+Base.var"=="(a::Benchmark, b::Benchmark) = a.samples == b.samples
+Base.hash(a::Benchmark, h::UInt) = hash(a.samples, h ⊻ (0xa1e7faab2cd3da25 % UInt))
+
 """
     mutable struct Defaults
 
