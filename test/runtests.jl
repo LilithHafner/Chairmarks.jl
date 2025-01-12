@@ -1,6 +1,6 @@
 using Chairmarks
 using Test
-using Chairmarks: Sample, Benchmark, only # only is for compat
+using Chairmarks: Sample, Benchmark, only # only is for c
 using Random: rand!
 
 if ("RegressionTests" => "true") ∈ ENV
@@ -40,8 +40,8 @@ else
         end
 
         @testset "Median" begin
-            @test median([1, 2, 3]) === 2.0
-            @test median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
+            @test Chairmarks.median([1, 2, 3]) === 2.0
+            @test Chairmarks.median((rand(1:3) for _ in 1:30 for _ in 1:30)) === 2.0
         end
 
         @testset "seconds kw" begin
@@ -74,11 +74,11 @@ else
         end
 
         @testset "process_args" begin
-            @test process_args(()) == esc(:($(benchmark)(;)))
-            @test process_args((:(k=v),)) == esc(:($(benchmark)(; k=v)))
-            @test process_args((:(k=v), :(k=v2))) == esc(:($(benchmark)(; k=v, k=v2)))
-            @test process_args((:f,:(k=v))) == esc(:($(benchmark)(f; k=v)))
-            @test_throws ErrorException("Positional argument after keyword argument") process_args((:(k=v),:f))
+            @test Chairmarks.process_args(()) == esc(:($(Chairmarks.benchmark)(;)))
+            @test Chairmarks.process_args((:(k=v),)) == esc(:($(Chairmarks.benchmark)(; k=v)))
+            @test Chairmarks.process_args((:(k=v), :(k=v2))) == esc(:($(Chairmarks.benchmark)(; k=v, k=v2)))
+            @test Chairmarks.process_args((:f,:(k=v))) == esc(:($(Chairmarks.benchmark)(f; k=v)))
+            @test_throws ErrorException("Positional argument after keyword argument") Chairmarks.process_args((:(k=v),:f))
         end
 
         @testset "errors" begin
@@ -100,7 +100,7 @@ else
 
             #149
             t = @test_throws MethodError @b # no arguments
-            @test t.value.f === benchmark
+            @test t.value.f === Chairmarks.benchmark
             @test t.value.args === ()
 
             t = @test_throws ErrorException @eval(@b seconds=1 seconds=2)
@@ -193,31 +193,31 @@ else
         end
 
         @testset "writefixed" begin
-            @test writefixed(-1.23045, 4) == "-1.2305"
-            @test writefixed(-1.23045, 3) == "-1.230"
-            @test writefixed(1.23045, 6) == "1.230450"
-            @test writefixed(10.0, 1) == "10.0"
-            @test writefixed(11.0, 1) == "11.0"
-            @test writefixed(0.5, 1) == "0.5"
-            @test writefixed(0.005, 1) == "0.0"
-            @test writefixed(0.005, 2) == "0.01"
-            @test writefixed(0.005, 3) == "0.005"
-            @test writefixed(0.005, 4) == "0.0050"
-            @test writefixed(-0.005, 1) == "-0.0"
-            @test writefixed(-0.005, 2) == "-0.01"
-            @test writefixed(-0.005, 3) == "-0.005"
-            @test writefixed(-0.005, 4) == "-0.0050"
+            @test Chairmarks.writefixed(-1.23045, 4) == "-1.2305"
+            @test Chairmarks.writefixed(-1.23045, 3) == "-1.230"
+            @test Chairmarks.writefixed(1.23045, 6) == "1.230450"
+            @test Chairmarks.writefixed(10.0, 1) == "10.0"
+            @test Chairmarks.writefixed(11.0, 1) == "11.0"
+            @test Chairmarks.writefixed(0.5, 1) == "0.5"
+            @test Chairmarks.writefixed(0.005, 1) == "0.0"
+            @test Chairmarks.writefixed(0.005, 2) == "0.01"
+            @test Chairmarks.writefixed(0.005, 3) == "0.005"
+            @test Chairmarks.writefixed(0.005, 4) == "0.0050"
+            @test Chairmarks.writefixed(-0.005, 1) == "-0.0"
+            @test Chairmarks.writefixed(-0.005, 2) == "-0.01"
+            @test Chairmarks.writefixed(-0.005, 3) == "-0.005"
+            @test Chairmarks.writefixed(-0.005, 4) == "-0.0050"
         end
 
         @testset "floor_to_Int" begin
-            @test floor_to_Int(17.29) === 17
-            @test floor_to_Int(typemax(Int) + 0.5) === typemax(Int)
-            @test floor_to_Int(typemax(Int) + 1.5) === typemax(Int)
-            @test floor_to_Int(typemax(Int) + 17.29) === typemax(Int)
-            @test floor_to_Int(Inf) === typemax(Int)
-            @test floor_to_Int(Float64(typemax(Int))) === typemax(Int)
-            @test floor_to_Int(prevfloat(Float64(typemax(Int)))) < typemax(Int)
-            @test floor_to_Int(nextfloat(Float64(typemax(Int)))) === typemax(Int)
+            @test Chairmarks.floor_to_Int(17.29) === 17
+            @test Chairmarks.floor_to_Int(typemax(Int) + 0.5) === typemax(Int)
+            @test Chairmarks.floor_to_Int(typemax(Int) + 1.5) === typemax(Int)
+            @test Chairmarks.floor_to_Int(typemax(Int) + 17.29) === typemax(Int)
+            @test Chairmarks.floor_to_Int(Inf) === typemax(Int)
+            @test Chairmarks.floor_to_Int(Float64(typemax(Int))) === typemax(Int)
+            @test Chairmarks.floor_to_Int(prevfloat(Float64(typemax(Int)))) < typemax(Int)
+            @test Chairmarks.floor_to_Int(nextfloat(Float64(typemax(Int)))) === typemax(Int)
         end
 
         @testset "Long runtime budget doesn't throw right away" begin
@@ -234,14 +234,14 @@ else
         end
 
         @testset "DEFAULTS" begin
-            @test DEFAULTS.seconds === 0.1
-            @test DEFAULTS.gc === true
-            DEFAULTS.seconds = 1
-            @test DEFAULTS.seconds === 1.0
-            DEFAULTS.seconds = 0.3
+            @test Chairmarks.DEFAULTS.seconds === 0.1
+            @test Chairmarks.DEFAULTS.gc === true
+            Chairmarks.DEFAULTS.seconds = 1
+            @test Chairmarks.DEFAULTS.seconds === 1.0
+            Chairmarks.DEFAULTS.seconds = 0.3
             @test 0.3 <= @elapsed @b 1+1
-            DEFAULTS.seconds = 0.1
-            @test DEFAULTS.seconds === 0.1
+            Chairmarks.DEFAULTS.seconds = 0.1
+            @test Chairmarks.DEFAULTS.seconds === 0.1
         end
 
         @testset "Comparative benchmarking" begin
@@ -490,7 +490,7 @@ else
         end
 
         @testset "Issue #156, compat with old constructor" begin
-            @test Sample(0,fill(NaN, 8)...) isa Sample
+            @test Chairmarks.Sample(0,fill(NaN, 8)...) isa Chairmarks.Sample
         end
     end
 
@@ -525,7 +525,7 @@ else
     end
 
     @testset "Precision" begin
-        evalpoly = evalpoly # compat
+        evalpoly = Chairmarks.evalpoly # compat
         nonzero(x) = x.time > 1e-11
         @testset "Nonzero results" begin
             @test nonzero(@b rand() evalpoly(_, (1.0, 2.0, 3.0)))
@@ -621,7 +621,7 @@ else
                 run(`$exe --startup-file=no --project -e 'using Chairmarks'`) # precompile
                 [parse(Float64, split(read(`$exe --startup-file=no --project -e $program`, String), "\n")[end-1]) for _ in 1:n]
             end
-            minimum(times), median(times), mean(times), maximum(times)
+            minimum(times), Chairmarks.median(times), Chairmarks.mean(times), maximum(times)
         end
 
         # @testset "Better load time tests" begin
