@@ -1,6 +1,6 @@
 using Chairmarks
 using Test
-using Chairmarks: Sample, Benchmark
+using Chairmarks: Sample, Benchmark, only # only is for c
 using Random: rand!
 
 if ("RegressionTests" => "true") ∈ ENV
@@ -57,20 +57,20 @@ else
 
         @testset "low sample count (#91)" begin
             b = @be sleep(.001) evals=4 samples=0
-            @test Chairmarks.only(b.samples).warmup == 0 # Qualify only for compat
-            @test Chairmarks.only(b.samples).evals == 4
+            @test only(b.samples).warmup == 0 # Qualify only for compat
+            @test only(b.samples).evals == 4
 
             b = @be sleep(.001) evals=4 samples=1
-            @test Chairmarks.only(b.samples).warmup == 1
-            @test Chairmarks.only(b.samples).evals == 4
+            @test only(b.samples).warmup == 1
+            @test only(b.samples).evals == 4
 
             b = @be sleep(.001) evals=4 samples=2
             @test length(b.samples) == 2
             @test all(s -> s.warmup == 1 && s.evals == 4, b.samples)
 
             b = @be @eval((x -> x^2+x^3+x)(7)) seconds=nextfloat(0.0)
-            @test Chairmarks.only(b.samples).warmup == 1 || VERSION < v"1.8" # in versions below 1.8 we don't track compile time so we'd skip warmup here.
-            @test Chairmarks.only(b.samples).evals == 1
+            @test only(b.samples).warmup == 1 || VERSION < v"1.8" # in versions below 1.8 we don't track compile time so we'd skip warmup here.
+            @test only(b.samples).evals == 1
         end
 
         @testset "process_args" begin
@@ -91,9 +91,9 @@ else
             @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=1e30
             @test_throws ArgumentError("samples must be specified if seconds is infinite or nearly infinite (more than 292 years)") @b 1+1 seconds=Int64(293)*365*24*60*60
             @test_throws ArgumentError("Must specify either samples or seconds") @b 1+1 seconds=nothing
-            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
-            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
-            @test Chairmarks.only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
+            @test only((@be 1+1 evals=1 samples=1 seconds=Inf).samples).evals == 1
+            @test only((@be 1+1 evals=1 samples=1 seconds=1e30).samples).evals == 1
+            @test only((@be 1+1 evals=1 samples=1 seconds=nothing).samples).evals == 1
 
             t = @test_throws LoadError @eval(@b seconds=1 1+1)
             @test t.value.error == ErrorException("Positional argument after keyword argument")
@@ -105,6 +105,31 @@ else
 
             t = @test_throws ErrorException @eval(@b seconds=1 seconds=2)
             @test startswith(t.value.msg, "syntax: keyword argument \"seconds\" repeated in call to \"")
+        end
+
+        @testset "Equality and hashing" begin
+            x = Benchmark([
+                Sample(time=0.1, allocs=1)
+            ])
+            y = Benchmark([
+                Sample(time=0.1, allocs=1)
+            ])
+            z = Benchmark([
+                Sample(time=0.1, allocs=2)
+            ])
+            @test x == y
+            @test x !== y
+            @test only(x.samples) === only(y.samples)
+            @test x == x
+            @test x != z
+            @test y != z
+            for a in [x, y, z], b in [x, y, z]
+                @test (a == b) ==
+                      (hash(a) == hash(b)) ==
+                      (only(a.samples) == only(b.samples)) ==
+                      (only(a.samples) === only(b.samples)) ==
+                      (hash(a.samples) == hash(b.samples))
+            end
         end
 
         @testset "time_ns() close to typemax(UInt64)" begin
@@ -160,7 +185,7 @@ else
             no_warmup_counter = Ref(0)
             res = @be begin no_warmup_counter[] += 1; sleep(.1) end seconds=.05
             @test no_warmup_counter[] == 1
-            sample = Chairmarks.only(res.samples) # qualify only for compat
+            sample = only(res.samples) # qualify only for compat
             @test .1 < sample.time
             @test sample.warmup == 0
             @test occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
@@ -239,8 +264,8 @@ else
 
             # Sanity
             all(∈([(0,), (0,1), (0,1,2), (0,1,3), (0,1,2,4), (0,1,3,4)]), log)
-            evals = Chairmarks.only(unique(x.evals for x in x.samples))
-            @test Chairmarks.only(unique(y.evals for y in y.samples)) == evals
+            evals = only(unique(x.evals for x in x.samples))
+            @test only(unique(y.evals for y in y.samples)) == evals
 
             # Equal number of evals
             @test sum(==((0,1,2)), log) == sum(==((0,1,3)), log) >= # >= because of calibration
