@@ -1,0 +1,1 @@
+import{_ as i,c as a,o as t,ai as h}from"./chunks/framework.X_s4OTrf.js";const g=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"why.md","filePath":"why.md","lastUpdated":null}'),n={name:"why.md"};function l(e,s,k,p,r,d){return t(),a("div",null,s[0]||(s[0]=[h("",25)]))}const y=i(n,[["render",l]]);export{g as __pageData,y as default};
