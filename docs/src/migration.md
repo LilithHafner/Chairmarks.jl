@@ -70,7 +70,7 @@ diverse base API.
 | `@benchmark`            | `@be`              | N/A            |
 | `@belapsed`             | `(@b _).time`      | `@elapsed`     |
 | `@btime`                | `display(@b _); _` | `@time`        |
-| N/A                     | `(@b _).allocs`    | `@allocations` |
+| `@ballocations`         | `(@b _).allocs`    | `@allocations` |
 | `@ballocated`           | `(@b _).bytes`     | `@allocated`   |
 | `@benchmarkable`        | `()->@be`          | N/A            |
 
