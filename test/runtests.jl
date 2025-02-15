@@ -504,10 +504,12 @@ else
             @b 1,2 (_, _) = _ seconds=.01
             @test_throws BoundsError @b 2 (_, _) = _
             @b 10 for _ in 1:_ rand(10)[_] = 5.0 end seconds=.01
-            mutable struct T167
-                x::Int
+            @static if VERSION >= v"1.6"
+                mutable struct T167 # Type definition not allowed inside a local scope in Julia 1.0
+                    x::Int
+                end
+                @b T167(5) _.x = 7
             end
-            @b T167(5) _.x = 7
         end
     end
 
