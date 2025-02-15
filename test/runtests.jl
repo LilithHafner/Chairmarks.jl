@@ -492,6 +492,19 @@ else
         @testset "Issue #156, compat with old constructor" begin
             @test Chairmarks.Sample(0,fill(NaN, 8)...) isa Chairmarks.Sample
         end
+
+        @testset "Issue #167, r-value and l-value detection" begin
+            @b [0] _[1] = 5 seconds=.01
+            @b 1 [0][_] = 5 seconds=.01
+            @b 1 [0][_] seconds=.01
+            @b Int 0::_ seconds=.01
+            @b Int x::_ = 5 seconds=.01
+            @b Int x::_ = 5.0 seconds=.01
+            @test_throws InexactError @b Int x::_ = 5.5
+            @b 1,2 (_, _) = _ seconds=.01
+            @test_throws BoundsError @b 2 (_, _) = _
+            @b 10 for _ in 1:_ rand(10)[_] = 5.0 end seconds=.01
+        end
     end
 
     @testset "Statistics Extension" begin
