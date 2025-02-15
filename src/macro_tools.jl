@@ -1,42 +1,22 @@
 """
-    substitute_underscores(expr, var) -> new, changed
+    substitute_underscores(expr, var, right=false) -> new, changed
 
 Replace all occurrences of `_` in `expr` with `var` and return the new expression and a Bool
 indicating whether the expression was changed.
+
+If `right` is `true`, then expr is in an approximation of r-value position
 """
-substitute_underscores(s::Symbol, var::Symbol) = s === :_ ? (var, true) : (s, false)
-substitute_underscores(s, ::Symbol) = s, false
-function substitute_underscores(ex::Expr, var::Symbol)
+substitute_underscores(ex, var::Symbol) = substitute_underscores(ex, var, true)
+substitute_underscores(s::Symbol, var::Symbol, right) = right && s === :_ ? (var, true) : (s, false)
+substitute_underscores(s, ::Symbol, _) = s, false
+function substitute_underscores(ex::Expr, var::Symbol, right)
     changed = false
     args = similar(ex.args)
-    i = firstindex(args)
-    if ex.head in (:(=), :->, :function)
-        args[1], changed = substitute_underscores_left(ex.args[1], var)
-        i += 1
-    end
-    for i in i:lastindex(args)
-        args[i], c = substitute_underscores(ex.args[i], var)
+    for i in eachindex(args)
+        force_left = (i == 1 && ex.head in (:(=), :->, :function))
+        force_right = ex.head == :(::) && i == 2 || ex.head in (:ref, :.)
+        args[i], c = substitute_underscores(ex.args[i], var, force_right || right && !force_left)
         changed |= c
-    end
-    changed ? exprarray(ex.head, args) : ex, changed
-end
-substitute_underscores_left(s, ::Symbol) = (s, false)
-function substitute_underscores_left(ex::Expr, var::Symbol)
-    if ex.head in (:ref, :.)
-        return substitute_underscores(ex, var)
-    end
-    args = similar(ex.args)
-    changed = if ex.head == :(::)
-        args[1], c1 = substitute_underscores_left(ex.args[1], var)
-        args[2], c2 = substitute_underscores(ex.args[2], var)
-        c1 || c2
-    else
-        changed = false
-        for i in eachindex(args)
-            args[i], c = substitute_underscores_left(ex.args[i], var)
-            changed |= c
-        end
-        changed
     end
     changed ? exprarray(ex.head, args) : ex, changed
 end
