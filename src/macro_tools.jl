@@ -1,21 +1,21 @@
 """
-    substitute_underscores(expr, var) -> new, changed
+    substitute_underscores(expr, var, right=false) -> new, changed
 
 Replace all occurrences of `_` in `expr` with `var` and return the new expression and a Bool
 indicating whether the expression was changed.
+
+If `right` is `true`, then expr is in an approximation of r-value position
 """
-substitute_underscores(f::Symbol, var::Symbol) = f === :_ ? (var, true) : (f, false)
-substitute_underscores(f, ::Symbol) = f, false
-function substitute_underscores(ex::Expr, var::Symbol)
+substitute_underscores(ex, var::Symbol) = substitute_underscores(ex, var, true)
+substitute_underscores(s::Symbol, var::Symbol, right) = right && s === :_ ? (var, true) : (s, false)
+substitute_underscores(s, ::Symbol, _) = s, false
+function substitute_underscores(ex::Expr, var::Symbol, right)
     changed = false
     args = similar(ex.args)
-    i = firstindex(args)
-    if ex.head in (:(=), :->, :function)
-        args[i] = ex.args[i]
-        i += 1
-    end
-    for i in i:lastindex(args)
-        args[i], c = substitute_underscores(ex.args[i], var)
+    for i in eachindex(args)
+        force_left = (i == 1 && ex.head in (:(=), :->, :function))
+        force_right = ex.head == :(::) && i == 2 || ex.head in (:ref, :.)
+        args[i], c = substitute_underscores(ex.args[i], var, force_right || right && !force_left)
         changed |= c
     end
     changed ? exprarray(ex.head, args) : ex, changed
