@@ -1,3 +1,10 @@
+<!-- Work around https://github.com/LuxDL/DocumenterVitepress.jl/issues/68 -->
+```@raw html
+---
+layout: home
+---
+```
+
 ```@meta
 CurrentModule = Chairmarks
 DocTestSetup = quote
