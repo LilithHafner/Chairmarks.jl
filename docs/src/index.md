@@ -1,3 +1,9 @@
+```@raw html
+---
+layout: home
+---
+```
+
 ```@meta
 CurrentModule = Chairmarks
 DocTestSetup = quote
