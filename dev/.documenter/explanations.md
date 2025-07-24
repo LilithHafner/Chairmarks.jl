@@ -28,7 +28,7 @@ A few reasons
   
 - Chairmarks has faster and more efficient auto-tuning
   
-- Chairmarks runs its arguments as functions in the scope that the benchmark was invoked from, rather than `eval`ing them at global scope. This makes it possible to get significant performance speedups for fast benchmarks by putting the benchmarking itself into a function.
+- Chairmarks runs its arguments as functions in the scope that the benchmark was invoked from, rather than `eval`ing them at global scope. This makes it possible to get significant performance speedups for fast benchmarks by putting the benchmarking itself into a function. It also avoids leaking memory on repeated invocations of a benchmark, which is unavoidable with BenchmarkTools.jl&#39;s design. ([discourse](https://discourse.julialang.org/t/memory-leak-with-benchmarktools/31282), [github](https://github.com/JuliaCI/BenchmarkTools.jl/issues/339))
   
 - Because Charimarks does not use toplevel eval, it can run arbitrarily quickly, as limited by a user&#39;s noise tolerance. Consequently, the auto-tuning algorithm is tuned for low runtime budgets in addition to high budgets so its precision doesn&#39;t degrade too much at low runtime budgets.
   
