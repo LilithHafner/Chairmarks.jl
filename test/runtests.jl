@@ -193,23 +193,31 @@ else
         end
 
         @testset "no warmup parameter" begin
-            no_warmup_counter = Ref(0)
-            res = @be begin no_warmup_counter[] += 1; sleep(.1) end seconds=.05 warmup=true
-            @test no_warmup_counter[] == 2
+            counter = Ref(0)
+            res = @be begin counter[] += 1; sleep(.1) end seconds=.05 warmup=true
+            @test counter[] == 2
             sample = only(res.samples) # qualify only for compat
             @test .1 < sample.time
             @test sample.warmup == 1
             @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
             @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), res))
 
-            no_warmup_counter = Ref(0)
-            res = @be begin no_warmup_counter[] += 1; sleep(.1) end seconds=.05 warmup=false
-            @test no_warmup_counter[] == 1
+            counter[] = 0
+            res = @be begin counter[] += 1; sleep(.1) end seconds=.05 warmup=false
+            @test counter[] == 1
             sample = only(res.samples) # qualify only for compat
             @test .1 < sample.time
             @test sample.warmup == 1
             @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
             @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), res))
+
+            counter[] = 0
+            res = @be begin counter[] += 1; sleep(.001) end seconds=.05 warmup=false
+            @test counter[] > 1
+            @test .001 < minimum(res).time
+            @test 1 == only(unique(s.evals for s in res.samples))
+            @test all(s -> s.warmup == 1, res.samples)
+            @test length(res.samples) == counter[] # Save and return every sample
         end
 
         @testset "writefixed" begin
