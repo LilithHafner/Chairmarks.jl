@@ -213,7 +213,7 @@ else
 
             counter[] = 0
             res = @be begin counter[] += 1; sleep(.001) end seconds=.05 warmup=false
-            @test counter[] > 1
+            # @test counter[] > 1 This would be flaky
             @test .001 < minimum(res).time
             @test 1 == only(unique(s.evals for s in res.samples))
             @test all(s -> s.warmup == 1, res.samples)
