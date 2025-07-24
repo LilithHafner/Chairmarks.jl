@@ -84,4 +84,5 @@ The type of [`Chairmarks.DEFAULTS`](@ref)
 mutable struct Defaults
     seconds::Float64
     gc::Bool
+    warmup::Union{Bool, Nothing}
 end

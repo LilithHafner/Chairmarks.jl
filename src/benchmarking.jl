@@ -13,12 +13,13 @@ function benchmark(init, setup, fs::Tuple{Vararg{Any, N}}, teardown;
         evals::Union{Int, Nothing}=nothing,
         samples::Union{Int, Nothing}=nothing,
         seconds::Union{Real, Nothing}=(samples===nothing ? DEFAULTS.seconds : 10*DEFAULTS.seconds)*N,
-        gc::Bool=DEFAULTS.gc) where N
-    _benchmark_1(init, setup, teardown, evals, samples, seconds, gc, fs...)
+        gc::Bool=DEFAULTS.gc,
+        warmup::Union{Bool, Nothing}=nothing) where N
+    _benchmark_1(init, setup, teardown, evals, samples, seconds, gc, warmup, fs...)
 end
-_benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Real, gc::Bool, fs...) =
-    _benchmark_1(init, setup, teardown, evals, samples, Float64(seconds), gc, fs...)
-function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Union{Float64, Nothing}, gc::Bool, fs...)
+_benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Real, gc::Bool, warmup::Union{Bool, Nothing}, fs...) =
+    _benchmark_1(init, setup, teardown, evals, samples, Float64(seconds), gc, warmup, fs...)
+function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples::Union{Int, Nothing}, seconds::Union{Float64, Nothing}, gc::Bool, warmup::Union{Bool, Nothing}, fs...)
     @nospecialize
     N = length(fs)
 
@@ -37,16 +38,24 @@ function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples
 
     samples == 0 && return ntuple(i -> Benchmark([_benchmark_2(args1, setup, teardown, gc, evals, false, fs...)[1][i]]), N)
 
-    warmup, start_time = _benchmark_2(args1, setup, teardown, gc, 1, false, fs...)
+    warmup_result, start_time = if warmup === false
+        if seconds == 0
+            _benchmark_2(args1, setup, teardown, gc, 0, false, fs...)
+        else
+            (nothing, time_ns())
+        end
+    else
+        _benchmark_2(args1, setup, teardown, gc, 1, false, fs...)
+    end
 
-    seconds == 0 && return ntuple(i -> Benchmark([warmup[i]]), N)
+    seconds == 0 && return ntuple(i -> Benchmark([warmup_result[i]]), N)
     new_evals = if evals === nothing
         @assert evals === samples === nothing && seconds !== nothing
 
-        if sum(w.time for w in warmup) > 2seconds && all(w.compile_fraction < .5 for w in warmup)
+        if warmup === nothing && sum(w.time for w in warmup_result) > 2seconds && all(w.compile_fraction < .5 for w in warmup_result)
             # The estimated runtime in the warmup already exceeds the time budget.
             # Return the warmup result (which is marked as not having a warmup).
-            return ntuple(i -> Benchmark([warmup[i]]), N)
+            return ntuple(i -> Benchmark([warmup_result[i]]), N)
         end
 
         calibration1, time = _benchmark_2(args1, setup, teardown, gc, 1, true, fs...)
