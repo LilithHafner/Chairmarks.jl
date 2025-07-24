@@ -113,15 +113,15 @@ arguments to ordinary functions. Keyword arguments to control executions are
     the benchmark. As an experimental option, this may be removed in the future or its
     semantics may change. This option also depends on Julia internals and so it may break in
     future versions of Julia.
-  - `warmup::Bool` An experimental option to force warmups to run or not run. With
-    `warmup = true` we always run a warmup. With `warmup = false` we assume a warmup has
-     already been run and both skip a warmup and nevertheless report the first sample as
-     already having been warmed up. With `warmup` unset (the default) we almost always run a
-     warmup but will skip it if the estimated runtime of the warmup exceeds twice the
-     runtime budget and less than half of the warmup time is spent compiling. As an
-     experimental option, this may be removed in the future or its semantics may change.
-     The heuristic for choosing when to automatically skip the warmup may also change in
-     future versions of Chairmarks.
+  - `warmup::Union{Nothing, Bool}` An experimental option to force warmups to run or not
+    run. With `warmup = true` we always run a warmup. With `warmup = false` we assume a
+    warmup has already been run and both skip a warmup and nevertheless report the first
+    sample as already having been warmed up. With `warmup=nothing` (the default) we almost
+    always run a warmup but will skip it if the estimated runtime of the warmup exceeds
+    twice the runtime budget and less than half of the warmup time is spent compiling. As
+    an experimental option, this may be removed in the future or its semantics may change.
+    The heuristic for choosing when to automatically skip the warmup may also change in
+    future versions of Chairmarks.
 
 # Interpolation
 

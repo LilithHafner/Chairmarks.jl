@@ -40,7 +40,7 @@ function _benchmark_1(init, setup, teardown, evals::Union{Int, Nothing}, samples
 
     warmup_result, start_time = if warmup === false
         if seconds == 0
-            _benchmark_2(args1, setup, teardown, gc, 0, false, fs...)
+            _benchmark_2(args1, setup, teardown, gc, 1, true, fs...)
         else
             (nothing, time_ns())
         end

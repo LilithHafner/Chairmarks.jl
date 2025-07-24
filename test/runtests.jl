@@ -218,6 +218,14 @@ else
             @test 1 == only(unique(s.evals for s in res.samples))
             @test all(s -> s.warmup == 1, res.samples)
             @test length(res.samples) == counter[] # Save and return every sample
+
+            counter[] = 0
+            res = @be begin counter[] += 1; sleep(.001) end seconds=0 warmup=false # warmup=false and seconds=0 is a notable edge case.
+            @test counter[] == 1
+            sample = only(res.samples) # qualify only for compat
+            @test sample.evals == 1
+            @test .001 < sample.time
+            @test sample.warmup == 1
         end
 
         @testset "writefixed" begin
