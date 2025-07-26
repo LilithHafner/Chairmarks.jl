@@ -41,7 +41,7 @@ A struct representing a single sample of a benchmark.
 [`@b`](/reference#Chairmarks.@b) returns a composite sample formed by taking the field-wise minimum of the measured samples. More fields may be added in the future as more information becomes available.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/3c86e3c08b2e32f9ce5820588a7680a630f496fc/src/types.jl#L1-L19" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/52678207dfb4b4ca7ba33fa4a224d13c1acde4c2/src/types.jl#L1-L19" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -78,7 +78,7 @@ julia> minimum(ans)
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/3c86e3c08b2e32f9ce5820588a7680a630f496fc/src/types.jl#L45-L71" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/52678207dfb4b4ca7ba33fa4a224d13c1acde4c2/src/types.jl#L45-L71" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -131,7 +131,7 @@ julia> @b rand(10) hash,objectid # Which hash algorithm is faster? [THIS USAGE I
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/3c86e3c08b2e32f9ce5820588a7680a630f496fc/src/public.jl#L1-L41" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/52678207dfb4b4ca7ba33fa4a224d13c1acde4c2/src/public.jl#L1-L41" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -184,6 +184,8 @@ Provide keyword arguments using `name=value` syntax similar to how you provide k
 - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to [`Charimarks.DEFAULTS.seconds`](/reference#Chairmarks.DEFAULTS) (which is `0.1` by default) unless `samples` is specified, in which case it defaults to 10 times as long (1 second, by default). Users are free to modify Charimarks.DEFAULTS.seconds for their own interactive usage and its default value may change in the future. Set to `Inf` to disable the time limit. Compile time is typically not counted against this limit. A reasonable effort is made to respect the time limit but if samples is unspecified it is always exceeded by a small about (less than 1%) and can be significantly exceeded when benchmarking long running functions.
   
 - `gc::Bool` An experimental option to disable garbage collection during benchmarking. Defaults to [`Charimarks.DEFAULTS.gc`](/reference#Chairmarks.DEFAULTS) which is `true` by default. Set to `false` to disable garbage collection during benchmarking. Disabling garbage collection may cause out of memory errors during a benchmark that requires garbage collection, but should not result in memory leaks that survive past the end of the benchmark. As an experimental option, this may be removed in the future or its semantics may change. This option also depends on Julia internals and so it may break in future versions of Julia.
+  
+- `warmup::Union{Nothing, Bool}` An experimental option to force warmups to run or not run. With `warmup = true` we always run a warmup. With `warmup = false` we assume a warmup has already been run and both skip a warmup and nevertheless report the first sample as already having been warmed up. With `warmup=nothing` (the default) we almost always run a warmup but will skip it if the estimated runtime of the warmup exceeds twice the runtime budget and less than half of the warmup time is spent compiling. As an experimental option, this may be removed in the future or its semantics may change. The heuristic for choosing when to automatically skip the warmup may also change in future versions of Chairmarks.
   
 
 **Interpolation**
@@ -310,7 +312,7 @@ Benchmark: 14887 samples with 436 evaluations
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/3c86e3c08b2e32f9ce5820588a7680a630f496fc/src/public.jl#L47-L230" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/52678207dfb4b4ca7ba33fa4a224d13c1acde4c2/src/public.jl#L47-L239" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -324,7 +326,7 @@ Benchmark: 14887 samples with 436 evaluations
 Used by `@b` to summarize the output of `@be`. Currently implemented as elementwise `minimum`.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/3c86e3c08b2e32f9ce5820588a7680a630f496fc/src/public.jl#L235-L239" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/52678207dfb4b4ca7ba33fa4a224d13c1acde4c2/src/public.jl#L244-L248" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -342,12 +344,12 @@ A global constant that holds default benchmarking parameters.
 
 When a parameter is unspecified it defaults to the value stored in `Chairmarks.DEFAULTS`.
 
-Currently there is one stable default: `Chairmarks.DEFAULTS.seconds::Float64` which defaults to 0.1; and one experimental default: `Chairmarks.DEFAULTS.gc::Bool` which defaults to `true`.
+Currently there is one stable default: `Chairmarks.DEFAULTS.seconds::Float64` which defaults to 0.1; and two experimental defaults: `Chairmarks.DEFAULTS.gc::Bool` which defaults to `true`, and `Chairmarks.DEFAULTS.warmup::Union{Bool, Nothing}` which defaults to `nothing`.
 
 All default values may be changed in the future and the `gc` default may be removed entirely.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/3c86e3c08b2e32f9ce5820588a7680a630f496fc/src/public.jl#L242-L255" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/52678207dfb4b4ca7ba33fa4a224d13c1acde4c2/src/public.jl#L251-L264" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
