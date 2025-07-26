@@ -113,6 +113,15 @@ arguments to ordinary functions. Keyword arguments to control executions are
     the benchmark. As an experimental option, this may be removed in the future or its
     semantics may change. This option also depends on Julia internals and so it may break in
     future versions of Julia.
+  - `warmup::Union{Nothing, Bool}` An experimental option to force warmups to run or not
+    run. With `warmup = true` we always run a warmup. With `warmup = false` we assume a
+    warmup has already been run and both skip a warmup and nevertheless report the first
+    sample as already having been warmed up. With `warmup=nothing` (the default) we almost
+    always run a warmup but will skip it if the estimated runtime of the warmup exceeds
+    twice the runtime budget and less than half of the warmup time is spent compiling. As
+    an experimental option, this may be removed in the future or its semantics may change.
+    The heuristic for choosing when to automatically skip the warmup may also change in
+    future versions of Chairmarks.
 
 # Interpolation
 
@@ -247,10 +256,10 @@ A global constant that holds default benchmarking parameters.
 When a parameter is unspecified it defaults to the value stored in `Chairmarks.DEFAULTS`.
 
 Currently there is one stable default: `Chairmarks.DEFAULTS.seconds::Float64` which defaults
-to 0.1; and one experimental default: `Chairmarks.DEFAULTS.gc::Bool` which defaults to
-`true`.
+to 0.1; and two experimental defaults: `Chairmarks.DEFAULTS.gc::Bool` which defaults to
+`true`, and `Chairmarks.DEFAULTS.warmup::Union{Bool, Nothing}` which defaults to `nothing`.
 
 All default values may be changed in the future and the `gc` default may be removed
 entirely.
 """
-const DEFAULTS = Defaults(0.1, true)
+const DEFAULTS = Defaults(0.1, true, nothing)

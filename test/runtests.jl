@@ -181,7 +181,7 @@ else
             @test GC.enable(true)
         end
 
-        @testset "no warmup" begin
+        @testset "no warmup heuristics" begin
             no_warmup_counter = Ref(0)
             res = @be begin no_warmup_counter[] += 1; sleep(.1) end seconds=.05
             @test no_warmup_counter[] == 1
@@ -190,6 +190,42 @@ else
             @test sample.warmup == 0
             @test occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
             @test occursin("without a warmup", sprint(show, MIME"text/plain"(), res))
+        end
+
+        @testset "no warmup parameter" begin
+            counter = Ref(0)
+            res = @be begin counter[] += 1; sleep(.1) end seconds=.05 warmup=true
+            @test counter[] == 2
+            sample = only(res.samples) # qualify only for compat
+            @test .1 < sample.time
+            @test sample.warmup == 1
+            @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
+            @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), res))
+
+            counter[] = 0
+            res = @be begin counter[] += 1; sleep(.1) end seconds=.05 warmup=false
+            @test counter[] == 1
+            sample = only(res.samples) # qualify only for compat
+            @test .1 < sample.time
+            @test sample.warmup == 1
+            @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), sample))
+            @test !occursin("without a warmup", sprint(show, MIME"text/plain"(), res))
+
+            counter[] = 0
+            res = @be begin counter[] += 1; sleep(.001) end seconds=.05 warmup=false
+            # @test counter[] > 1 This would be flaky
+            @test .001 < minimum(res).time
+            @test 1 == only(unique(s.evals for s in res.samples))
+            @test all(s -> s.warmup == 1, res.samples)
+            @test length(res.samples) == counter[] # Save and return every sample
+
+            counter[] = 0
+            res = @be begin counter[] += 1; sleep(.001) end seconds=0 warmup=false # warmup=false and seconds=0 is a notable edge case.
+            @test counter[] == 1
+            sample = only(res.samples) # qualify only for compat
+            @test sample.evals == 1
+            @test .001 < sample.time
+            @test sample.warmup == 1
         end
 
         @testset "writefixed" begin
