@@ -99,7 +99,7 @@ arguments to ordinary functions. Keyword arguments to control executions are
   - `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to
     [`Charimarks.DEFAULTS.seconds`](@ref Chairmarks.DEFAULTS) (which is `0.1` by default)
     unless `samples` is specified, in which case it defaults to 10 times as long (1 second,
-    by default). Users are free to modify Charimarks.DEFAULTS.seconds for their own
+    by default). Users are free to modify Chairmarks.DEFAULTS.seconds for their own
     interactive usage and its default value may change in the future. Set to `Inf` to
     disable the time limit. Compile time is typically not counted against this limit. A
     reasonable effort is made to respect the time limit but if samples is unspecified it is
