@@ -1,3 +1,5 @@
+---
+---
 
 
 
@@ -66,7 +68,7 @@ julia> @b rand(100) sort(_, by=x -> exp(-x))
 ```
 
 
-A third argument can run a &quot;teardown&quot; function to integrate testing into the benchmark and ensure that the benchmarked code is behaving correctly
+A third argument can run a "teardown" function to integrate testing into the benchmark and ensure that the benchmarked code is behaving correctly
 
 ```julia
 julia> @b rand(100) sort(_, by=x -> exp(-x)) issorted(_) || error()

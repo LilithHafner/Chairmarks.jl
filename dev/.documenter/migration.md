@@ -1,3 +1,5 @@
+---
+---
 
 
 
@@ -116,7 +118,7 @@ BenchmarkTools.TrialJudgement:
 
 Like BenchmarkTools, benchmarks that include access to nonconstant globals will receive a performance overhead for that access and you can avoid this via interpolation.
 
-However, Chairmarks&#39;s arguments are functions evaluated in the scope of the macro call, not quoted expressions `eval`ed at global scope. This makes nonconstant global access much less of an issue in Chairmarks than BenchmarkTools which, in turn, eliminates much of the need to interpolate variables. For example, the following invocations are all equally fast:
+However, Chairmarks's arguments are functions evaluated in the scope of the macro call, not quoted expressions `eval`ed at global scope. This makes nonconstant global access much less of an issue in Chairmarks than BenchmarkTools which, in turn, eliminates much of the need to interpolate variables. For example, the following invocations are all equally fast:
 
 ```julia
 julia> x = 6 # nonconstant global
@@ -138,7 +140,7 @@ julia> @b x rand # put the access in the setup phase (most concise in simple cas
 
 ### `BenchmarkGroup`s {#BenchmarkGroups}
 
-It is possible to use `BenchmarkTools.BenchmarkGroup` with Chairmarks. Replacing `@benchmarkable` invocations with `@be` invocations and wrapping the group in a function suffices. You don&#39;t have to run `tune!` and instead of calling `run`, call the function. Even running `Statistics.median(suite)` works—although any custom plotting might need a couple of tweaks.
+It is possible to use `BenchmarkTools.BenchmarkGroup` with Chairmarks. Replacing `@benchmarkable` invocations with `@be` invocations and wrapping the group in a function suffices. You don't have to run `tune!` and instead of calling `run`, call the function. Even running `Statistics.median(suite)` works—although any custom plotting might need a couple of tweaks.
 
 ```julia
 using BenchmarkTools, Statistics

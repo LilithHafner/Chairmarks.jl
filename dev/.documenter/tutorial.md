@@ -1,3 +1,5 @@
+---
+---
 
 
 
@@ -5,7 +7,7 @@
 
 Welcome! This tutorial assumes very little prior knowledge and walks you through how to become a competent user of Chairmarks. If you are already an experienced user of BenchmarkTools, you may want to read about [how to migrate from BenchmarkTools to Chairmarks](/migration#migration) instead.
 
-If you don&#39;t have Julia already, download it from [julialang.org/downloads](https://julialang.org/downloads/).
+If you don't have Julia already, download it from [julialang.org/downloads](https://julialang.org/downloads/).
 
 Now, launch a Julia REPL by typing `julia` at the command line.
 
@@ -28,7 +30,7 @@ julia> @b rand(100)
 ```
 
 
-Congratulations! This is your first result from Chairmarks. Let&#39;s look a little closer at the invocation and results. `@b` is a macro exported from Chairmarks. It takes the expression `rand(100)` and runs it a bunch of times, measuring how long it takes to run.
+Congratulations! This is your first result from Chairmarks. Let's look a little closer at the invocation and results. `@b` is a macro exported from Chairmarks. It takes the expression `rand(100)` and runs it a bunch of times, measuring how long it takes to run.
 
 The result, `95.500 ns (2 allocs: 928 bytes)` tells us that the expression takes 95.5 nanoseconds to run and allocates 928 bytes of memory spread across two distinct allocation events. The exact results you get will likely differ based on your hardware and the Julia version you are using. These results from Julia 1.11.
 
@@ -48,7 +50,7 @@ Benchmark: 19442 samples with 25 evaluations
 
 This invocation runs the same experiment as `@b`, but reports more results. It ran 19442 samples, each of which involved recording some performance counters, running `rand(100)` 25 times, and then recording the performance counters again and computing the difference. The reported runtimes and allocations are those differences divided by the number of evaluations. We can see here that the runtime of `rand(100)` is pretty stable. 50% of the time it ranges between 95 and 103.3 nanoseconds. However, the maximum time is two orders of magnitude slower than the mean time. This is because the maximum time includes a garbage collection event that took 96.95% of the time.[^1]
 
-Sometimes, we wish to measure the runtime of a function that requires some data to operate on, but don&#39;t want to measure the runtime of the function that generates the data. For example, we may want to compare how long it takes to hash an array of numbers, but we don&#39;t want to include the time it takes to generate the input in our measurements. We can do this using Chairmarks&#39; pipeline syntax:
+Sometimes, we wish to measure the runtime of a function that requires some data to operate on, but don't want to measure the runtime of the function that generates the data. For example, we may want to compare how long it takes to hash an array of numbers, but we don't want to include the time it takes to generate the input in our measurements. We can do this using Chairmarks' pipeline syntax:
 
 ```julia
 julia> @b rand(100) hash
@@ -126,7 +128,7 @@ julia> @b sort!(rand(100))
 
 Notice that each of these invocations produces a different output. Setting `evals` to 1 can cause strange effects whenever the runtime of the expression is less than about 30 μs both due to the overhead of starting and stopping the timers and due to the imprecision of timer results on most machines. Any form of pre-processing included in the primary function will be included in the reported runtime, so each of the latter options also introduces artifacts.
 
-In general, it is important to use the same methodology when comparing two different functions. Chairmarks is optimized to produce reliable results for answering questions of the form &quot;which of these two implementations of the same specification is faster&quot;, more so than providing absolute measurements of the runtime of fast-running functions.
+In general, it is important to use the same methodology when comparing two different functions. Chairmarks is optimized to produce reliable results for answering questions of the form "which of these two implementations of the same specification is faster", more so than providing absolute measurements of the runtime of fast-running functions.
 
 That said, for functions which take more than about 30 μs to run, Chairmarks can reliably provide accurate absolute timings. In general, the faster the runtime of the expression being measured, the more strange behavior and artifacts you will see, and the more careful you have to be.
 
@@ -155,7 +157,7 @@ Longer runtimes and macrobenchmarks are much more trustworthy than microbenchmar
 
 ## Running many benchmarks {#Running-many-benchmarks}
 
-It&#39;s pretty straightforward to benchmark a whole parameter sweep to check performance figures. Just invoke `@b` or `@be` repeatedly. For example, if you want to know how allocation times vary with input size, you could run this list comprehension which runs `@b fill(0, n)` for each power of 4 from 4 to 4^10:
+It's pretty straightforward to benchmark a whole parameter sweep to check performance figures. Just invoke `@b` or `@be` repeatedly. For example, if you want to know how allocation times vary with input size, you could run this list comprehension which runs `@b fill(0, n)` for each power of 4 from 4 to 4^10:
 
 ```julia
 julia> [@b fill(0, n) for n in 4 .^ (1:10)]
@@ -173,7 +175,7 @@ julia> [@b fill(0, n) for n in 4 .^ (1:10)]
 ```
 
 
-The default runtime of a benchmark is 0.1 seconds, so this invocation should take just over 1 second to run. Let&#39;s verify:
+The default runtime of a benchmark is 0.1 seconds, so this invocation should take just over 1 second to run. Let's verify:
 
 ```julia
 julia> @time [@b fill(0, n) for n in 4 .^ (1:10)];
@@ -202,7 +204,7 @@ julia> @time f.(1:1000, .001)
 ```
 
 
-Setting the `seconds` parameter too low can cause benchmarks to be noisy. It&#39;s good practice to run a benchmark at least a couple of times no matter what the configuration is to make sure it&#39;s reasonably stable.
+Setting the `seconds` parameter too low can cause benchmarks to be noisy. It's good practice to run a benchmark at least a couple of times no matter what the configuration is to make sure it's reasonably stable.
 
 ## Advanced usage {#Advanced-usage}
 
