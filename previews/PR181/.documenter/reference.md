@@ -43,7 +43,7 @@ A struct representing a single sample of a benchmark.
 [`@b`](/reference#Chairmarks.@b) returns a composite sample formed by taking the field-wise minimum of the measured samples. More fields may be added in the future as more information becomes available.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ef6aa8b7820db6280e8454efe68c7fa650757179/src/types.jl#L1-L19" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/aee7ffba1e75e76a6a0b5a05bcf1ec8236a744ef/src/types.jl#L1-L19" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -80,7 +80,7 @@ julia> minimum(ans)
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ef6aa8b7820db6280e8454efe68c7fa650757179/src/types.jl#L45-L71" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/aee7ffba1e75e76a6a0b5a05bcf1ec8236a744ef/src/types.jl#L45-L71" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -133,7 +133,7 @@ julia> @b rand(10) hash,objectid # Which hash algorithm is faster? [THIS USAGE I
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ef6aa8b7820db6280e8454efe68c7fa650757179/src/public.jl#L1-L41" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/aee7ffba1e75e76a6a0b5a05bcf1ec8236a744ef/src/public.jl#L1-L41" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -314,7 +314,7 @@ Benchmark: 14887 samples with 436 evaluations
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ef6aa8b7820db6280e8454efe68c7fa650757179/src/public.jl#L47-L239" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/aee7ffba1e75e76a6a0b5a05bcf1ec8236a744ef/src/public.jl#L47-L239" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -328,7 +328,7 @@ Benchmark: 14887 samples with 436 evaluations
 Used by `@b` to summarize the output of `@be`. Currently implemented as elementwise `minimum`.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ef6aa8b7820db6280e8454efe68c7fa650757179/src/public.jl#L244-L248" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/aee7ffba1e75e76a6a0b5a05bcf1ec8236a744ef/src/public.jl#L244-L248" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -351,7 +351,7 @@ Currently there is one stable default: `Chairmarks.DEFAULTS.seconds::Float64` wh
 All default values may be changed in the future and the `gc` default may be removed entirely.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ef6aa8b7820db6280e8454efe68c7fa650757179/src/public.jl#L251-L264" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/aee7ffba1e75e76a6a0b5a05bcf1ec8236a744ef/src/public.jl#L251-L264" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
