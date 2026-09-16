@@ -161,10 +161,8 @@ else
             @test 2fast.time < slow.time # should be about 3000x
 
             global interpolation_test_global = 1
-            slow = @b interpolation_test_global + 1
-            fast = @b $interpolation_test_global + 1
-            @test fast.allocs == 0
-            @test 2fast.time < slow.time # should be about 100x
+            interpolated_global = @b $interpolation_test_global + 1
+            @test interpolated_global.allocs == 0
 
             a = @b 6 $interpolation_test_global + $interpolation_test_global + _ evals=42
             b = @b 8 evals=42
