@@ -43,7 +43,7 @@ A struct representing a single sample of a benchmark.
 [`@b`](/reference#Chairmarks.@b) returns a composite sample formed by taking the field-wise minimum of the measured samples. More fields may be added in the future as more information becomes available.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ad59197ff5d8f7908bc70bcbf0700a7fd21fa02f/src/types.jl#L1-L19" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/1e9212f4cf7506511ba950c90a82739b6946449c/src/types.jl#L1-L19" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -80,7 +80,7 @@ julia> minimum(ans)
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ad59197ff5d8f7908bc70bcbf0700a7fd21fa02f/src/types.jl#L45-L71" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/1e9212f4cf7506511ba950c90a82739b6946449c/src/types.jl#L45-L71" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -133,7 +133,7 @@ julia> @b rand(10) hash,objectid # Which hash algorithm is faster? [THIS USAGE I
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ad59197ff5d8f7908bc70bcbf0700a7fd21fa02f/src/public.jl#L1-L41" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/1e9212f4cf7506511ba950c90a82739b6946449c/src/public.jl#L1-L41" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -183,7 +183,7 @@ Provide keyword arguments using `name=value` syntax similar to how you provide k
     
 - `samples::Integer` Maximum number of samples to take. Defaults to unlimited and cannot be specified without also specifying `evals`. Specifying `samples = 0` will cause `@be` to run the warmup sample only and return that sample.
     
-- `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to [`Charimarks.DEFAULTS.seconds`](/reference#Chairmarks.DEFAULTS) (which is `0.1` by default) unless `samples` is specified, in which case it defaults to 10 times as long (1 second, by default). Users are free to modify Charimarks.DEFAULTS.seconds for their own interactive usage and its default value may change in the future. Set to `Inf` to disable the time limit. Compile time is typically not counted against this limit. A reasonable effort is made to respect the time limit but if samples is unspecified it is always exceeded by a small about (less than 1%) and can be significantly exceeded when benchmarking long running functions.
+- `seconds::Real` Maximum amount of time to spend benchmarking. Defaults to [`Charimarks.DEFAULTS.seconds`](/reference#Chairmarks.DEFAULTS) (which is `0.1` by default) unless `samples` is specified, in which case it defaults to 10 times as long (1 second, by default). Users are free to modify Chairmarks.DEFAULTS.seconds for their own interactive usage and its default value may change in the future. Set to `Inf` to disable the time limit. Compile time is typically not counted against this limit. A reasonable effort is made to respect the time limit but if samples is unspecified it is always exceeded by a small about (less than 1%) and can be significantly exceeded when benchmarking long running functions.
     
 - `gc::Bool` An experimental option to disable garbage collection during benchmarking. Defaults to [`Charimarks.DEFAULTS.gc`](/reference#Chairmarks.DEFAULTS) which is `true` by default. Set to `false` to disable garbage collection during benchmarking. Disabling garbage collection may cause out of memory errors during a benchmark that requires garbage collection, but should not result in memory leaks that survive past the end of the benchmark. As an experimental option, this may be removed in the future or its semantics may change. This option also depends on Julia internals and so it may break in future versions of Julia.
     
@@ -314,7 +314,7 @@ Benchmark: 14887 samples with 436 evaluations
 
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ad59197ff5d8f7908bc70bcbf0700a7fd21fa02f/src/public.jl#L47-L239" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/1e9212f4cf7506511ba950c90a82739b6946449c/src/public.jl#L47-L239" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -328,7 +328,7 @@ Benchmark: 14887 samples with 436 evaluations
 Used by `@b` to summarize the output of `@be`. Currently implemented as elementwise `minimum`.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ad59197ff5d8f7908bc70bcbf0700a7fd21fa02f/src/public.jl#L244-L248" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/1e9212f4cf7506511ba950c90a82739b6946449c/src/public.jl#L244-L248" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
@@ -351,7 +351,7 @@ Currently there is one stable default: `Chairmarks.DEFAULTS.seconds::Float64` wh
 All default values may be changed in the future and the `gc` default may be removed entirely.
 
 
-<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/ad59197ff5d8f7908bc70bcbf0700a7fd21fa02f/src/public.jl#L251-L264" target="_blank" rel="noreferrer">source</a></Badge>
+<Badge type="info" class="source-link" text="source"><a href="https://github.com/LilithHafner/Chairmarks.jl/blob/1e9212f4cf7506511ba950c90a82739b6946449c/src/public.jl#L251-L264" target="_blank" rel="noreferrer">source</a></Badge>
 
 </details>
 
