@@ -154,8 +154,8 @@ else
         end
 
         @testset "interpolation" begin
-            slow = @b length(rand(100)) evals=50
-            fast = @b length($(rand(100))) evals=50
+            slow = @b sum(sort(rand(100))) evals=50
+            fast = @b sum($(sort(rand(100)))) evals=50
             @test slow.allocs > 0
             @test fast.allocs == 0
             @test 2fast.time < slow.time # should be about 3000x
